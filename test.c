@@ -19,10 +19,17 @@
 #define a_KK_water 12
 #define a_KK_surv 13
 
+#define egg 0
+#define immature 1
+#define adult 2
+
 #define hatch 0
-#define imsurv 1
-#define imdev 2
-#define surv 2
+#define imsurv 0
+#define imdev 1
+#define surv 0
+
+#define popsize(pop) (size[(pop)])
+#define harvest(pop,proc) (completed[(pop)][(proc)])
 
 double dmin(double x, double y) { return(x<y ? x : y); }
 double dmax(double x, double y) { return(x>y ? x : y); }
@@ -80,7 +87,7 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, do
     char arbiters[3];
     number key[3];
     number size[3];
-    number completed[3];
+    number completed[3][3];
     double par[2];
 
     arbiters[0] = NOAGE_CONST;
@@ -146,15 +153,15 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, do
 
         par[0] = pd1;
         par[1] = 0.0;
-        spop2_step(egg, par, &size[0], &completed[0], 0);
+        spop2_step(egg, par, &size[egg], &completed[egg], 0);
 
         par[0] = p23;
         par[1] = d23;
-        spop2_step(immature, par, &size[1], &completed[1], 0);
+        spop2_step(immature, par, &size[immature], &completed[immature], 0);
 
         par[0] = p4;
         par[1] = 0.0;
-        spop2_step(adult, par, &size[2], &completed[2], 0);
+        spop2_step(adult, par, &size[adult], &completed[adult], 0);
 
         ret[0] = size[0].d;
         ret[1] = size[1].d;

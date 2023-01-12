@@ -45,12 +45,21 @@ class PopJSON {
             that.model += "#define " + pr['id'] + " " + util.format(i) + "\n";
         } );
         this.model += "\n";
-        this.json['populations'].forEach( (spc, i) => {
-            spc['processes'].forEach( (prc, j) => {
-                that.model += "#define " + prc['id'] + " " + util.format(i+j) + "\n";
+        if (this.json['model']['type'] == "Population") {
+            this.json['populations'].forEach( (spc, i) => {
+                that.model += "#define " + spc['id'] + " " + util.format(i) + "\n";
             } );
-        } );
-        this.model += "\n";
+            this.model += "\n";
+            this.json['populations'].forEach( (spc, i) => {
+                spc['processes'].forEach( (prc, j) => {
+                    that.model += "#define " + prc['id'] + " " + util.format(j) + "\n";
+                } );
+            } );
+            this.model += "\n";
+            this.model += "#define popsize(pop) (size[(pop)])\n";
+            this.model += "#define harvest(pop,proc) (completed[(pop)][(proc)])\n";
+            this.model += "\n";
+        }
     }
     write_functions() {
         let that = this;
@@ -145,6 +154,7 @@ class PopJSON {
     write_sim() {
         let i, j;
         let that = this;
+        let numpop = null;
         let numproc = null;
         let numprocpar = null;
         let det = this.deterministic ? 'DETERMINISTIC' : 'STOCHASTIC';
@@ -163,6 +173,7 @@ class PopJSON {
             this.model += "\n";
         }
         if (this.json['model']['type'] == "Population") {
+            numpop = this.json['populations'].length;
             numproc = 1 + Math.max(...this.json['populations'].map( (s) => s['processes'].length ));
             numprocpar = Math.max(...this.json['populations'].map( (spc, i) => {
                 let pars = 0;
@@ -178,10 +189,8 @@ class PopJSON {
             this.model += "    number num = numZERO;\n";
             this.model += "    char arbiters[" + util.format(numproc) + "];\n";
             this.model += "    number key[" + util.format(numproc) + "];\n";
-            this.model += "    number size[" + util.format(numproc) + "];\n";
-            // WARNING!
-            this.model += "    number completed[" + util.format(numproc) + "];\n";
-            //
+            this.model += "    number size[" + util.format(numpop) + "];\n";
+            this.model += "    number completed[" + util.format(numpop) + "][" + util.format(numproc) + "];\n";
             this.model += "    double par[" + util.format(numprocpar) + "];\n";
             this.model += "\n";
             this.json['populations'].forEach( (spc, i) => {
@@ -232,7 +241,7 @@ class PopJSON {
                 for (j = 0; j < numprocpar; j++) {
                     that.model += "        par[" + util.format(j) + "] = " + (pars.length ? pars.shift() : "0.0") + ";\n";
                 }
-                that.model += "        spop2_step(" + spc['id'] + ", par, &size[" + util.format(i) + "], &completed[" + util.format(i) + "], 0);\n";
+                that.model += "        spop2_step(" + spc['id'] + ", par, &size[" + spc['id'] + "], &completed[" + spc['id'] + "], 0);\n";
                 that.model += "\n";
             });
             //
