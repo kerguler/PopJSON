@@ -1,0 +1,73 @@
+{
+    "modelTypes": {
+        "ODE": {
+            "url": "https://github.com/sdwfrost/liblsoda",
+            "deterministic": true,
+            "parameters": {
+                "algorithm": "LSODA",
+                "atol": 1e-6,
+                "rtol": 1e-6,
+                "istep": 1e-2,
+                "ostep": 1
+            }
+        }
+    },
+    "model": {
+        "title": "Adult mosquito survival example",
+        "type": "ODE"
+    },
+    "unitDefinitions": {
+        "time": {
+            "name": "time",
+            "exponent": 1,
+            "kind": "day",
+            "multiplier": 1,
+            "scale": 0
+        }
+    },
+    "compartments": {
+        "breeder": {
+            "constant": true,
+            "name": "breeder",
+            "size": 1,
+            "spatialDimensions": 3
+        }
+    },
+    "species": {
+        "albopictus": {
+            "name": "Aedes albopictus",
+            "url": "https://vectorbase.org/popbio-map/web/?species=Aedes%20albopictus&view=abnd&zoom_level=3&center=25.720735134412106,9.580078125&summarizeBy=Species&grid=true&shared_link=true&limitTerms=true"
+        }
+    },
+    "stages": {
+        "adult": {
+            "compartment": "breeder",
+            "species": "albopictus",
+            "initialConcentration": 100.0,
+            "name": "Adult female mosquito"
+        }
+    },
+    "listOfPropensities": [
+        {
+            "id": "rate",
+            "name": "Instantaneous conversion"
+        }
+    ],
+    "parameters": {
+        "lifetime_mn": {
+            "constant": true,
+            "name": "Mean lifetime",
+            "value": 20.0
+        }
+    },
+    "transformations": {
+        "trx_survival": {
+            "name": "Adult female survival",
+            "order": 1,
+            "fromStage": "adult",
+            "propensity": {
+                "rate": ["Multiply", "adult", ["Divide", 1, "lifetime_mn"]]
+            }
+        }
+    }
+}

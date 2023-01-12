@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<sbml xmlns="http://www.sbml.org/sbml/level2/version4" level="2" version="4">
+  <model id="PopDyn_Model" name="Example model">
+    <notes>
+      <body xmlns="http://www.w3.org/1999/xhtml">
+        <p>This is an example</p>
+      </body>
+    </notes>
+    <listOfUnitDefinitions>
+      <unitDefinition id="time" name="time">
+        <listOfUnits>
+          <unit exponent="1" kind="day" multiplier="1" scale="0"/>
+        </listOfUnits>
+      </unitDefinition>
+    </listOfUnitDefinitions>
+    <listOfCompartments>
+      <compartment constant="true" id="breeder" name="breeder" size="1" spatialDimensions="3"/>
+    </listOfCompartments>
+    <listOfSpecies>
+      <species boundaryCondition="false" compartment="breeder" constant="false" id="adult" initialConcentration="100.0" name="Adult female mosquito"></species>
+    </listOfSpecies>
+    <listOfParameters>
+      <parameter constant="true" id="lifetime_mn" name="Mean lifetime" value="20.0"/>
+      <parameter constant="true" id="lifetime_sd" name="St. dev. lifetime" value="5.0"/>
+    </listOfParameters>
+    <listOfReactions>
+      <reaction id="rxn_survival" name="Adult female survival" reversible="false">
+        <listOfReactants>
+          <speciesReference species="adult" stoichiometry="1"/>
+        </listOfReactants>
+        <kineticLaw>
+          <math xmlns="http://www.w3.org/1998/Math/MathML">          
+            <apply>
+              <times>
+                <ci> lifetime_mn </ci>
+                <ci> adult </ci>
+              </times>
+            </apply>
+          </math>
+        </kineticLaw>
+      </reaction>
+    </listOfReactions>
+  </model>
+</sbml>

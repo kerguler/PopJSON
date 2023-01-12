@@ -1,0 +1,15 @@
+{
+  "name": "popjson",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "@cortex-js/compute-engine": "0.12.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Kamil Erguler (kerguler@gmail.com)",
+  "license": "CC-BY-4.0"
+}

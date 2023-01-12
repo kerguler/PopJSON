@@ -1,0 +1,89 @@
+
+import atexit
+import numpy
+from ctypes import *
+import numpy.ctypeslib as npct
+array_1d_double = npct.ndpointer(dtype=numpy.float64, ndim=1, flags='CONTIGUOUS')
+array_1d_int = npct.ndpointer(dtype=numpy.int32, ndim=1, flags='CONTIGUOUS')
+
+class model:
+    def __init__(self, filename):
+        self.filename = filename
+        self.dylib = cdll.LoadLibrary(self.filename)
+        #
+        self.init = self.dylib.init
+        self.init.restype = None
+        self.init.argtypes = [array_1d_int, array_1d_int]
+        self.numpar = numpy.arange(1,dtype=numpy.int32)
+        self.numpop = numpy.arange(1,dtype=numpy.int32)
+        ret = self.init(self.numpar,self.numpop)
+        self.numpar = self.numpar[0]
+        self.numpop = self.numpop[0]
+        #
+        atexit.register(self.dylib.destroy)
+        #
+        try:
+            self.parnames = self.dylib.parnames
+            self.parnames.restype = None
+            self.parnames.argtypes = [POINTER(c_char_p), array_1d_double]
+            temp = (c_char_p * (self.numpop+self.numpar))(256)
+            param = numpy.ndarray(self.numpar, dtype=numpy.float64)
+            ret = self.parnames(temp, param)
+            temp = numpy.array([str(elm,'utf-8') for elm in temp])
+            self.popnames = numpy.copy(temp[:self.numpop])
+            self.parnames = numpy.copy(temp[-self.numpar:])
+            self.param = numpy.copy(param)
+        except:
+            print("Falling back to default parameters")
+            self.popnames = numpy.array(["coln%d" %(n) for n in range(self.numpop)])
+            self.parnames = numpy.array(["par%d" %(n) for n in range(self.numpar)])
+            self.param = numpy.repeat(0.0, self.numpar)
+        #
+        self.popids = {}
+        for elm in self.popnames:
+            self.popids[elm] = numpy.where(elm==self.popnames)[0][0]
+        #
+        self.parids = {}
+        for elm in self.parnames:
+            self.parids[elm] = numpy.where(elm==self.parnames)[0][0]
+        #
+        self.csim = self.dylib.sim
+        self.csim.restype = None
+        self.csim.argtypes = [c_int,
+                              c_int,
+                              array_1d_double,
+                              array_1d_double,
+                              array_1d_double,
+                              array_1d_double,
+                              array_1d_double,
+                              array_1d_int]
+        #
+    def sim(self,ftime,envir,pr,y0,rep=1):
+        """
+            Note: Final time point is ftime - 1
+        """
+        ftime = numpy.int32(ftime)
+        envir = numpy.array(envir)
+        pr = numpy.array(pr)
+        y0 = numpy.array(y0)
+        rep = numpy.int32(rep)
+        ret = numpy.ndarray(rep*ftime*self.numpop, dtype=numpy.float64)
+        dret = numpy.ndarray(rep*ftime*self.numpop, dtype=numpy.float64)
+        success = numpy.array(0, dtype=numpy.int32, ndmin=1)
+        self.csim(ftime,
+                  rep,
+                  envir,
+                  pr,
+                  y0,
+                  ret,
+                  dret,
+                  success)
+        ret = numpy.array(ret).reshape((rep,ftime,self.numpop))
+        dret = numpy.array(dret).reshape((rep,ftime,self.numpop))
+        return { "ret": ret, "dret": dret }
+        
+"""
+TEST
+"""
+if __name__ == '__main__':
+    pass
