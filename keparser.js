@@ -47,17 +47,10 @@ class PopJSON {
         this.model += "\n";
         if (this.json['model']['type'] == "Population") {
             this.json['populations'].forEach( (spc, i) => {
-                that.model += "#define " + spc['id'] + " " + util.format(i) + "\n";
-            } );
-            this.model += "\n";
-            this.json['populations'].forEach( (spc, i) => {
                 spc['processes'].forEach( (prc, j) => {
                     that.model += "#define " + prc['id'] + " " + util.format(j) + "\n";
                 } );
             } );
-            this.model += "\n";
-            this.model += "#define popsize(pop) (size[(pop)])\n";
-            this.model += "#define harvest(pop,proc) (completed[(pop)][(proc)])\n";
             this.model += "\n";
         }
     }
@@ -135,11 +128,11 @@ class PopJSON {
         let that = this;
         if (this.deterministic) {
             this.json['populations'].forEach( (spc, i) => {
-                that.model += "    ".repeat(tab) + "ret[" + util.format(i) + "] = size[" + util.format(i) + "].d;\n";
+                that.model += "    ".repeat(tab) + "ret[" + util.format(i) + "] = size_" + spc['id'] + ".d;\n";
             } );
         } else {
             this.json['populations'].forEach( (spc, i) => {
-                that.model += "    ".repeat(tab) + "ret[" + util.format(i) + "] = (double)(size[" + util.format(i) + "].i);\n";
+                that.model += "    ".repeat(tab) + "ret[" + util.format(i) + "] = (double)(size_" + spc['id'] + ".i);\n";
             } );
         }
         this.model += "\n";
@@ -187,10 +180,15 @@ class PopJSON {
                 return pars;
             } ));
             this.model += "    number num = numZERO;\n";
+            this.model += "    number harvest;\n";
             this.model += "    char arbiters[" + util.format(numproc) + "];\n";
             this.model += "    number key[" + util.format(numproc) + "];\n";
-            this.model += "    number size[" + util.format(numpop) + "];\n";
-            this.model += "    number completed[" + util.format(numpop) + "][" + util.format(numproc) + "];\n";
+            this.json['populations'].forEach( (spc, i) => {
+                that.model += "    number size_" + spc['id'] + ";\n";
+            } );
+            this.json['populations'].forEach( (spc, i) => {
+                that.model += "    number completed_" + spc['id'] + "[" + util.format(numproc) + "];\n";
+            } );
             this.model += "    double par[" + util.format(numprocpar) + "];\n";
             this.model += "\n";
             this.json['populations'].forEach( (spc, i) => {
@@ -215,7 +213,7 @@ class PopJSON {
         //
         this.model += "    int tm = 0;\n";
         this.json['populations'].forEach( (spc, i) => {
-            that.model += "    size[" + util.format(i) + "] = spop2_size(" + spc['id'] + ");\n";
+            that.model += "    size_" + spc['id'] + " = spop2_size(" + spc['id'] + ");\n";
         } );
         this.model += "\n";
         this.write_out(1);
@@ -241,12 +239,21 @@ class PopJSON {
                 for (j = 0; j < numprocpar; j++) {
                     that.model += "        par[" + util.format(j) + "] = " + (pars.length ? pars.shift() : "0.0") + ";\n";
                 }
-                that.model += "        spop2_step(" + spc['id'] + ", par, &size[" + spc['id'] + "], &completed[" + spc['id'] + "], 0);\n";
+                that.model += "        spop2_step(" + spc['id'] + ", par, &size_" + spc['id'] + ", completed_" + spc['id'] + ", 0);\n";
                 that.model += "\n";
             });
             //
             if ('transformations' in this.json) {
-                // this.json['transformations']
+                this.json['transformations'].forEach( (trx) => {
+                    that.model += "        harvest = " + (trx['harvest'] == "size" ? "size_" + trx['from'] : "completed_" + trx['from'] + "[" + trx['harvest'] + "]") + ";\n";
+                    that.model += "        spop2_add(" + trx['to'] + ", key, harvest);\n";
+                    if (that.deterministic) {
+                        that.model += "        size_" + trx['to'] + ".d += harvest.d;\n";
+                    } else {
+                        that.model += "        size_" + trx['to'] + ".i += harvest.i;\n";
+                    }
+                    that.model += "\n";
+                } );
             }
             //
             this.write_out(2)

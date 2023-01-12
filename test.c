@@ -19,17 +19,10 @@
 #define a_KK_water 12
 #define a_KK_surv 13
 
-#define egg 0
-#define immature 1
-#define adult 2
-
 #define hatch 0
 #define imsurv 0
 #define imdev 1
 #define surv 0
-
-#define popsize(pop) (size[(pop)])
-#define harvest(pop,proc) (completed[(pop)][(proc)])
 
 double dmin(double x, double y) { return(x<y ? x : y); }
 double dmax(double x, double y) { return(x>y ? x : y); }
@@ -84,10 +77,15 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, do
     population adult;
 
     number num = numZERO;
+    number harvest;
     char arbiters[3];
     number key[3];
-    number size[3];
-    number completed[3][3];
+    number size_egg;
+    number size_immature;
+    number size_adult;
+    number completed_egg[3];
+    number completed_immature[3];
+    number completed_adult[3];
     double par[2];
 
     arbiters[0] = NOAGE_CONST;
@@ -127,13 +125,13 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, do
     double p23 = 0.0;
 
     int tm = 0;
-    size[0] = spop2_size(egg);
-    size[1] = spop2_size(immature);
-    size[2] = spop2_size(adult);
+    size_egg = spop2_size(egg);
+    size_immature = spop2_size(immature);
+    size_adult = spop2_size(adult);
 
-    ret[0] = size[0].d;
-    ret[1] = size[1].d;
-    ret[2] = size[2].d;
+    ret[0] = size_egg.d;
+    ret[1] = size_immature.d;
+    ret[2] = size_adult.d;
 
     dret[0] = 0.0;
     dret[1] = 0.0;
@@ -153,19 +151,23 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, do
 
         par[0] = pd1;
         par[1] = 0.0;
-        spop2_step(egg, par, &size[egg], &completed[egg], 0);
+        spop2_step(egg, par, &size_egg, completed_egg, 0);
 
         par[0] = p23;
         par[1] = d23;
-        spop2_step(immature, par, &size[immature], &completed[immature], 0);
+        spop2_step(immature, par, &size_immature, completed_immature, 0);
 
         par[0] = p4;
         par[1] = 0.0;
-        spop2_step(adult, par, &size[adult], &completed[adult], 0);
+        spop2_step(adult, par, &size_adult, completed_adult, 0);
 
-        ret[0] = size[0].d;
-        ret[1] = size[1].d;
-        ret[2] = size[2].d;
+        harvest = completed_egg[hatch];
+        spop2_add(immature, key, harvest);
+        size_immature.d += harvest.d;
+
+        ret[0] = size_egg.d;
+        ret[1] = size_immature.d;
+        ret[2] = size_adult.d;
 
         dret[0] = 0.0;
         dret[1] = 0.0;
