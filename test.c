@@ -1,7 +1,7 @@
 #include <math.h>
 #include "population.h"
 
-#define NumPar 14
+#define NumPar 15
 #define NumPop 3
 
 #define p_p23_1 0
@@ -18,6 +18,7 @@
 #define a_F4_3 11
 #define a_KK_water 12
 #define a_KK_surv 13
+#define sex_ratio 14
 
 #define hatch 0
 #define imsurv 0
@@ -41,7 +42,7 @@ void init(int *np, int *nm) {
 void parnames(char **names, double *param) {
     char temp[NumPop+NumPar][256] = {
         "egg", "immature", "adult",
-        "p_p23_1", "p_p23_2", "p_p23_3", "p_p4_1", "p_p4_2", "p_p4_3", "p_d23_1", "p_d23_2", "p_d23_3", "a_F4_1", "a_F4_2", "a_F4_3", "a_KK_water", "a_KK_surv"
+        "p_p23_1", "p_p23_2", "p_p23_3", "p_p4_1", "p_p4_2", "p_p4_3", "p_d23_1", "p_d23_2", "p_d23_3", "a_F4_1", "a_F4_2", "a_F4_3", "a_KK_water", "a_KK_surv", "sex_ratio"
     };
 
     int i;
@@ -62,6 +63,7 @@ void parnames(char **names, double *param) {
     param[a_F4_3] = -0.04019927418978105;
     param[a_KK_water] = 25;
     param[a_KK_surv] = 0.05;
+    param[sex_ratio] = 0.5;
 }
 
 void destroy(void) {
@@ -77,7 +79,6 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, do
     population adult;
 
     number num = numZERO;
-    number harvest;
     char arbiters[3];
     number key[3];
     number size_egg;
@@ -86,6 +87,9 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, do
     number completed_egg[3];
     number completed_immature[3];
     number completed_adult[3];
+    number egg_to_larva = numZERO;
+    number larva_to_adult = numZERO;
+    number egg_laying = numZERO;
     double par[2];
 
     arbiters[0] = NOAGE_CONST;
@@ -161,9 +165,17 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, do
         par[1] = 0.0;
         spop2_step(adult, par, &size_adult, completed_adult, 0);
 
-        harvest = completed_egg[hatch];
-        spop2_add(immature, key, harvest);
-        size_immature.d += harvest.d;
+        egg_to_larva = completed_egg[hatch];
+        larva_to_adult = pr[sex_ratio] * completed_immature[imdev];
+        egg_laying = F4 * size_adult;
+
+        spop2_add(immature, key, egg_to_larva);
+        spop2_add(adult, key, larva_to_adult);
+        spop2_add(egg, key, egg_laying);
+
+        size_immature.d += egg_to_larva.d;
+        size_adult.d += larva_to_adult.d;
+        size_egg.d += egg_laying.d;
 
         ret[0] = size_egg.d;
         ret[1] = size_immature.d;

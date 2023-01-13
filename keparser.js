@@ -5,12 +5,20 @@ const util = require('util');
 
 class PopJSON {
     constructor(filename) {
-      this.filename = filename;
-      let data = fs.readFileSync(this.filename);
-      this.json = JSON.parse(data);
-      this.deterministic = this.json['modelTypes'][this.json['model']['type']]['deterministic']
-      this.model = "";
-      this.write_model();
+        let that = this;
+        this.filename = filename;
+        let data = fs.readFileSync(this.filename);
+        this.json = JSON.parse(data);
+        this.deterministic = this.json['modelTypes'][this.json['model']['type']]['deterministic']
+        this.populations = this.json['populations'].map( (pr) => pr['id'] );
+        this.processes = []; this.json['populations'].forEach( (pop) => pop['processes'].forEach( (pr) => { that.processes.push(pr['id']); } ) );
+        this.parameters = this.json['parameters'].map( (pr) => pr['id'] );
+        this.functions = Object.keys(this.json['functions']);
+        this.intermediates = this.json['intermediates'].map( (pr) => pr['id'] );
+        this.transformations = this.json['transformations'].map( (pr) => pr['id'] );
+        this.operations = ["size","multiply","sum","subtract","divide"];
+        this.model = "";
+        this.write_model();
     }
     write_model() {
         this.model = "";
@@ -180,7 +188,6 @@ class PopJSON {
                 return pars;
             } ));
             this.model += "    number num = numZERO;\n";
-            this.model += "    number harvest;\n";
             this.model += "    char arbiters[" + util.format(numproc) + "];\n";
             this.model += "    number key[" + util.format(numproc) + "];\n";
             this.json['populations'].forEach( (spc, i) => {
@@ -189,6 +196,11 @@ class PopJSON {
             this.json['populations'].forEach( (spc, i) => {
                 that.model += "    number completed_" + spc['id'] + "[" + util.format(numproc) + "];\n";
             } );
+            if ('transformations' in this.json) {
+                this.json['transformations'].map( (trx) => trx['id'] ).forEach( (id) => {
+                    that.model += "    number " + id + " = numZERO;\n";
+                } );
+            }
             this.model += "    double par[" + util.format(numprocpar) + "];\n";
             this.model += "\n";
             this.json['populations'].forEach( (spc, i) => {
@@ -245,15 +257,21 @@ class PopJSON {
             //
             if ('transformations' in this.json) {
                 this.json['transformations'].forEach( (trx) => {
-                    that.model += "        harvest = " + (trx['harvest'] == "size" ? "size_" + trx['from'] : "completed_" + trx['from'] + "[" + trx['harvest'] + "]") + ";\n";
-                    that.model += "        spop2_add(" + trx['to'] + ", key, harvest);\n";
-                    if (that.deterministic) {
-                        that.model += "        size_" + trx['to'] + ".d += harvest.d;\n";
-                    } else {
-                        that.model += "        size_" + trx['to'] + ".i += harvest.i;\n";
-                    }
-                    that.model += "\n";
+                    that.model += "        " + trx['id'] + " = " + that.parse_value(trx['value']) + ";\n";
                 } );
+                that.model += "\n";
+                this.json['transformations'].forEach( (trx) => {
+                    that.model += "        spop2_add(" + trx['to'] + ", key, " + trx['id'] + ");\n";
+                } );
+                that.model += "\n";
+                this.json['transformations'].forEach( (trx) => {
+                    if (that.deterministic) {
+                        that.model += "        size_" + trx['to'] + ".d += " + trx['id'] + ".d;\n";
+                    } else {
+                        that.model += "        size_" + trx['to'] + ".i += " + trx['id'] + ".i;\n";
+                    }
+                } );
+                that.model += "\n";
             }
             //
             this.write_out(2)
@@ -276,6 +294,50 @@ class PopJSON {
         this.model += "    return 0;\n";
         this.model += "}";
         this.model += "\n";
+    }
+    parse_value(value) {
+        let that = this;
+        if (Array.isArray(value)) { // Function
+            let fun = this.parse_value(value[0]);
+            let prm = value.slice(1).map( (v) => that.parse_value(v) );
+            if (this.processes.includes(fun)) {
+                return "completed_" + prm[0] + "[" + fun + "]";
+            } else if (fun == "size") {
+                return "size_" + prm[0];
+            } else if (fun == "multiply") {
+                return prm.join(" * ");
+            } else if (fun == "sum") {
+                return prm.join(" + ");
+            } else if (fun == "subtract") {
+                return prm.join(" - ");
+            } else if (fun == "divide") {
+                return prm.join(" / ");
+            } else {
+                process.exit(1);
+            }
+        } else { // Parameter
+            if (isNaN(value)) { // String
+                if (this.populations.includes(value)) {
+                    return value;
+                } else if (this.processes.includes(value)) {
+                    return value;
+                } else if (this.parameters.includes(value)) {
+                    return "pr[" + value + "]";
+                } else if (this.functions.includes(value)) {
+                    return value;
+                } else if (this.intermediates.includes(value)) {
+                    return value;
+                } else if (this.transformations.includes(value)) {
+                    return value;
+                } else if (this.operations.includes(value)) {
+                    return value;
+                } else {
+                    process.exit(1);
+                }
+            } else { // Number
+                return util.format(value);
+            }
+        }
     }
 }
 
