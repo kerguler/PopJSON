@@ -13,30 +13,34 @@ class model:
         #
         self.init = self.dylib.init
         self.init.restype = None
-        self.init.argtypes = [array_1d_int, array_1d_int]
-        self.numpar = numpy.arange(1,dtype=numpy.int32)
+        self.init.argtypes = [array_1d_int, array_1d_int, array_1d_int]
         self.numpop = numpy.arange(1,dtype=numpy.int32)
-        ret = self.init(self.numpar,self.numpop)
-        self.numpar = self.numpar[0]
+        self.numpar = numpy.arange(1,dtype=numpy.int32)
+        self.numint = numpy.arange(1,dtype=numpy.int32)
+        ret = self.init(self.numpop,self.numpar,self.numint)
         self.numpop = self.numpop[0]
+        self.numpar = self.numpar[0]
+        self.numint = self.numint[0]
         #
         atexit.register(self.dylib.destroy)
         #
         try:
-            self.parnames = self.dylib.parnames
-            self.parnames.restype = None
-            self.parnames.argtypes = [POINTER(c_char_p), array_1d_double]
-            temp = (c_char_p * (self.numpop+self.numpar))(256)
+            self.get_names = self.dylib.parnames
+            self.get_names.restype = None
+            self.get_names.argtypes = [POINTER(c_char_p), array_1d_double]
+            temp = (c_char_p * (self.numpop+self.numpar+self.numint))(256)
             param = numpy.ndarray(self.numpar, dtype=numpy.float64)
-            ret = self.parnames(temp, param)
+            ret = self.get_names(temp, param)
             temp = numpy.array([str(elm,'utf-8') for elm in temp])
             self.popnames = numpy.copy(temp[:self.numpop])
-            self.parnames = numpy.copy(temp[-self.numpar:])
+            self.parnames = numpy.copy(temp[self.numpop:(self.numpop+self.numpar)])
+            self.intnames = numpy.copy(temp[(self.numpop+self.numpar):])
             self.param = numpy.copy(param)
         except:
             print("Falling back to default parameters")
             self.popnames = numpy.array(["coln%d" %(n) for n in range(self.numpop)])
             self.parnames = numpy.array(["par%d" %(n) for n in range(self.numpar)])
+            self.intnames = numpy.array(["inter%d" %(n) for n in range(self.numint)])
             self.param = numpy.repeat(0.0, self.numpar)
         #
         self.popids = {}
@@ -47,10 +51,15 @@ class model:
         for elm in self.parnames:
             self.parids[elm] = numpy.where(elm==self.parnames)[0][0]
         #
+        self.intids = {}
+        for elm in self.intnames:
+            self.intids[elm] = numpy.where(elm==self.intnames)[0][0]
+        #
         self.csim = self.dylib.sim
         self.csim.restype = None
         self.csim.argtypes = [c_int,
                               c_int,
+                              array_1d_double,
                               array_1d_double,
                               array_1d_double,
                               array_1d_double,
@@ -69,6 +78,7 @@ class model:
         rep = numpy.int32(rep)
         ret = numpy.ndarray(rep*ftime*self.numpop, dtype=numpy.float64)
         dret = numpy.ndarray(rep*ftime*self.numpop, dtype=numpy.float64)
+        iret = numpy.ndarray(rep*ftime*self.numint, dtype=numpy.float64)
         success = numpy.array(0, dtype=numpy.int32, ndmin=1)
         self.csim(ftime,
                   rep,
@@ -77,10 +87,12 @@ class model:
                   y0,
                   ret,
                   dret,
+                  iret,
                   success)
         ret = numpy.array(ret).reshape((rep,ftime,self.numpop))
         dret = numpy.array(dret).reshape((rep,ftime,self.numpop))
-        return { "ret": ret, "dret": dret }
+        iret = numpy.array(iret).reshape((rep,ftime,self.numint))
+        return { "ret": ret, "dret": dret, "iret": iret }
         
 """
 TEST
