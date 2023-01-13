@@ -157,13 +157,13 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, do
     iret += 7;
 
     for (tm=1; tm<tf; tm++) {
-        p4 = funmort(atemp[tm-1], pr[p_p4_1], pr[p_p4_2], pr[p_p4_3]);
-        pd1 = 1.0;
-        d23 = briere1(atemp[tm-1], pr[p_d23_1], pr[p_d23_2], pr[p_d23_3]);
-        KK = pr[a_KK_water] * water[tm-1];
-        F4 = poly(atemp[tm-1], pr[a_F4_1], pr[a_F4_2], pr[a_F4_3]);
-        p23dens = 1.0 - exp(-pr[a_KK_surv] * (1.0 + 0.0 / KK));
-        p23 = 1.0 - (1.0 - funmort(atemp[tm-1], pr[p_p23_1], pr[p_p23_2], pr[p_p23_3])) * (1.0 - p23dens);
+        p4 = funmort(atemp[(tm - 1)], pr[p_p4_1], pr[p_p4_2], pr[p_p4_3]);
+        pd1 = 1;
+        d23 = briere1(atemp[(tm - 1)], pr[p_d23_1], pr[p_d23_2], pr[p_d23_3]);
+        KK = (pr[a_KK_water] * water[(tm - 1)]);
+        F4 = poly(atemp[(tm - 1)], pr[a_F4_1], pr[a_F4_2], pr[a_F4_3]);
+        p23dens = (1 - exp((-1 * pr[a_KK_surv] * (1 + (size_immature.d / KK)))));
+        p23 = (1 - ((1 - funmort(stemp[(tm - 1)], pr[p_p23_1], pr[p_p23_2], pr[p_p23_3])) * (1 - p23dens)));
 
         par[0] = pd1;
         par[1] = 0.0;
@@ -178,8 +178,8 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, do
         spop2_step(adult, par, &size_adult, completed_adult, 0);
 
         egg_to_larva = completed_egg[hatch].d;
-        larva_to_adult = pr[sex_ratio] * completed_immature[imdev].d;
-        egg_laying = F4 * size_adult.d;
+        larva_to_adult = (pr[sex_ratio] * completed_immature[imdev].d);
+        egg_laying = (F4 * size_adult.d);
 
         num.d = egg_to_larva;
         spop2_add(immature, key, num);

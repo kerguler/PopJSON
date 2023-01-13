@@ -1,6 +1,7 @@
 'use strict';
 
 const fs = require('fs');
+const { emitWarning } = require('process');
 const util = require('util');
 
 class PopJSON {
@@ -10,13 +11,14 @@ class PopJSON {
         let data = fs.readFileSync(this.filename);
         this.json = JSON.parse(data);
         this.deterministic = this.json['modelTypes'][this.json['model']['type']]['deterministic']
+        this.environs = this.json['environ'].map( (pr) => pr['id'] );
         this.populations = this.json['populations'].map( (pr) => pr['id'] );
         this.processes = []; this.json['populations'].forEach( (pop) => pop['processes'].forEach( (pr) => { that.processes.push(pr['id']); } ) );
         this.parameters = this.json['parameters'].map( (pr) => pr['id'] );
         this.functions = Object.keys(this.json['functions']);
         this.intermediates = this.json['intermediates'].map( (pr) => pr['id'] );
         this.transformations = this.json['transformations'].map( (pr) => pr['id'] );
-        this.operations = ["size","multiply","sum","subtract","divide"];
+        this.operations = ["exp","log","log2","log10","index","size","multiply","sum","subtract","divide"];
         this.model = "";
         this.write_model();
     }
@@ -251,7 +253,7 @@ class PopJSON {
         //
         if ('intermediates' in this.json) {
             this.json['intermediates'].forEach( (elm) => {
-                this.model += "        " + elm['id'] + " = " + elm['value'] + ";\n";
+                this.model += "        " + elm['id'] + " = " + that.parse_value(elm['value']) + ";\n";
             });
             this.model += "\n";
         }
@@ -323,20 +325,27 @@ class PopJSON {
                 return "completed_" + prm[0] + "[" + fun + "]" + (this.deterministic ? ".d" : ".i");
             } else if (fun == "size") {
                 return "size_" + prm[0] + (this.deterministic ? ".d" : ".i");
+            } else if (fun == "index") {
+                return prm[0] + "[" + prm[1] + "]";
+            } else if (this.functions.includes(fun) || fun == "exp" || fun == "log" || fun == "log2" || fun == "log10") {
+                return fun + "(" + prm.join(", ") + ")";
             } else if (fun == "multiply") {
-                return prm.join(" * ");
+                return "(" + prm.join(" * ") + ")";
             } else if (fun == "sum") {
-                return prm.join(" + ");
+                return "(" + prm.join(" + ") + ")";
             } else if (fun == "subtract") {
-                return prm.join(" - ");
+                return "(" + prm.join(" - ") + ")";
             } else if (fun == "divide") {
-                return prm.join(" / ");
+                return "(" + prm.join(" / ") + ")";
             } else {
+                console.log("ERROR: " + value);
                 process.exit(1);
             }
         } else { // Parameter
             if (isNaN(value)) { // String
-                if (this.populations.includes(value)) {
+                if (this.environs.includes(value)) {
+                    return value;
+                } else if (this.populations.includes(value)) {
                     return value;
                 } else if (this.processes.includes(value)) {
                     return value;
@@ -350,7 +359,10 @@ class PopJSON {
                     return value;
                 } else if (this.operations.includes(value)) {
                     return value;
+                } else if (value == "tm") {
+                    return value;
                 } else {
+                    console.log("ERROR: " + value);
                     process.exit(1);
                 }
             } else { // Number
