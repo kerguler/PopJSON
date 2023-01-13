@@ -159,7 +159,7 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, do
     for (tm=1; tm<tf; tm++) {
         p4 = funmort(atemp[(tm - 1)], pr[p_p4_1], pr[p_p4_2], pr[p_p4_3]);
         pd1 = 1.0;
-        d23 = briere1(atemp[(tm - 1)], pr[p_d23_1], pr[p_d23_2], pr[p_d23_3]);
+        d23 = briere1(stemp[(tm - 1)], pr[p_d23_1], pr[p_d23_2], pr[p_d23_3]);
         KK = (pr[a_KK_water] * water[(tm - 1)]);
         F4 = poly(atemp[(tm - 1)], pr[a_F4_1], pr[a_F4_2], pr[a_F4_3]);
         p23dens = (1.0 - exp((-1.0 * pr[a_KK_surv] * (1.0 + (size_immature.d / KK)))));
