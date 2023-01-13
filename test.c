@@ -72,7 +72,7 @@ void parnames(char **names, double *param) {
 void destroy(void) {
 }
 
-void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, double *dret, double *iret, int *success) {
+void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, double *iret, int *success) {
     double *atemp = envir + 0 * tf;
     double *stemp = envir + 1 * tf;
     double *water = envir + 2 * tf;
@@ -140,10 +140,6 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, do
     ret[1] = size_immature.d;
     ret[2] = size_adult.d;
 
-    dret[0] = 0.0;
-    dret[1] = 0.0;
-    dret[2] = 0.0;
-
     iret[0] = p4;
     iret[1] = pd1;
     iret[2] = d23;
@@ -153,7 +149,6 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, do
     iret[6] = p23;
 
     ret += 3;
-    dret += 3;
     iret += 7;
 
     for (tm=1; tm<tf; tm++) {
@@ -196,10 +191,6 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, do
         ret[1] = size_immature.d;
         ret[2] = size_adult.d;
 
-        dret[0] = 0.0;
-        dret[1] = 0.0;
-        dret[2] = 0.0;
-
         iret[0] = p4;
         iret[1] = pd1;
         iret[2] = d23;
@@ -209,7 +200,6 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, do
         iret[6] = p23;
 
         ret += 3;
-        dret += 3;
         iret += 7;
 
     }

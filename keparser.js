@@ -149,10 +149,6 @@ class PopJSON {
             } );
         }
         this.model += "\n";
-        this.json['populations'].forEach( (spc, i) => {
-            that.model += "    ".repeat(tab) + "dret[" + util.format(i) + "] = 0.0;\n";
-        } );
-        this.model += "\n";
         if ('intermediates' in this.json) {
             this.json['intermediates'].forEach( (spc, i) => {
                 that.model += "    ".repeat(tab) + "iret[" + util.format(i) + "] = " + spc['id'] + ";\n";
@@ -160,7 +156,6 @@ class PopJSON {
             this.model += "\n";
         }
         this.model += "    ".repeat(tab) + "ret += " + (util.format(this.json['populations'].length)) + ";\n";
-        this.model += "    ".repeat(tab) + "dret += " + (util.format(this.json['populations'].length)) + ";\n";
         if ('intermediates' in this.json) {
             this.model += "    ".repeat(tab) + "iret += " + (util.format(this.json['intermediates'].length)) + ";\n";
         }
@@ -173,7 +168,7 @@ class PopJSON {
         let numproc = null;
         let numprocpar = null;
         let det = this.deterministic ? 'DETERMINISTIC' : 'STOCHASTIC';
-        this.model += "void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, double *dret, double *iret, int *success) {\n";
+        this.model += "void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, double *iret, int *success) {\n";
         if ('environ' in this.json) {
            this.json['environ'].forEach( (elm, i) => {
                 that.model += "    double *" + elm['id'] + " = envir + " + util.format(i) + " * tf;\n";

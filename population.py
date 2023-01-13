@@ -64,7 +64,6 @@ class model:
                               array_1d_double,
                               array_1d_double,
                               array_1d_double,
-                              array_1d_double,
                               array_1d_int]
         #
     def sim(self,ftime,envir,pr,y0,rep=1):
@@ -77,7 +76,6 @@ class model:
         y0 = numpy.array(y0)
         rep = numpy.int32(rep)
         ret = numpy.ndarray(rep*ftime*self.numpop, dtype=numpy.float64)
-        dret = numpy.ndarray(rep*ftime*self.numpop, dtype=numpy.float64)
         iret = numpy.ndarray(rep*ftime*self.numint, dtype=numpy.float64)
         success = numpy.array(0, dtype=numpy.int32, ndmin=1)
         self.csim(ftime,
@@ -86,13 +84,11 @@ class model:
                   pr,
                   y0,
                   ret,
-                  dret,
                   iret,
                   success)
         ret = numpy.array(ret).reshape((rep,ftime,self.numpop))
-        dret = numpy.array(dret).reshape((rep,ftime,self.numpop))
         iret = numpy.array(iret).reshape((rep,ftime,self.numint))
-        return { "ret": ret, "dret": dret, "iret": iret }
+        return { "ret": ret, "iret": iret }
         
 """
 TEST
