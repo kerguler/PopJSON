@@ -342,7 +342,7 @@ class PopJSON {
                 process.exit(1);
             }
         } else { // Parameter
-            if (isNaN(value)) { // String
+            if (typeof value === 'string' || value instanceof String) { // String
                 if (this.environs.includes(value)) {
                     return value;
                 } else if (this.populations.includes(value)) {
@@ -361,13 +361,19 @@ class PopJSON {
                     return value;
                 } else if (value == "tm") {
                     return value;
+                } else if (!isNaN(parseFloat(value))) {
+                    return value;
+                } else if (!isNaN(parseInt(value))) {
+                    return value;
                 } else {
                     console.log("ERROR: " + value);
                     process.exit(1);
                 }
             } else { // Number
-                return util.format(value);
-            }
+                console.log("ERROR: Numbers should be provided as strings");
+                console.log(value)
+                process.exit(1);
+        }
         }
     }
 }
