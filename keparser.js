@@ -18,7 +18,7 @@ class PopJSON {
         this.functions = Object.keys(this.json['functions']);
         this.intermediates = this.json['intermediates'].map( (pr) => pr['id'] );
         this.transformations = this.json['transformations'].map( (pr) => pr['id'] );
-        this.operations = ["exp","log","log2","log10","index","size","multiply","sum","subtract","divide"];
+        this.operations = ["gte","lte","gt","lt","eq","pow","exp","log","log2","log10","indicator","index","size","multiply","sum","subtract","divide"];
         this.model = "";
         this.write_model();
     }
@@ -332,6 +332,18 @@ class PopJSON {
                 return "(" + prm.join(" - ") + ")";
             } else if (fun == "divide") {
                 return "(" + prm.join(" / ") + ")";
+            } else if (fun == "indicator") {
+                return this.deterministic ? "(" + prm[0] + " ? 1.0 : 0.0)" : "(" + prm[0] + " ? 1 : 0)";
+            } else if (fun == "eq") {
+                return "(" + prm[0] + " == " + prm[1] + ")";
+            } else if (fun == "gt") {
+                return "(" + prm[0] + " > " + prm[1] + ")";
+            } else if (fun == "lt") {
+                return "(" + prm[0] + " < " + prm[1] + ")";
+            } else if (fun == "gte") {
+                return "(" + prm[0] + " >= " + prm[1] + ")";
+            } else if (fun == "lte") {
+                return "(" + prm[0] + " <= " + prm[1] + ")";
             } else {
                 console.log("ERROR: " + value);
                 process.exit(1);
