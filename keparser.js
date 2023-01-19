@@ -18,7 +18,7 @@ class PopJSON {
         this.functions = Object.keys(this.json['functions']);
         this.intermediates = this.json['intermediates'].map( (pr) => pr['id'] );
         this.transformations = this.json['transformations'].map( (pr) => pr['id'] );
-        this.operations = ["gte","lte","gt","lt","eq","pow","exp","log","log2","log10","indicator","index","size","multiply","sum","subtract","divide"];
+        this.operations = [">=","<=",">","<","==","pow","exp","log","log2","log10","indicator","index","size","*","+","-","/"];
         this.model = "";
         this.write_model();
     }
@@ -324,25 +324,25 @@ class PopJSON {
                 return prm[0] + "[" + prm[1] + "]";
             } else if (this.functions.includes(fun) || fun == "exp" || fun == "log" || fun == "log2" || fun == "log10") {
                 return fun + "(" + prm.join(", ") + ")";
-            } else if (fun == "multiply") {
+            } else if (fun == "*") {
                 return "(" + prm.join(" * ") + ")";
-            } else if (fun == "sum") {
+            } else if (fun == "+") {
                 return "(" + prm.join(" + ") + ")";
-            } else if (fun == "subtract") {
+            } else if (fun == "-") {
                 return "(" + prm.join(" - ") + ")";
-            } else if (fun == "divide") {
+            } else if (fun == "/") {
                 return "(" + prm.join(" / ") + ")";
             } else if (fun == "indicator") {
                 return this.deterministic ? "(" + prm[0] + " ? 1.0 : 0.0)" : "(" + prm[0] + " ? 1 : 0)";
-            } else if (fun == "eq") {
+            } else if (fun == "==") {
                 return "(" + prm[0] + " == " + prm[1] + ")";
-            } else if (fun == "gt") {
+            } else if (fun == ">") {
                 return "(" + prm[0] + " > " + prm[1] + ")";
-            } else if (fun == "lt") {
+            } else if (fun == "<") {
                 return "(" + prm[0] + " < " + prm[1] + ")";
-            } else if (fun == "gte") {
+            } else if (fun == ">=") {
                 return "(" + prm[0] + " >= " + prm[1] + ")";
-            } else if (fun == "lte") {
+            } else if (fun == "<=") {
                 return "(" + prm[0] + " <= " + prm[1] + ")";
             } else {
                 console.log("ERROR: " + value);
