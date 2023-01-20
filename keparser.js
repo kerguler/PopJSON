@@ -18,7 +18,8 @@ class PopJSON {
         this.functions = Object.keys(this.json['functions']);
         this.intermediates = this.json['intermediates'].map( (pr) => pr['id'] );
         this.transformations = this.json['transformations'].map( (pr) => pr['id'] );
-        this.operations = [">=","<=",">","<","==","pow","exp","log","log2","log10","indicator","index","size","*","+","-","/"];
+        this.operations = ["define","if",">=","<=",">","<","==","pow","exp","log","log2","log10","indicator","index","size","*","+","-","/"];
+        this.funparnames = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]
         this.model = "";
         this.write_model();
     }
@@ -69,7 +70,7 @@ class PopJSON {
         let that = this;
         if ('functions' in this.json) {
            Object.entries(this.json['functions']).forEach( ([key, value]) => {
-                that.model += value + "\n";
+                that.model += "#define " + key + that.parse_value(value) + "\n";
            });
            this.model += "\n";
         }
@@ -315,38 +316,49 @@ class PopJSON {
         let that = this;
         if (Array.isArray(value)) { // Function
             let fun = this.parse_value(value[0]);
-            let prm = value.slice(1).map( (v) => that.parse_value(v) );
-            if (this.processes.includes(fun)) {
-                return "completed_" + prm[0] + "[" + fun + "]" + (this.deterministic ? ".d" : ".i");
-            } else if (fun == "size") {
-                return "size_" + prm[0] + (this.deterministic ? ".d" : ".i");
-            } else if (fun == "index") {
-                return prm[0] + "[" + prm[1] + "]";
-            } else if (this.functions.includes(fun) || fun == "exp" || fun == "log" || fun == "log2" || fun == "log10") {
-                return fun + "(" + prm.join(", ") + ")";
-            } else if (fun == "*") {
-                return "(" + prm.join(" * ") + ")";
-            } else if (fun == "+") {
-                return "(" + prm.join(" + ") + ")";
-            } else if (fun == "-") {
-                return "(" + prm.join(" - ") + ")";
-            } else if (fun == "/") {
-                return "(" + prm.join(" / ") + ")";
-            } else if (fun == "indicator") {
-                return this.deterministic ? "(" + prm[0] + " ? 1.0 : 0.0)" : "(" + prm[0] + " ? 1 : 0)";
-            } else if (fun == "==") {
-                return "(" + prm[0] + " == " + prm[1] + ")";
-            } else if (fun == ">") {
-                return "(" + prm[0] + " > " + prm[1] + ")";
-            } else if (fun == "<") {
-                return "(" + prm[0] + " < " + prm[1] + ")";
-            } else if (fun == ">=") {
-                return "(" + prm[0] + " >= " + prm[1] + ")";
-            } else if (fun == "<=") {
-                return "(" + prm[0] + " <= " + prm[1] + ")";
+            if (fun == "define") {
+                if (!(value[1].every( (v) => that.funparnames.includes(v) ))) {
+                    console.log("ERROR: " + value);
+                    process.exit(1);
+                }
+                let def = this.parse_value(value[2]);
+                return "(" + value[1].join(",") + ") (" + def + ")";
             } else {
-                console.log("ERROR: " + value);
-                process.exit(1);
+                let prm = value.slice(1).map( (v) => that.parse_value(v) );
+                if (this.processes.includes(fun)) {
+                    return "completed_" + prm[0] + "[" + fun + "]" + (this.deterministic ? ".d" : ".i");
+                } else if (fun == "size") {
+                    return "size_" + prm[0] + (this.deterministic ? ".d" : ".i");
+                } else if (fun == "index") {
+                    return prm[0] + "[" + prm[1] + "]";
+                } else if (this.functions.includes(fun) || fun == "exp" || fun == "log" || fun == "log2" || fun == "log10") {
+                    return fun + "(" + prm.join(", ") + ")";
+                } else if (fun == "*") {
+                    return "(" + prm.join(" * ") + ")";
+                } else if (fun == "+") {
+                    return "(" + prm.join(" + ") + ")";
+                } else if (fun == "-") {
+                    return "(" + prm.join(" - ") + ")";
+                } else if (fun == "/") {
+                    return "(" + prm.join(" / ") + ")";
+                } else if (fun == "if") {
+                    return "(" + prm[0] + ") ? (" + prm[1] + ") : (" + prm[2] + ")";
+                } else if (fun == "indicator") {
+                    return this.deterministic ? "(" + prm[0] + " ? 1.0 : 0.0)" : "(" + prm[0] + " ? 1 : 0)";
+                } else if (fun == "==") {
+                    return "(" + prm[0] + " == " + prm[1] + ")";
+                } else if (fun == ">") {
+                    return "(" + prm[0] + " > " + prm[1] + ")";
+                } else if (fun == "<") {
+                    return "(" + prm[0] + " < " + prm[1] + ")";
+                } else if (fun == ">=") {
+                    return "(" + prm[0] + " >= " + prm[1] + ")";
+                } else if (fun == "<=") {
+                    return "(" + prm[0] + " <= " + prm[1] + ")";
+                } else {
+                    console.log("ERROR: " + value);
+                    process.exit(1);
+                }
             }
         } else { // Parameter
             if (typeof value === 'string' || value instanceof String) { // String
@@ -366,6 +378,8 @@ class PopJSON {
                     return value;
                 } else if (this.operations.includes(value)) {
                     return value;
+                } else if (this.funparnames.includes(value)) {
+                    return "(" + value + ")";
                 } else if (value == "tm") {
                     return value;
                 } else if (!isNaN(parseFloat(value))) {
