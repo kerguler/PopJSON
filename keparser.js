@@ -18,8 +18,9 @@ class PopJSON {
         this.functions = Object.keys(this.json['functions']);
         this.intermediates = this.json['intermediates'].map( (pr) => pr['id'] );
         this.transformations = this.json['transformations'].map( (pr) => pr['id'] );
-        this.operations = ["define","if",">=","<=",">","<","==","pow","exp","log","log2","log10","indicator","index","size","*","+","-","/"];
-        this.funparnames = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]
+        this.operations = ["define","if",">=","<=",">","<","==","sqrt","pow","exp","log","log2","log10","indicator","index","size","*","+","-","/"];
+        this.funparnames = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z",
+                            "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
         this.model = "";
         this.write_model();
     }
@@ -318,7 +319,7 @@ class PopJSON {
             let fun = this.parse_value(value[0]);
             if (fun == "define") {
                 if (!(value[1].every( (v) => that.funparnames.includes(v) ))) {
-                    console.log("ERROR: " + value);
+                    console.log("ERROR: " + fun + " : " + value);
                     process.exit(1);
                 }
                 let def = this.parse_value(value[2]);
@@ -331,7 +332,7 @@ class PopJSON {
                     return "size_" + prm[0] + (this.deterministic ? ".d" : ".i");
                 } else if (fun == "index") {
                     return prm[0] + "[" + prm[1] + "]";
-                } else if (this.functions.includes(fun) || fun == "exp" || fun == "log" || fun == "log2" || fun == "log10") {
+                } else if (this.functions.includes(fun) || fun == "exp" || fun == "log" || fun == "log2" || fun == "log10" || fun == "pow" || fun == "sqrt") {
                     return fun + "(" + prm.join(", ") + ")";
                 } else if (fun == "*") {
                     return "(" + prm.join(" * ") + ")";
@@ -356,7 +357,7 @@ class PopJSON {
                 } else if (fun == "<=") {
                     return "(" + prm[0] + " <= " + prm[1] + ")";
                 } else {
-                    console.log("ERROR: " + value);
+                    console.log("ERROR: " + fun + " : " + value);
                     process.exit(1);
                 }
             }
@@ -392,7 +393,7 @@ class PopJSON {
                 }
             } else { // Number
                 console.log("ERROR: Numbers should be provided as strings");
-                console.log(value)
+                console.log([fun,value])
                 process.exit(1);
         }
         }
