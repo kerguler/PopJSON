@@ -14,7 +14,8 @@ class PopJSON {
         this.environs = this.json['environ'].map( (pr) => pr['id'] );
         this.populations = this.json['populations'].map( (pr) => pr['id'] );
         this.processes = []; this.json['populations'].forEach( (pop) => pop['processes'].forEach( (pr) => { that.processes.push(pr['id']); } ) );
-        this.parameters = this.json['parameters'].map( (pr) => pr['id'] );
+        this.parametersv = this.json['parameters'].filter( (p) => !p['constant'] ).map( (pr) => pr['id'] );
+        this.parametersc = this.json['parameters'].filter( (p) => p['constant'] ).map( (pr) => pr['id'] );
         this.functions = Object.keys(this.json['functions']);
         this.intermediates = this.json['intermediates'].map( (pr) => pr['id'] );
         this.transformations = this.json['transformations'].map( (pr) => pr['id'] );
@@ -50,14 +51,16 @@ class PopJSON {
                 this.model += "\n";
             }
         }
-        this.model += "#define NumPar " + util.format(Object.keys(this.json['parameters']).length) + "\n";
-        this.model += "#define NumPop " + util.format(Object.keys(this.json['populations']).length) + "\n";
-        this.model += "#define NumInt " + util.format(Object.keys(this.json['intermediates']).length) + "\n";
+        this.model += "#define NumPar " + util.format(this.json['parameters'].filter( (p) => !p['constant'] ).length) + "\n";
+        this.model += "#define NumPop " + util.format(this.json['populations'].length) + "\n";
+        this.model += "#define NumInt " + util.format(this.json['intermediates'].length) + "\n";
         this.model += "\n";
-        this.json['parameters'].forEach( (pr, i) => {
+        //
+        this.json['parameters'].filter( (p) => !p['constant'] ).forEach( (pr, i) => {
             that.model += "#define " + pr['id'] + " " + util.format(i) + "\n";
         } );
         this.model += "\n";
+        //
         if (this.json['model']['type'] == "Population") {
             this.json['populations'].forEach( (spc, i) => {
                 spc['processes'].forEach( (prc, j) => {
@@ -66,6 +69,11 @@ class PopJSON {
             } );
             this.model += "\n";
         }
+        //
+        this.json['parameters'].filter( (p) => p['constant'] ).forEach( (p) => {
+            that.model += "double " + p['id'] + " = " + util.format(p['value']) + ";\n";
+        } );
+        this.model += "\n";
     }
     write_functions() {
         let that = this;
@@ -99,7 +107,7 @@ class PopJSON {
         this.model += "void parnames(char **names, double *param) {\n";
         this.model += "    char temp[NumPop+NumPar+NumInt][256] = {\n";
         this.model += "        \"" + this.json['populations'].map( (s) => s['id'] ).join("\", \"") + "\",\n";
-        this.model += "        \"" + this.json['parameters'].map( (pr) => pr['id'] ).join("\", \"") + "\",\n";
+        this.model += "        \"" + this.json['parameters'].filter( (p) => !p['constant'] ).map( (pr) => pr['id'] ).join("\", \"") + "\",\n";
         this.model += "        \"" + this.json['intermediates'].map( (pr) => pr['id'] ).join("\", \"") + "\",\n";
         this.model += "    };\n";
         this.model += "\n";
@@ -107,7 +115,7 @@ class PopJSON {
         this.model += "    for (i=0; i<(NumPop+NumPar+NumInt); i++)\n";
         this.model += "        names[i] = strdup(temp[i]);\n";
         this.model += "\n";
-        this.json['parameters'].forEach( (pr, i) => {
+        this.json['parameters'].filter( (p) => !p['constant'] ).forEach( (pr, i) => {
             that.model += "    param[" + pr['id'] + "] = " + util.format('value' in pr ? pr['value'] : 0.0) + ";\n";
         } );
         this.model += "}\n";
@@ -369,8 +377,10 @@ class PopJSON {
                     return value;
                 } else if (this.processes.includes(value)) {
                     return value;
-                } else if (this.parameters.includes(value)) {
+                } else if (this.parametersv.includes(value)) {
                     return "pr[" + value + "]";
+                } else if (this.parametersc.includes(value)) {
+                    return value;
                 } else if (this.functions.includes(value)) {
                     return value;
                 } else if (this.intermediates.includes(value)) {
