@@ -270,7 +270,7 @@ class PopJSON {
                     if (Array.isArray(s['value'])) {
                         s['value'].forEach( (ss) => pars.push(ss) );
                     } else {
-                        pars.push(s['value']);
+                        pars.push(that.parse_value(s['value']));
                     }
                 } );
                 for (j = 0; j < numprocpar; j++) {
