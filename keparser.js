@@ -32,7 +32,6 @@ class PopJSON {
         this.write_init();
         this.write_parnames();
         this.write_destroy();
-        // this.write_inter();
         this.write_sim();
         this.write_main();
     }
@@ -53,7 +52,7 @@ class PopJSON {
         }
         this.model += "#define NumPar " + util.format(this.json['parameters'].filter( (p) => !p['constant'] ).length) + "\n";
         this.model += "#define NumPop " + util.format(this.json['populations'].length) + "\n";
-        this.model += "#define NumInt " + util.format(this.json['intermediates'].length) + "\n";
+        this.model += "#define NumInt " + util.format(this.json['intermediates'].length + this.json['transformations'].length) + "\n";
         this.model += "\n";
         //
         this.json['parameters'].filter( (p) => !p['constant'] ).forEach( (pr, i) => {
@@ -109,6 +108,7 @@ class PopJSON {
         this.model += "        \"" + this.json['populations'].map( (s) => s['id'] ).join("\", \"") + "\",\n";
         this.model += "        \"" + this.json['parameters'].filter( (p) => !p['constant'] ).map( (pr) => pr['id'] ).join("\", \"") + "\",\n";
         this.model += "        \"" + this.json['intermediates'].map( (pr) => pr['id'] ).join("\", \"") + "\",\n";
+        this.model += "        \"" + this.json['transformations'].map( (pr) => pr['id'] ).join("\", \"") + "\",\n";
         this.model += "    };\n";
         this.model += "\n";
         this.model += "    int i;\n";
@@ -126,24 +126,6 @@ class PopJSON {
         if (this.json['model']['type'] == "Population" && !this.deterministic) {
                 this.model += "    spop2_random_destroy();\n";
         }
-        this.model += "}\n";
-        this.model += "\n";
-    }
-    write_inter() {
-        if (!('intermediates' in this.json)) {
-            return;
-        }
-        let that = this;
-        this.model += "void get_intermediates(double *envir, double *pr, double *ret) {\n"
-        if ('environ' in this.json) {
-            this.json['environ'].forEach( (elm, i) => {
-                 that.model += "    double *" + elm['id'] + " = envir + " + util.format(i) + " * tf;\n";
-            });
-        }
-        this.model += "\n";
-        this.json['intermediates'].forEach( (elm, i) => {
-            this.model += "    ret[" + util.format(i) + "] = " + elm['value'] + ";\n";
-        } );
         this.model += "}\n";
         this.model += "\n";
     }
@@ -165,9 +147,15 @@ class PopJSON {
             } );
             this.model += "\n";
         }
+        if ('transformations' in this.json) {
+            this.json['transformations'].forEach( (spc, i) => {
+                that.model += "    ".repeat(tab) + "iret[" + util.format(this.json['intermediates'].length + i) + "] = " + spc['id'] + ";\n";
+            } );
+            this.model += "\n";
+        }
         this.model += "    ".repeat(tab) + "ret += " + (util.format(this.json['populations'].length)) + ";\n";
         if ('intermediates' in this.json) {
-            this.model += "    ".repeat(tab) + "iret += " + (util.format(this.json['intermediates'].length)) + ";\n";
+            this.model += "    ".repeat(tab) + "iret += " + (util.format(this.json['intermediates'].length + this.json['transformations'].length)) + ";\n";
         }
         this.model += "\n";
     }
@@ -242,7 +230,6 @@ class PopJSON {
         //
         if ('intermediates' in this.json) {
             this.json['intermediates'].forEach( (elm, i) => {
-                // that.model += "    double " + elm['id'] + " = y0[" + util.format(this.json['populations'].length + i) + "];\n";
                 that.model += "    double " + elm['id'] + " = 0.0;\n";
             });
             this.model += "\n";
@@ -278,18 +265,20 @@ class PopJSON {
                 }
                 that.model += "        spop2_step(" + spc['id'] + ", par, &size_" + spc['id'] + ", completed_" + spc['id'] + ", 0);\n";
                 that.model += "\n";
-            });
+            } );
             //
             if ('transformations' in this.json) {
                 this.json['transformations'].forEach( (trx) => {
                     that.model += "        " + trx['id'] + " = " + that.parse_value(trx['value']) + ";\n";
                 } );
                 that.model += "\n";
+                //
                 this.json['transformations'].forEach( (trx) => {
                     that.model += "        num" + (that.deterministic ? ".d" : ".i") + " = " + trx['id'] + ";\n";
                     that.model += "        spop2_add(" + trx['to'] + ", key, num);\n";
                 } );
                 that.model += "\n";
+                //
                 this.json['transformations'].forEach( (trx) => {
                     if (that.deterministic) {
                         that.model += "        size_" + trx['to'] + ".d += " + trx['id'] + ";\n";
