@@ -1,0 +1,262 @@
+{
+    "modelTypes": {
+        "ODE": {
+            "url": "https://github.com/sdwfrost/liblsoda",
+            "deterministic": true,
+            "parameters": {
+                "algorithm": "LSODA",
+                "atol": 1e-6,
+                "rtol": 1e-6,
+                "istep": 1e-2,
+                "ostep": 1
+            }
+        }
+    },
+    "model": {
+        "title": "The population dynamics of mosquitoes is modelled following a temperature and precipitation-driven approach by Tran and colleagues [2], considering explicitly the life cycle of mosquitoes, from eggs to ovipositing adults mosquitoes.",
+        "type": "ODE"
+    },
+    "unitDefinitions": {
+        "time": {
+            "name": "time",
+            "exponent": 1,
+            "kind": "day",
+            "multiplier": 1,
+            "scale": 0
+        }
+    },
+    "compartments": {
+        "city": {
+            "constant": true,
+            "name": "Nice",
+            "size": 1,
+            "spatialDimensions": 3
+        }
+    },
+    "environ": [
+        {
+            "id": "temperature",
+            "name": "Mean Air Temperature (T2M)",
+            "url": ""
+        }, {
+            "id": "precipitations",
+            "name": "Daily Total Precipitation",
+            "url": ""
+        }, {
+            "id": "precipiNorm",
+            "name": "Normalised Daily Total Precipitation",
+            "url": ""
+        }
+    ],
+    "species": {
+        "albopictus": {
+            "name": "Aedes albopictus",
+            "url": ""
+        }
+    },
+    "populations": [
+        {
+            "id": "Ei",
+            "name": "Egg",
+            "compartment": "city",
+            "species": "albopictus",
+            "processes": [
+                {
+                    "id": "eggsurv",
+                    "name": "Egg survival",
+                    "arbiter": "NOAGE_CONST",
+                    "value": "p1"
+                }, {
+                    "id": "hatch",
+                    "name": "Egg hatching",
+                    "arbiter": "NOAGE_CONST",
+                    "value": "pd1"
+                }
+            ]
+        }, {
+            "id": "immature",
+            "name": "Immature (larva & pupa)",
+            "compartment": "wetland",
+            "species": "unknown",
+            "processes": [
+                {
+                    "id": "imsurv",
+                    "name": "Larva survival",
+                    "arbiter": "NOAGE_CONST",
+                    "value": "p23"
+                }, {
+                    "id": "imdev",
+                    "name": "Larva development",
+                    "arbiter": "ACC_FIXED",
+                    "value": "d23"
+                }
+            ]
+        }, {
+            "id": "adult",
+            "name": "Adult (female)",
+            "compartment": "wetland",
+            "species": "unknown",
+            "processes": [
+                {
+                    "id": "surv",
+                    "name": "Adult survival",
+                    "arbiter": "NOAGE_CONST",
+                    "value": "p4"
+                }
+            ]
+        }
+    ],
+    "parameters": [
+        {
+            "id": "epsilon1",
+            "constant": true,
+            "name": "Egg production primigravidae",
+            "value": 95
+        }, {
+            "id": "epsilon2",
+            "constant": true,
+            "name": "Egg production parous",
+            "value": 75
+        }, {
+            "id": "muE",
+            "constant": true,
+            "name": "Egg mortality",
+            "value": 0.01
+        }, {
+            "id": "muL",
+            "constant": true,
+            "name": "Larva mortality",
+            "value": 0.08
+        }, {
+            "id": "muP",
+            "constant": true,
+            "name": "Pupa mortality",
+            "value": 0.03
+        }, {
+            "id": "sigma",
+            "constant": true,
+            "name": "Sex ratio",
+            "value": 0.5
+        }, {
+            "id": "alphaA",
+            "constant": true,
+            "name": "Development rate",
+            "value": 0.4
+        }, {
+            "id": "alphaH",
+            "constant": true,
+            "name": "Transition rate",
+            "value": 0.222
+        }, {
+            "id": "alphaAh",
+            "constant": true,
+            "name": "Transition rate from host-seeking to engorged adults",
+            "value": 0.222
+        }, {
+            "id": "muAm",
+            "constant": true,
+            "name": "Mortality rate",
+            "value": 0.1
+        }, {
+            "id": "muT",
+            "constant": true,
+            "name": "Adult mortality rate related to seeking behavior",
+            "value": 0.08
+        }, {
+            "id": "muA",
+            "constant": true,
+            "name": "Minimum adult mortality rate",
+            "value": 0.02
+        }, {
+            "id": "KL",
+            "constant": true,
+            "name": "Carrying capacity for larvae",
+            "value": 1e6
+        }, {
+            "id":  "KP",
+            "constant": true,
+            "name": "Carrying capacity for pupae",
+            "value": 1e6
+        }, {
+            "id":  "tstart",
+            "constant": true,
+            "name": "Start of the favourable season (10 Mar)",
+            "value": 69
+        }, {
+            "id": "tend",
+            "constant": true,
+            "name": "End of the favourable season (30 Sept)",
+            "value": 273
+        }, {
+            "id": "lyear",
+            "constant": true,
+            "name": "Length of a calendar year",
+            "value": 365
+        }, {
+            "id": "PrecipitationFactor",
+            "constant": true,
+            "name": "Precipitation effect multiplier",
+            "value": 1
+        }, {
+            "id": "tendspring",
+            "constant": true,
+            "name": "End of the spring during which eggs only hatch on days with 1mm or more rain",
+            "value": 166
+        }, {
+            "id": "tstartautumn",
+            "constant": true,
+            "name": "Start of the autumn during which eggs only hatch on days with 1mm or more rain",
+            "value": 258
+        }
+    ],
+    "functions": {
+        "dmin": ["define", ["x","y"], ["if", ["<", "x", "y"], "x", "y"]],
+        "dmax": ["define", ["x","y"], ["if", [">", "x", "y"], "x", "y"]],
+        "funmort": ["define", ["T","M","a","c"], ["dmax","0.0",["dmin","1.0", ["+",["*",["exp","a"],["pow",["-","T","M"],"4.0"]],"c"]]]],
+        "briere1C": ["define", ["T","B","E","a"], ["if",["<=","T","B"],"1e13", ["if",[">=","T","E"],"1e13", ["dmin","1e13",["dmax","1.0", ["/","1.0",["*",["exp","a"],"T",["-","T","B"],["sqrt",["-","E","T"]]]]]]]]],
+        "briere1": ["define", ["T","B","E","a"], ["briere1C",["+","273.15","T"],["+","273.15","B"],["+","273.15","B","E"],"a"]],
+        "poly": ["define", ["x","a","b","c"], ["dmax","0.0",["+","a",["*","b","x"],["*","c",["pow","x","2"]]]]]
+    },
+    "intermediates": [
+        {
+            "id": "p4",
+            "value": ["funmort", ["index","atemp",["-","tm","1"]], "p_p4_1", "p_p4_2", "p_p4_3"]
+        }, {
+            "id": "pd1",
+            "value": ["*", "phatch", ["index","rainf",["-","tm","1"]]]
+        }, {
+            "id": "d23",
+            "value": ["briere1", ["index","stemp",["-","tm","1"]], "p_d23_1", "p_d23_2", "p_d23_3"]
+        }, {
+            "id": "KK",
+            "value": ["*", "a_KK_water", ["index","water",["-","tm","1"]]]
+        }, {
+            "id": "F4",
+            "value": ["poly", ["index","atemp",["-","tm","1"]], "a_F4_1", "a_F4_2", "a_F4_3"]
+        }, {
+            "id": "p23dens",
+            "value": ["-", "1.0", ["exp", ["*", "-1.0", "a_KK_surv", ["+","1.0",["/",["size", "immature"],"KK"]]]]]
+        }, {
+            "id": "p23",
+            "value": ["-", "1.0", ["*", ["-", "1.0", ["funmort", ["index","stemp",["-","tm","1"]], "p_p23_1", "p_p23_2", "p_p23_3"]], ["-","1.0","p23dens"]]]
+        }
+    ],
+    "transformations": [
+        {
+            "id": "egg_to_larva",
+            "name": "Egg to larva",
+            "to": "immature",
+            "value": ["hatch", "egg"]
+        }, {
+            "id": "larva_to_adult",
+            "name": "Larva to adult",
+            "to": "adult",
+            "value": ["*", "sex_ratio", ["imdev", "immature"]]
+        }, {
+            "id": "egg_laying",
+            "name": "Egg laying by adult females",
+            "to": "egg",
+            "value": ["*", "F4", ["size", "adult"]]
+        }
+    ]
+}
