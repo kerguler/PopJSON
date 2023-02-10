@@ -59,51 +59,52 @@
             "id": "Ei",
             "name": "Egg",
             "compartment": "city",
-            "species": "albopictus",
-            "processes": [
-                {
-                    "id": "eggsurv",
-                    "name": "Egg survival",
-                    "arbiter": "NOAGE_CONST",
-                    "value": "p1"
-                }, {
-                    "id": "hatch",
-                    "name": "Egg hatching",
-                    "arbiter": "NOAGE_CONST",
-                    "value": "pd1"
-                }
-            ]
+            "species": "albopictus"
         }, {
-            "id": "immature",
-            "name": "Immature (larva & pupa)",
-            "compartment": "wetland",
-            "species": "unknown",
-            "processes": [
-                {
-                    "id": "imsurv",
-                    "name": "Larva survival",
-                    "arbiter": "NOAGE_CONST",
-                    "value": "p23"
-                }, {
-                    "id": "imdev",
-                    "name": "Larva development",
-                    "arbiter": "ACC_FIXED",
-                    "value": "d23"
-                }
-            ]
+            "id": "Li",
+            "name": "Larva",
+            "compartment": "city",
+            "species": "albopictus"
         }, {
-            "id": "adult",
-            "name": "Adult (female)",
-            "compartment": "wetland",
-            "species": "unknown",
-            "processes": [
-                {
-                    "id": "surv",
-                    "name": "Adult survival",
-                    "arbiter": "NOAGE_CONST",
-                    "value": "p4"
-                }
-            ]
+            "id": "Pi",
+            "name": "Pupa",
+            "compartment": "city",
+            "species": "albopictus"
+        }, {
+            "id": "Ami",
+            "name": "Emerging adult (Aem)",
+            "compartment": "city",
+            "species": "albopictus"
+        }, {
+            "id": "Smi1",
+            "name": "Host-seeking nulliparous (A1h)",
+            "compartment": "city",
+            "species": "albopictus"
+        }, {
+            "id": "Egi1",
+            "name": "Nulliparous engorged (A1g)",
+            "compartment": "city",
+            "species": "albopictus"
+        }, {
+            "id": "Ogi1",
+            "name": "Nulliparous seeking oviposition sites (A1o)",
+            "compartment": "city",
+            "species": "albopictus"
+        }, {
+            "id": "Smi2",
+            "name": "Host-seeking parous (A2h)",
+            "compartment": "city",
+            "species": "albopictus"
+        }, {
+            "id": "Egi2",
+            "name": "Parous engorged (A2g)",
+            "compartment": "city",
+            "species": "albopictus"
+        }, {
+            "id": "Ogi2",
+            "name": "Parous seeking oviposition sites (A2o)",
+            "compartment": "city",
+            "species": "albopictus"
         }
     ],
     "parameters": [
@@ -212,10 +213,7 @@
     "functions": {
         "dmin": ["define", ["x","y"], ["if", ["<", "x", "y"], "x", "y"]],
         "dmax": ["define", ["x","y"], ["if", [">", "x", "y"], "x", "y"]],
-        "funmort": ["define", ["T","M","a","c"], ["dmax","0.0",["dmin","1.0", ["+",["*",["exp","a"],["pow",["-","T","M"],"4.0"]],"c"]]]],
-        "briere1C": ["define", ["T","B","E","a"], ["if",["<=","T","B"],"1e13", ["if",[">=","T","E"],"1e13", ["dmin","1e13",["dmax","1.0", ["/","1.0",["*",["exp","a"],"T",["-","T","B"],["sqrt",["-","E","T"]]]]]]]]],
-        "briere1": ["define", ["T","B","E","a"], ["briere1C",["+","273.15","T"],["+","273.15","B"],["+","273.15","B","E"],"a"]],
-        "poly": ["define", ["x","a","b","c"], ["dmax","0.0",["+","a",["*","b","x"],["*","c",["pow","x","2"]]]]]
+        "getEnv": ["define", ["E","t"], ["dmax","0.0",["dmin","1.0", ["+",["*",["exp","a"],["pow",["-","T","M"],"4.0"]],"c"]]]]
     },
     "intermediates": [
         {
@@ -243,9 +241,9 @@
     ],
     "transformations": [
         {
-            "id": "egg_to_larva",
-            "name": "Egg to larva",
-            "to": "immature",
+            "id": "dEi",
+            "name": "Egg mortality",
+            "from": "Ei",
             "value": ["hatch", "egg"]
         }, {
             "id": "larva_to_adult",
