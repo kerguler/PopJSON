@@ -216,45 +216,19 @@
         "getEnv": ["define", ["E","t"], ["dmax","0.0",["dmin","1.0", ["+",["*",["exp","a"],["pow",["-","T","M"],"4.0"]],"c"]]]]
     },
     "intermediates": [
-        {
-            "id": "p4",
-            "value": ["funmort", ["index","atemp",["-","tm","1"]], "p_p4_1", "p_p4_2", "p_p4_3"]
-        }, {
-            "id": "pd1",
-            "value": ["*", "phatch", ["index","rainf",["-","tm","1"]]]
-        }, {
-            "id": "d23",
-            "value": ["briere1", ["index","stemp",["-","tm","1"]], "p_d23_1", "p_d23_2", "p_d23_3"]
-        }, {
-            "id": "KK",
-            "value": ["*", "a_KK_water", ["index","water",["-","tm","1"]]]
-        }, {
-            "id": "F4",
-            "value": ["poly", ["index","atemp",["-","tm","1"]], "a_F4_1", "a_F4_2", "a_F4_3"]
-        }, {
-            "id": "p23dens",
-            "value": ["-", "1.0", ["exp", ["*", "-1.0", "a_KK_surv", ["+","1.0",["/",["size", "immature"],"KK"]]]]]
-        }, {
-            "id": "p23",
-            "value": ["-", "1.0", ["*", ["-", "1.0", ["funmort", ["index","stemp",["-","tm","1"]], "p_p23_1", "p_p23_2", "p_p23_3"]], ["-","1.0","p23dens"]]]
-        }
     ],
     "transformations": [
         {
-            "id": "dEi",
+            "id": "egg_mort",
             "name": "Egg mortality",
             "from": "Ei",
-            "value": ["hatch", "egg"]
+            "value": ["*", "muE", ["size", "Ei"]]
         }, {
-            "id": "larva_to_adult",
-            "name": "Larva to adult",
-            "to": "adult",
-            "value": ["*", "sex_ratio", ["imdev", "immature"]]
-        }, {
-            "id": "egg_laying",
-            "name": "Egg laying by adult females",
-            "to": "egg",
-            "value": ["*", "F4", ["size", "adult"]]
+            "id": "egg_hatch",
+            "name": "Egg hatching",
+            "from": "Ei",
+            "to": "Li",
+            "value": ["*", "z", "alphaE", ["size", "Ei"]]
         }
     ]
 }

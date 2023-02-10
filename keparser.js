@@ -13,7 +13,7 @@ class PopJSON {
         this.deterministic = this.json['modelTypes'][this.json['model']['type']]['deterministic']
         this.environs = this.json['environ'].map( (pr) => pr['id'] );
         this.populations = this.json['populations'].map( (pr) => pr['id'] );
-        this.processes = []; this.json['populations'].forEach( (pop) => pop['processes'].forEach( (pr) => { that.processes.push(pr['id']); } ) );
+        this.processes = []; this.json['populations'].forEach( (pop) => 'processes' in pop ? pop['processes'].forEach( (pr) => { that.processes.push(pr['id']); } ) : [] );
         this.parametersv = this.json['parameters'].filter( (p) => !p['constant'] ).map( (pr) => pr['id'] );
         this.parametersc = this.json['parameters'].filter( (p) => p['constant'] ).map( (pr) => pr['id'] );
         this.functions = Object.keys(this.json['functions']);
@@ -50,9 +50,16 @@ class PopJSON {
                 this.model += "\n";
             }
         }
-        this.model += "#define NumPar " + util.format(this.json['parameters'].filter( (p) => !p['constant'] ).length) + "\n";
-        this.model += "#define NumPop " + util.format(this.json['populations'].length) + "\n";
-        this.model += "#define NumInt " + util.format(this.json['intermediates'].length + this.json['transformations'].length) + "\n";
+        //
+        this.numpar = this.json['parameters'].filter( (p) => !p['constant'] ).length;
+        this.numpop = this.json['populations'].length;
+        this.numint_int = this.json['intermediates'].length;
+        this.numint_trans = this.json['transformations'].length;
+        this.numint = this.numint_int + this.numint_trans;
+        //
+        this.model += "#define NumPar " + util.format(this.numpar) + "\n";
+        this.model += "#define NumPop " + util.format(this.numpop) + "\n";
+        this.model += "#define NumInt " + util.format(this.numint) + "\n";
         this.model += "\n";
         //
         this.json['parameters'].filter( (p) => !p['constant'] ).forEach( (pr, i) => {
@@ -105,10 +112,18 @@ class PopJSON {
         let that = this;
         this.model += "void parnames(char **names, double *param) {\n";
         this.model += "    char temp[NumPop+NumPar+NumInt][256] = {\n";
-        this.model += "        \"" + this.json['populations'].map( (s) => s['id'] ).join("\", \"") + "\",\n";
-        this.model += "        \"" + this.json['parameters'].filter( (p) => !p['constant'] ).map( (pr) => pr['id'] ).join("\", \"") + "\",\n";
-        this.model += "        \"" + this.json['intermediates'].map( (pr) => pr['id'] ).join("\", \"") + "\",\n";
-        this.model += "        \"" + this.json['transformations'].map( (pr) => pr['id'] ).join("\", \"") + "\",\n";
+        if (this.numpop > 0) {
+            this.model += "        \"" + this.json['populations'].map( (s) => s['id'] ).join("\", \"") + "\",\n";
+        }
+        if (this.numpar > 0) {
+            this.model += "        \"" + this.json['parameters'].filter( (p) => !p['constant'] ).map( (pr) => pr['id'] ).join("\", \"") + "\",\n";
+        }
+        if (this.numint_int > 0) {
+            this.model += "        \"" + this.json['intermediates'].map( (pr) => pr['id'] ).join("\", \"") + "\",\n";
+        }
+        if (this.numint_trans > 0) {
+            this.model += "        \"" + this.json['transformations'].map( (pr) => pr['id'] ).join("\", \"") + "\",\n";
+        }
         this.model += "    };\n";
         this.model += "\n";
         this.model += "    int i;\n";
