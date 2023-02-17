@@ -4,6 +4,18 @@ const fs = require('fs');
 const { emitWarning } = require('process');
 const util = require('util');
 
+const ariter = {
+    'ACC_FIXED': 'd',
+    'ACC_ERLANG': 'd',
+    'ACC_PASCAL': 'd',
+    'AGE_FIXED': 'i',
+    'AGE_CONST': 'i',
+    'AGE_GAMMA': 'i',
+    'AGE_NBINOM': 'i',
+    'AGE_CUSTOM': 'i',
+    'NOAGE_CONST': 'i'
+};
+
 class PopJSON {
     constructor(filename) {
         let that = this;
@@ -11,17 +23,27 @@ class PopJSON {
         let data = fs.readFileSync(this.filename);
         this.json = JSON.parse(data);
         this.deterministic = this.json['modelTypes'][this.json['model']['type']]['deterministic']
-        this.environs = this.json['environ'].map( (pr) => pr['id'] );
+        this.environs = 'environ' in this.json ? this.json['environ'].map( (pr) => pr['id'] ) : [];
         this.populations = this.json['populations'].map( (pr) => pr['id'] );
         this.processes = []; this.json['populations'].forEach( (pop) => 'processes' in pop ? pop['processes'].forEach( (pr) => { that.processes.push(pr['id']); } ) : [] );
         this.parametersv = this.json['parameters'].filter( (p) => !p['constant'] ).map( (pr) => pr['id'] );
         this.parametersc = this.json['parameters'].filter( (p) => p['constant'] ).map( (pr) => pr['id'] );
-        this.functions = Object.keys(this.json['functions']);
+        this.functions = 'functions' in this.json ? Object.keys(this.json['functions']) : [];
         this.intermediates = this.json['intermediates'].map( (pr) => pr['id'] );
         this.transformations = this.json['transformations'].map( (pr) => pr['id'] );
-        this.operations = ["define","if",">=","<=",">","<","==","sqrt","pow","exp","log","log2","log10","indicator","index","size","*","+","-","/"];
+        this.operations = ["define","if",">=","<=",">","<","==","sqrt","pow","exp","log","log2","log10","indicator","index","size","key","*","+","-","/"];
         this.funparnames = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z",
                             "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
+        //
+        if (this.json['model']['type'] == "Population") {
+            this.json['populations'].forEach( (pop) => {
+                if (!(pop in that.popart)) { that.popart[pop] = {}; }
+                pop['processes'].forEach( (proc) => {
+                    that.popart[pop][proc['id']] = arbiter[proc['id']];
+                })
+            } );
+        }
+        //
         this.model = "";
         this.write_model();
     }
@@ -29,6 +51,7 @@ class PopJSON {
         this.model = "";
         this.write_header();
         this.write_functions();
+        this.write_transfer();
         this.write_init();
         this.write_parnames();
         this.write_destroy();
@@ -89,6 +112,18 @@ class PopJSON {
            });
            this.model += "\n";
         }
+    }
+    write_transfer() {
+        let that = this;
+        this,model += "void fun_transfer(number *key, number num, void *pop) {\n";
+        this.model += "    number q[" + util.format(this.numproc) + "] = {\n";
+                {.i=key[0].i+1},
+                numZERO,
+                {.i=key[2].i+1}
+        this.model += "    };\n";
+        this.model += "    spop2_add(*(population *)pop, q, num);\n";
+        this.model += "}\n";
+        this.model += "\n";
     }
     write_init() {
         this.model += "void init(int *no, int *np, int *ni) {\n";
@@ -289,10 +324,13 @@ class PopJSON {
                 that.model += "\n";
                 //
                 this.json['transformations'].forEach( (trx) => {
+                    for (j=0; j<numproc; j++) {
+                        that.model += "        key[" + util.format(j) + "] = numZERO;\n";
+                    }
                     that.model += "        num" + (that.deterministic ? ".d" : ".i") + " = " + trx['id'] + ";\n";
                     that.model += "        spop2_add(" + trx['to'] + ", key, num);\n";
+                    that.model += "\n";
                 } );
-                that.model += "\n";
                 //
                 this.json['transformations'].forEach( (trx) => {
                     if (that.deterministic) {
@@ -344,6 +382,8 @@ class PopJSON {
                     return "size_" + prm[0] + (this.deterministic ? ".d" : ".i");
                 } else if (fun == "index") {
                     return prm[0] + "[" + prm[1] + "]";
+                } else if (fun == "key") {
+                    return "key[" + prm[1] + "]." + this.popart[prm[0]][prm[1]];
                 } else if (this.functions.includes(fun) || fun == "exp" || fun == "log" || fun == "log2" || fun == "log10" || fun == "pow" || fun == "sqrt") {
                     return fun + "(" + prm.join(", ") + ")";
                 } else if (fun == "*") {
