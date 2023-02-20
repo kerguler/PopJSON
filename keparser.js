@@ -4,7 +4,7 @@ const fs = require('fs');
 const { emitWarning } = require('process');
 const util = require('util');
 
-const ariter = {
+const arbiter = {
     'ACC_FIXED': 'd',
     'ACC_ERLANG': 'd',
     'ACC_PASCAL': 'd',
@@ -31,18 +31,9 @@ class PopJSON {
         this.functions = 'functions' in this.json ? Object.keys(this.json['functions']) : [];
         this.intermediates = this.json['intermediates'].map( (pr) => pr['id'] );
         this.transformations = this.json['transformations'].map( (pr) => pr['id'] );
-        this.operations = ["define","if",">=","<=",">","<","==","sqrt","pow","exp","log","log2","log10","indicator","index","size","key","*","+","-","/"];
+        this.operations = ["transfer","define","if",">=","<=",">","<","==","sqrt","pow","exp","log","log2","log10","indicator","index","size","key","*","+","-","/"];
         this.funparnames = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z",
                             "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
-        //
-        if (this.json['model']['type'] == "Population") {
-            this.json['populations'].forEach( (pop) => {
-                if (!(pop in that.popart)) { that.popart[pop] = {}; }
-                pop['processes'].forEach( (proc) => {
-                    that.popart[pop][proc['id']] = arbiter[proc['id']];
-                })
-            } );
-        }
         //
         this.model = "";
         this.write_model();
@@ -80,6 +71,31 @@ class PopJSON {
         this.numint_trans = this.json['transformations'].length;
         this.numint = this.numint_int + this.numint_trans;
         //
+        if (this.json['model']['type'] == "Population") {
+            this.numproc = 1 + Math.max(...this.json['populations'].map( (s) => s['processes'].length ));
+            this.numprocpar = Math.max(...this.json['populations'].map( (spc, i) => {
+                let pars = 0;
+                spc['processes'].forEach( (s) => {
+                    if (Array.isArray(s['value'])) {
+                        pars += s['value'].length;
+                    } else {
+                        pars += 1;
+                    }
+                } );
+                return pars;
+            } ));
+        }
+        //
+        this.popart = {};
+        if (this.json['model']['type'] == "Population") {
+            this.json['populations'].forEach( (pop) => {
+                if (!(pop['id'] in that.popart)) { that.popart[pop['id']] = {}; }
+                pop['processes'].forEach( (proc) => {
+                    that.popart[pop['id']][proc['arbiter']] = arbiter[proc['arbiter']];
+                } );
+            } );
+        }
+        //
         this.model += "#define NumPar " + util.format(this.numpar) + "\n";
         this.model += "#define NumPop " + util.format(this.numpop) + "\n";
         this.model += "#define NumInt " + util.format(this.numint) + "\n";
@@ -113,17 +129,21 @@ class PopJSON {
            this.model += "\n";
         }
     }
-    write_transfer() {
+    write_transfer(value) {
         let that = this;
-        this,model += "void fun_transfer(number *key, number num, void *pop) {\n";
-        this.model += "    number q[" + util.format(this.numproc) + "] = {\n";
-                {.i=key[0].i+1},
-                numZERO,
-                {.i=key[2].i+1}
-        this.model += "    };\n";
-        this.model += "    spop2_add(*(population *)pop, q, num);\n";
-        this.model += "}\n";
-        this.model += "\n";
+        var di;
+        this.json['populations'].forEach( (pop) => {
+            that.model += "void fun_transfer_" + pop['id'] + "(number *key, number num, void *pop) {\n";
+            that.model += "    number q[" + util.format(that.numproc) + "] = {\n";
+            pop['processes'].forEach( (proc) => {
+                di = that.popart[pop['id']][proc['arbiter']];
+                that.model += "        {." + di + "=key[0]." + di + "+1},\n";
+            } );
+            this.model += "    };\n";
+            this.model += "    spop2_add(*(population *)pop, q, num);\n";
+            this.model += "}\n";
+            this.model += "\n";
+        } );
     }
     write_init() {
         this.model += "void init(int *no, int *np, int *ni) {\n";
@@ -212,9 +232,6 @@ class PopJSON {
     write_sim() {
         let i, j;
         let that = this;
-        let numpop = null;
-        let numproc = null;
-        let numprocpar = null;
         let det = this.deterministic ? 'DETERMINISTIC' : 'STOCHASTIC';
         this.model += "void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, double *iret, int *success) {\n";
         if ('environ' in this.json) {
@@ -231,27 +248,14 @@ class PopJSON {
             this.model += "\n";
         }
         if (this.json['model']['type'] == "Population") {
-            numpop = this.json['populations'].length;
-            numproc = 1 + Math.max(...this.json['populations'].map( (s) => s['processes'].length ));
-            numprocpar = Math.max(...this.json['populations'].map( (spc, i) => {
-                let pars = 0;
-                spc['processes'].forEach( (s) => {
-                    if (Array.isArray(s['value'])) {
-                        pars += s['value'].length;
-                    } else {
-                        pars += 1;
-                    }
-                } );
-                return pars;
-            } ));
             this.model += "    number num = numZERO;\n";
-            this.model += "    char arbiters[" + util.format(numproc) + "];\n";
-            this.model += "    number key[" + util.format(numproc) + "];\n";
+            this.model += "    char arbiters[" + util.format(this.numproc) + "];\n";
+            this.model += "    number key[" + util.format(this.numproc) + "];\n";
             this.json['populations'].forEach( (spc, i) => {
                 that.model += "    number size_" + spc['id'] + ";\n";
             } );
             this.json['populations'].forEach( (spc, i) => {
-                that.model += "    number completed_" + spc['id'] + "[" + util.format(numproc) + "];\n";
+                that.model += "    number completed_" + spc['id'] + "[" + util.format(that.numproc) + "];\n";
             } );
             if ('transformations' in this.json) {
                 if (this.deterministic) {
@@ -264,10 +268,10 @@ class PopJSON {
                     } );
                 }
             }
-            this.model += "    double par[" + util.format(numprocpar) + "];\n";
+            this.model += "    double par[" + util.format(this.numprocpar) + "];\n";
             this.model += "\n";
             this.json['populations'].forEach( (spc, i) => {
-                for (j=0; j<numproc; j++) {
+                for (j=0; j<that.numproc; j++) {
                     that.model += "    arbiters[" + util.format(j) + "] = " + (j < spc['processes'].length ? spc['processes'][j]['arbiter'] : "STOP") + ";\n";
                     that.model += "    key[" + util.format(j) + "] = numZERO;\n";
                 }
@@ -310,7 +314,7 @@ class PopJSON {
                         pars.push(that.parse_value(s['value']));
                     }
                 } );
-                for (j = 0; j < numprocpar; j++) {
+                for (j = 0; j < that.numprocpar; j++) {
                     that.model += "        par[" + util.format(j) + "] = " + (pars.length ? pars.shift() : "0.0") + ";\n";
                 }
                 that.model += "        spop2_step(" + spc['id'] + ", par, &size_" + spc['id'] + ", completed_" + spc['id'] + ", 0);\n";
@@ -324,7 +328,7 @@ class PopJSON {
                 that.model += "\n";
                 //
                 this.json['transformations'].forEach( (trx) => {
-                    for (j=0; j<numproc; j++) {
+                    for (j=0; j<that.numproc; j++) {
                         that.model += "        key[" + util.format(j) + "] = numZERO;\n";
                     }
                     that.model += "        num" + (that.deterministic ? ".d" : ".i") + " = " + trx['id'] + ";\n";
@@ -382,6 +386,8 @@ class PopJSON {
                     return "size_" + prm[0] + (this.deterministic ? ".d" : ".i");
                 } else if (fun == "index") {
                     return prm[0] + "[" + prm[1] + "]";
+                } else if (fun == "transfer") {
+                    return "fun_transfer(" + prm.map( (p, i) => "prm[" + util.format(i) + "]" ).join(",") + ")";
                 } else if (fun == "key") {
                     return "key[" + prm[1] + "]." + this.popart[prm[0]][prm[1]];
                 } else if (this.functions.includes(fun) || fun == "exp" || fun == "log" || fun == "log2" || fun == "log10" || fun == "pow" || fun == "sqrt") {
