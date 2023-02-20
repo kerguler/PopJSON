@@ -375,8 +375,8 @@ class PopJSON {
                     }
                     that.model += "\n";
                 } );
-                this.json['transfers'].forEach( (trn) => {
-                    that.model += "        size_" + trn['to'] + " = spop2_size(" + trn['to'] + ");\n";
+                Array.from(new Set(this.json['transfers'].map( (trn) => trn['to'] ))).forEach( (trn) => {
+                    that.model += "        size_" + trn + " = spop2_size(" + trn + ");\n";
                 } );
                 that.model += "\n";
             }
