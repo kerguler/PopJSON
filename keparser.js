@@ -332,6 +332,13 @@ class PopJSON {
                 that.model += "\n";
             } );
             //
+            /*
+                TO DO!
+                THERE SHOULD BE AN ORDER TO THESE PROCESSES:
+                    INTERMEDIATES
+                    TRANSFORMATIONS
+                    TRANSFERS
+            */
             if ('transformations' in this.json) {
                 this.json['transformations'].forEach( (trx) => {
                     that.model += "        " + trx['id'] + " = " + that.parse_value(trx['value']) + ";\n";
@@ -361,6 +368,7 @@ class PopJSON {
                 this.json['transfers'].forEach( (trn) => {
                     that.model += "        spop2_foreach(popdone_" + that.processobj[trn['from']]['parent_id'] + "[" + trn['from'] + "], fun_transfer_" + trn['id'] + ", (void *)(&" + trn['to'] + "));\n";
                 } );
+                that.model += "\n";
                 this.transfers.forEach( (trn) => {
                     for (j=0; j<that.numproc; j++) {
                         that.model += "        spop2_empty(&popdone_" + trn + "[" + util.format(j) + "]);\n"
