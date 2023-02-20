@@ -33,7 +33,7 @@ class PopJSON {
         this.intermediates = this.json['intermediates'].map( (pr) => pr['id'] );
         this.transformations = this.json['transformations'].map( (pr) => pr['id'] );
         this.transfers = 'transfers' in this.json ? Array.from(new Set(this.json['transfers'].map( (pr) => that.processobj[pr['from']]['parent_id'] ))) : [];
-        this.operations = ["define","if",">=","<=",">","<","==","sqrt","pow","exp","log","log2","log10","indicator","index","size","key","*","+","-","/"];
+        this.operations = ["define","if",">=","<=",">","<","==","sqrt","pow","exp","log","log2","log10","indicator","index","size","*","+","-","/"];
         this.funparnames = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z",
                             "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
         //
@@ -142,7 +142,7 @@ class PopJSON {
             pop = that.json['populations'].filter( (tmp) => tmp['id'] == that.processobj[trn['from']]['parent_id'] )[0];
             pop['processes'].forEach( (proc, j) => {
                 di = that.popart[pop['id']][proc['arbiter']];
-                that.model += "        {." + di + "=" + that.parse_value(trn['value'][j]) + "},\n";
+                that.model += "        {." + di + "=" + that.parse_value(trn['value'][j], true) + "},\n";
             } );
             this.model += "    };\n";
             this.model += "    spop2_add(*(population *)pop, q, num);\n";
@@ -394,7 +394,7 @@ class PopJSON {
         this.model += "}";
         this.model += "\n";
     }
-    parse_value(value) {
+    parse_value(value, transfers=false) {
         let that = this;
         if (Array.isArray(value)) { // Function
             let fun = this.parse_value(value[0]);
@@ -408,13 +408,14 @@ class PopJSON {
             } else {
                 let prm = value.slice(1).map( (v) => that.parse_value(v) );
                 if (this.processes.includes(fun)) {
+                    if (transfers) {
+                        return "key[" + fun + "]." + this.popart[prm[0]][this.processobj[fun]['arbiter']];
+                    }
                     return "completed_" + prm[0] + "[" + fun + "]" + (this.deterministic ? ".d" : ".i");
                 } else if (fun == "size") {
                     return "size_" + prm[0] + (this.deterministic ? ".d" : ".i");
                 } else if (fun == "index") {
                     return prm[0] + "[" + prm[1] + "]";
-                } else if (fun == "key") {
-                    return "key[" + prm[1] + "]." + this.popart[prm[0]][this.processobj[prm[1]]['arbiter']];
                 } else if (this.functions.includes(fun) || fun == "exp" || fun == "log" || fun == "log2" || fun == "log10" || fun == "pow" || fun == "sqrt") {
                     return fun + "(" + prm.join(", ") + ")";
                 } else if (fun == "*") {
