@@ -33,7 +33,7 @@ class PopJSON {
         this.intermediates = this.json['intermediates'].map( (pr) => pr['id'] );
         this.transformations = this.json['transformations'].map( (pr) => pr['id'] );
         this.transfers = 'transfers' in this.json ? Array.from(new Set(this.json['transfers'].map( (pr) => that.processobj[pr['from']]['parent_id'] ))) : [];
-        this.operations = ["define","if",">=","<=",">","<","==","sqrt","pow","exp","log","log2","log10","indicator","index","size","*","+","-","/"];
+        this.operations = ["poisson","binomial","define","if",">=","<=",">","<","==","sqrt","pow","exp","log","log2","log10","indicator","index","size","*","+","-","/"];
         this.funparnames = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z",
                             "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
         //
@@ -426,6 +426,10 @@ class PopJSON {
                     return prm[0] + "[" + prm[1] + "]";
                 } else if (this.functions.includes(fun) || fun == "exp" || fun == "log" || fun == "log2" || fun == "log10" || fun == "pow" || fun == "sqrt") {
                     return fun + "(" + prm.join(", ") + ")";
+                } else if (fun == "binomial") {
+                    return "(unsigned int)gsl_ran_binomial(RANDOM, " + prm[0] + ", " + prm[1] + ")";
+                } else if (fun == "poisson") {
+                    return "(unsigned int)gsl_ran_poisson(RANDOM, " + prm[0] + ")";
                 } else if (fun == "*") {
                     return "(" + prm.join(" * ") + ")";
                 } else if (fun == "+") {
