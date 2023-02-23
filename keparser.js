@@ -326,7 +326,7 @@ class PopJSON {
                     }
                 } );
                 for (j = 0; j < that.numprocpar; j++) {
-                    that.model += "        par[" + util.format(j) + "] = " + (pars.length ? pars.shift() : "0.0") + ";\n";
+                    that.model += "        par[" + util.format(j) + "] = " + (pars.length ? that.parse_value(pars.shift()) : "0.0") + ";\n";
                 }
                 that.model += "        spop2_step(" + spc['id'] + ", par, &size_" + spc['id'] + ", completed_" + spc['id'] + ", " + (that.transfers.includes(spc['id']) ? "popdone_" + spc['id'] : "0") + ");\n";
                 that.model += "\n";
