@@ -33,7 +33,7 @@ class PopJSON {
         this.intermediates = this.json['intermediates'].map( (pr) => pr['id'] );
         this.transformations = this.json['transformations'].map( (pr) => pr['id'] );
         this.transfers = 'transfers' in this.json ? Array.from(new Set(this.json['transfers'].map( (pr) => that.processobj[pr['from']]['parent_id'] ))) : [];
-        this.operations = ["round","poisson","binomial","define","if",">=","<=",">","<","==","sqrt","pow","exp","log","log2","log10","indicator","index","size","*","+","-","/"];
+        this.operations = ["round","poisson","binomial","define","?","&&","||",">=","<=",">","<","==","sqrt","pow","exp","log","log2","log10","indicator","index","size","*","+","-","/"];
         this.funparnames = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z",
                             "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
         //
@@ -440,8 +440,12 @@ class PopJSON {
                     return "(" + prm.join(" - ") + ")";
                 } else if (fun == "/") {
                     return "(" + prm.join(" / ") + ")";
-                } else if (fun == "if") {
+                } else if (fun == "?") {
                     return "(" + prm[0] + ") ? (" + prm[1] + ") : (" + prm[2] + ")";
+                } else if (fun == "&&") {
+                    return "(" + prm.join(" && ") + ")";
+                } else if (fun == "||") {
+                    return "(" + prm.join(" || ") + ")";
                 } else if (fun == "indicator") {
                     return this.deterministic ? "(" + prm[0] + " ? 1.0 : 0.0)" : "(" + prm[0] + " ? 1 : 0)";
                 } else if (fun == "==") {
