@@ -204,7 +204,7 @@ class PopJSON {
         this.model += "}\n";
         this.model += "\n";
     }
-    write_out(tab) {
+    write_out(tab, iret=true) {
         let that = this;
         if (this.deterministic) {
             this.json['populations'].forEach( (spc, i) => {
@@ -216,23 +216,26 @@ class PopJSON {
             } );
         }
         this.model += "\n";
-        if ('intermediates' in this.json) {
-            this.json['intermediates'].forEach( (spc, i) => {
-                that.model += "    ".repeat(tab) + "iret[" + util.format(i) + "] = " + spc['id'] + ";\n";
-            } );
-            this.model += "\n";
-        }
-        if ('transformations' in this.json) {
-            this.json['transformations'].forEach( (spc, i) => {
-                that.model += "    ".repeat(tab) + "iret[" + util.format(this.json['intermediates'].length + i) + "] = " + spc['id'] + ";\n";
-            } );
-            this.model += "\n";
-        }
         this.model += "    ".repeat(tab) + "ret += " + (util.format(this.json['populations'].length)) + ";\n";
-        if ('intermediates' in this.json) {
-            this.model += "    ".repeat(tab) + "iret += " + (util.format(this.json['intermediates'].length + this.json['transformations'].length)) + ";\n";
-        }
         this.model += "\n";
+        if (iret) {
+            if ('intermediates' in this.json) {
+                this.json['intermediates'].forEach( (spc, i) => {
+                    that.model += "    ".repeat(tab) + "iret[" + util.format(i) + "] = " + spc['id'] + ";\n";
+                } );
+                this.model += "\n";
+            }
+            if ('transformations' in this.json) {
+                this.json['transformations'].forEach( (spc, i) => {
+                    that.model += "    ".repeat(tab) + "iret[" + util.format(this.json['intermediates'].length + i) + "] = " + spc['id'] + ";\n";
+                } );
+                this.model += "\n";
+            }
+            if ('intermediates' in this.json) {
+                this.model += "    ".repeat(tab) + "iret += " + (util.format(this.json['intermediates'].length + this.json['transformations'].length)) + ";\n";
+            }
+            this.model += "\n";
+        }
     }
     write_sim() {
         let i, j;
@@ -305,7 +308,7 @@ class PopJSON {
             that.model += "    size_" + spc['id'] + " = spop2_size(" + spc['id'] + ");\n";
         } );
         this.model += "\n";
-        this.write_out(1);
+        this.write_out(1, false);
         this.model += "    for (tm=1; tm<tf; tm++) {\n";
         //
         if ('intermediates' in this.json) {
@@ -381,7 +384,7 @@ class PopJSON {
                 that.model += "\n";
             }
             //
-            this.write_out(2)
+            this.write_out(2, true);
         }
         //
         this.model += "    }\n";
