@@ -67,6 +67,9 @@ class PopJSON {
             }
         }
         //
+        this.model += "#define CHECK(x) (isnan(x) || isinf(x))\n"
+        this.model += "\n";
+        //
         this.numpar = this.json['parameters'].filter( (p) => !p['constant'] ).length;
         this.numpop = this.json['populations'].length;
         this.numint_int = this.json['intermediates'].length;
@@ -208,11 +211,11 @@ class PopJSON {
         let that = this;
         if (this.deterministic) {
             this.json['populations'].forEach( (spc, i) => {
-                that.model += "    ".repeat(tab) + "ret[" + util.format(i) + "] = size_" + spc['id'] + ".d;\n";
+                that.model += "    ".repeat(tab) + "ret[" + util.format(i) + "] = size_" + spc['id'] + ".d;\n" + "    ".repeat(tab) + "if (CHECK(ret[" + util.format(i) + "])) {*success = 0; goto endall;};\n";
             } );
         } else {
             this.json['populations'].forEach( (spc, i) => {
-                that.model += "    ".repeat(tab) + "ret[" + util.format(i) + "] = (double)(size_" + spc['id'] + ".i);\n";
+                that.model += "    ".repeat(tab) + "ret[" + util.format(i) + "] = (double)(size_" + spc['id'] + ".i);\n" + "    ".repeat(tab) + "if (CHECK(ret[" + util.format(i) + "])) {*success = 0; goto endall;};\n";
             } );
         }
         this.model += "\n";
@@ -221,13 +224,13 @@ class PopJSON {
         if (iret) {
             if ('intermediates' in this.json) {
                 this.json['intermediates'].forEach( (spc, i) => {
-                    that.model += "    ".repeat(tab) + "iret[" + util.format(i) + "] = " + spc['id'] + ";\n";
+                    that.model += "    ".repeat(tab) + "iret[" + util.format(i) + "] = " + spc['id'] + ";\n" + "    ".repeat(tab) + "if (CHECK(iret[" + util.format(i) + "])) {*success = 0; goto endall;};\n";
                 } );
                 this.model += "\n";
             }
             if ('transformations' in this.json) {
                 this.json['transformations'].forEach( (spc, i) => {
-                    that.model += "    ".repeat(tab) + "iret[" + util.format(this.json['intermediates'].length + i) + "] = " + spc['id'] + ";\n";
+                    that.model += "    ".repeat(tab) + "iret[" + util.format(this.json['intermediates'].length + i) + "] = " + spc['id'] + ";\n" + "    ".repeat(tab) + "if (CHECK(iret[" + util.format(i) + "])) {*success = 0; goto endall;};\n";
                 } );
                 this.model += "\n";
             }
@@ -389,13 +392,16 @@ class PopJSON {
         //
         this.model += "    }\n";
         this.model += "\n";
+        this.model += "    *success = 1;\n";
+        this.model += "\n";
+        this.model += "  endall:\n";
+        this.model += "\n";
         if (this.json['model']['type'] == "Population") {
             this.json['populations'].forEach( (spc) => {
                 that.model += "    spop2_free(&" + spc['id'] + ");\n";
             });
             this.model += "\n";
         }
-        this.model += "    *success = 1;\n";
         this.model += "}\n";
         this.model += "\n";
     }
