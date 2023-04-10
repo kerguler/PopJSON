@@ -351,7 +351,7 @@ class PopJSON {
                 } );
                 that.model += "\n";
                 //
-                this.json['transformations'].forEach( (trx) => {
+                this.json['transformations'].filter( (trx) => 'to' in trx ).forEach( (trx) => {
                     for (j=0; j<that.numproc; j++) {
                         that.model += "        key[" + util.format(j) + "] = numZERO;\n";
                     }
@@ -360,7 +360,7 @@ class PopJSON {
                     that.model += "\n";
                 } );
                 //
-                this.json['transformations'].forEach( (trx) => {
+                this.json['transformations'].filter( (trx) => 'to' in trx ).forEach( (trx) => {
                     if (that.deterministic) {
                         that.model += "        size_" + trx['to'] + ".d += " + trx['id'] + ";\n";
                     } else {
