@@ -399,6 +399,11 @@ class PopJSON {
         if (this.json['model']['type'] == "Population") {
             this.json['populations'].forEach( (spc) => {
                 that.model += "    spop2_free(&" + spc['id'] + ");\n";
+                if (that.transfers && that.transfers.includes(spc['id'])) {
+                    for (j=0; j<that.numproc; j++) {
+                        that.model += "    spop2_free(&(popdone_" + spc['id'] + "[" + util.format(j) + "]));\n";
+                    }
+                }
             });
             this.model += "\n";
         }
