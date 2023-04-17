@@ -321,6 +321,8 @@ class PopJSON {
             this.model += "\n";
         }
         //
+        that.model += "        if (rep >= 0) {\n";
+        //
         if (this.json['model']['type'] == "Population") {
             this.json['populations'].forEach( (spc, i) => {
                 let pars = [];
@@ -332,9 +334,9 @@ class PopJSON {
                     }
                 } );
                 for (j = 0; j < that.numprocpar; j++) {
-                    that.model += "        par[" + util.format(j) + "] = " + (pars.length ? that.parse_value(pars.shift()) : "0.0") + ";\n";
+                    that.model += "                par[" + util.format(j) + "] = " + (pars.length ? that.parse_value(pars.shift()) : "0.0") + ";\n";
                 }
-                that.model += "        spop2_step(" + spc['id'] + ", par, &size_" + spc['id'] + ", completed_" + spc['id'] + ", " + (that.transfers.includes(spc['id']) ? "popdone_" + spc['id'] : "0") + ");\n";
+                that.model += "                spop2_step(" + spc['id'] + ", par, &size_" + spc['id'] + ", completed_" + spc['id'] + ", " + (that.transfers.includes(spc['id']) ? "popdone_" + spc['id'] : "0") + ");\n";
                 that.model += "\n";
             } );
             //
@@ -347,24 +349,24 @@ class PopJSON {
             */
             if ('transformations' in this.json) {
                 this.json['transformations'].forEach( (trx) => {
-                    that.model += "        " + trx['id'] + " = " + that.parse_value(trx['value']) + ";\n";
+                    that.model += "                " + trx['id'] + " = " + that.parse_value(trx['value']) + ";\n";
                 } );
                 that.model += "\n";
                 //
                 this.json['transformations'].filter( (trx) => 'to' in trx ).forEach( (trx) => {
                     for (j=0; j<that.numproc; j++) {
-                        that.model += "        key[" + util.format(j) + "] = numZERO;\n";
+                        that.model += "                key[" + util.format(j) + "] = numZERO;\n";
                     }
-                    that.model += "        num" + (that.deterministic ? ".d" : ".i") + " = " + trx['id'] + ";\n";
-                    that.model += "        spop2_add(" + trx['to'] + ", key, num);\n";
+                    that.model += "                num" + (that.deterministic ? ".d" : ".i") + " = " + trx['id'] + ";\n";
+                    that.model += "                spop2_add(" + trx['to'] + ", key, num);\n";
                     that.model += "\n";
                 } );
                 //
                 this.json['transformations'].filter( (trx) => 'to' in trx ).forEach( (trx) => {
                     if (that.deterministic) {
-                        that.model += "        size_" + trx['to'] + ".d += " + trx['id'] + ";\n";
+                        that.model += "                size_" + trx['to'] + ".d += " + trx['id'] + ";\n";
                     } else {
-                        that.model += "        size_" + trx['to'] + ".i += " + trx['id'] + ";\n";
+                        that.model += "                size_" + trx['to'] + ".i += " + trx['id'] + ";\n";
                     }
                 } );
                 that.model += "\n";
@@ -372,20 +374,23 @@ class PopJSON {
             //
             if ('transfers' in this.json) {
                 this.json['transfers'].forEach( (trn) => {
-                    that.model += "        spop2_foreach(popdone_" + that.processobj[trn['from']]['parent_id'] + "[" + trn['from'] + "], fun_transfer_" + trn['id'] + ", (void *)(&" + trn['to'] + "));\n";
+                    that.model += "                spop2_foreach(popdone_" + that.processobj[trn['from']]['parent_id'] + "[" + trn['from'] + "], fun_transfer_" + trn['id'] + ", (void *)(&" + trn['to'] + "));\n";
                 } );
                 that.model += "\n";
                 this.transfers.forEach( (trn) => {
                     for (j=0; j<that.numproc; j++) {
-                        that.model += "        spop2_empty(&popdone_" + trn + "[" + util.format(j) + "]);\n"
+                        that.model += "                spop2_empty(&popdone_" + trn + "[" + util.format(j) + "]);\n"
                     }
                     that.model += "\n";
                 } );
                 Array.from(new Set(this.json['transfers'].map( (trn) => trn['to'] ))).forEach( (trn) => {
-                    that.model += "        size_" + trn + " = spop2_size(" + trn + ");\n";
+                    that.model += "                size_" + trn + " = spop2_size(" + trn + ");\n";
                 } );
                 that.model += "\n";
             }
+            //
+            that.model += "        }\n";
+            that.model += "\n";
             //
             this.write_out(2, true);
         }
