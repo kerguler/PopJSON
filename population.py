@@ -75,8 +75,9 @@ class model:
         pr = numpy.array(pr)
         y0 = numpy.array(y0)
         rep = numpy.int32(rep)
-        ret = numpy.ndarray(rep*ftime*self.numpop, dtype=numpy.float64)
-        iret = numpy.ndarray(rep*ftime*self.numint, dtype=numpy.float64)
+        rdim = rep if rep >= 0 else -rep
+        ret = numpy.ndarray(rdim*ftime*self.numpop, dtype=numpy.float64)
+        iret = numpy.ndarray(rdim*(ftime-1)*self.numint, dtype=numpy.float64)
         success = numpy.array(0, dtype=numpy.int32, ndmin=1)
         self.csim(ftime,
                   rep,
@@ -86,9 +87,9 @@ class model:
                   ret,
                   iret,
                   success)
-        ret = numpy.array(ret).reshape((rep,ftime,self.numpop))
-        iret = numpy.array(iret).reshape((rep,ftime,self.numint))
-        return { "ret": ret, "iret": iret }
+        ret = numpy.array(ret).reshape((rdim,ftime,self.numpop))
+        iret = numpy.array(iret).reshape((rdim,ftime-1,self.numint))
+        return { "success":success[0], "ret": ret, "iret": iret }
         
 """
 TEST
