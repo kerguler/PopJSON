@@ -266,6 +266,8 @@ class PopJSON {
                 that.model += "    number size_" + spc['id'] + ";\n";
             } );
             this.json['populations'].forEach( (spc, i) => {
+                if (spc['processes'].length == 0) return;
+                //
                 that.model += "    number completed_" + spc['id'] + "[" + util.format(that.numproc) + "];\n";
             } );
             if ('transformations' in this.json) {
@@ -325,6 +327,8 @@ class PopJSON {
         //
         if (this.json['model']['type'] == "Population") {
             this.json['populations'].forEach( (spc, i) => {
+                if (spc['processes'].length == 0) return;
+                //
                 let pars = [];
                 spc['processes'].forEach( (s) => {
                     if (Array.isArray(s['value'])) {
