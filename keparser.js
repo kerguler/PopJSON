@@ -431,7 +431,7 @@ class PopJSON {
             let fun = this.parse_value(value[0]);
             if (fun == "define") {
                 if (!(value[1].every( (v) => that.funparnames.includes(v) ))) {
-                    console.log(this.model + "\nError in function definition\nERROR: " + fun + " : " + value);
+                    console.log(this.model + "\nError in function definition\nYou are allowed to use these as parameter names:\n" + that.funparnames + "\nERROR: " + fun + " : " + value);
                     process.exit(1);
                 }
                 let def = this.parse_value(value[2]);
