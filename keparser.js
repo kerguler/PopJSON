@@ -330,7 +330,7 @@ class PopJSON {
                     if (Array.isArray(s['value'])) {
                         s['value'].forEach( (ss) => pars.push(ss) );
                     } else {
-                        pars.push(that.parse_value(s['value']));
+                        pars.push(s['value']);
                     }
                 } );
                 for (j = 0; j < that.numprocpar; j++) {
@@ -427,7 +427,7 @@ class PopJSON {
             let fun = this.parse_value(value[0]);
             if (fun == "define") {
                 if (!(value[1].every( (v) => that.funparnames.includes(v) ))) {
-                    console.log("ERROR: " + fun + " : " + value);
+                    console.log(this.model + "\nError in function definition\nERROR: " + fun + " : " + value);
                     process.exit(1);
                 }
                 let def = this.parse_value(value[2]);
@@ -478,7 +478,7 @@ class PopJSON {
                 } else if (fun == "<=") {
                     return "(" + prm[0] + " <= " + prm[1] + ")";
                 } else {
-                    console.log("ERROR: " + fun + " : " + value);
+                    console.log(this.model + "\nUnknown keyword in equation\nERROR: " + fun + " : " + value);
                     process.exit(1);
                 }
             }
@@ -511,11 +511,11 @@ class PopJSON {
                 } else if (!isNaN(parseInt(value))) {
                     return value;
                 } else {
-                    console.log("ERROR: " + value);
+                    console.log(this.model + "\nUnknown reference to a user defined keyword\nERROR: " + value);
                     process.exit(1);
                 }
             } else { // Number
-                console.log("ERROR: Numbers should be provided as strings");
+                console.log(this.model + "\nERROR: Numbers should be provided as strings");
                 console.log([fun,value])
                 process.exit(1);
         }
