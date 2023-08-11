@@ -27,21 +27,30 @@ class model:
         try:
             self.get_names = self.dylib.parnames
             self.get_names.restype = None
-            self.get_names.argtypes = [POINTER(c_char_p), array_1d_double]
+            self.get_names.argtypes = [POINTER(c_char_p), 
+                                       array_1d_double,
+                                       array_1d_double,
+                                       array_1d_double]
             temp = (c_char_p * (self.numpop+self.numpar+self.numint))(256)
             param = numpy.ndarray(self.numpar, dtype=numpy.float64)
-            ret = self.get_names(temp, param)
+            parmin = numpy.ndarray(self.numpar, dtype=numpy.float64)
+            parmax = numpy.ndarray(self.numpar, dtype=numpy.float64)
+            ret = self.get_names(temp, param, parmin, parmax)
             temp = numpy.array([str(elm,'utf-8') for elm in temp])
             self.popnames = numpy.copy(temp[:self.numpop])
             self.parnames = numpy.copy(temp[self.numpop:(self.numpop+self.numpar)])
             self.intnames = numpy.copy(temp[(self.numpop+self.numpar):])
             self.param = numpy.copy(param)
+            self.parmin = numpy.copy(parmin)
+            self.parmax = numpy.copy(parmax)
         except:
             print("Falling back to default parameters")
             self.popnames = numpy.array(["coln%d" %(n) for n in range(self.numpop)])
             self.parnames = numpy.array(["par%d" %(n) for n in range(self.numpar)])
             self.intnames = numpy.array(["inter%d" %(n) for n in range(self.numint)])
             self.param = numpy.repeat(0.0, self.numpar)
+            self.parmin = numpy.repeat(0.0, self.numpar)
+            self.parmax = numpy.repeat(0.0, self.numpar)
         #
         self.popids = {}
         for elm in self.popnames:
@@ -90,7 +99,26 @@ class model:
         ret = numpy.array(ret).reshape((rdim,ftime,self.numpop))
         iret = numpy.array(iret).reshape((rdim,ftime-1,self.numint))
         return { "success":success[0], "ret": ret, "iret": iret }
-        
+        #
+    def sims(self,ftime,envir,prs,y0,rep=1):
+        rets = []
+        irets = []
+        for pr in prs:
+            sim = self.sim(ftime,envir,pr,y0,rep=rep)
+            if sim['success'] == ftime:
+                if len(rets) == 0:
+                    rets = sim['ret']
+                else:
+                    rets = numpy.vstack([rets,sim['ret']])
+                if len(irets) == 0:
+                    irets = sim['iret']
+                else:
+                    irets = numpy.vstack([irets,sim['iret']])
+        return { 
+            "rets": numpy.percentile(rets,[5,50,95],axis=0),
+            "irets": numpy.percentile(irets,[5,50,95],axis=0)
+        }
+
 """
 TEST
 """

@@ -173,7 +173,7 @@ class PopJSON {
     }
     write_parnames() {
         let that = this;
-        this.model += "void parnames(char **names, double *param) {\n";
+        this.model += "void parnames(char **names, double *param, double *parmin, double *parmax) {\n";
         this.model += "    char temp[NumPop+NumPar+NumInt][256] = {\n";
         if (this.numpop > 0) {
             this.model += "        \"" + this.json['populations'].map( (s) => s['id'] ).join("\", \"") + "\",\n";
@@ -195,6 +195,8 @@ class PopJSON {
         this.model += "\n";
         this.json['parameters'].filter( (p) => !p['constant'] ).forEach( (pr, i) => {
             that.model += "    param[" + pr['id'] + "] = " + util.format('value' in pr ? pr['value'] : 0.0) + ";\n";
+            that.model += "    parmin[" + pr['id'] + "] = " + util.format('min' in pr ? pr['min'] : ('value' in pr ? pr['value'] : 0.0)) + ";\n";
+            that.model += "    parmax[" + pr['id'] + "] = " + util.format('max' in pr ? pr['max'] : ('value' in pr ? pr['value'] : 0.0)) + ";\n";
         } );
         this.model += "}\n";
         this.model += "\n";
