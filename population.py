@@ -6,6 +6,18 @@ import numpy.ctypeslib as npct
 array_1d_double = npct.ndpointer(dtype=numpy.float64, ndim=1, flags='CONTIGUOUS')
 array_1d_int = npct.ndpointer(dtype=numpy.int32, ndim=1, flags='CONTIGUOUS')
 
+def calcEnsemble(sim):
+    if len(sim)==0:
+        return None
+    p = numpy.percentile(sim,[2.5,50,97.5],axis=0)
+    return {
+        'lower':p[0],
+        'median':p[1],
+        'higher':p[2],
+        'mean':numpy.nanmean(sim,axis=0),
+        'std':numpy.nanstd(sim,axis=0)
+        }
+
 class model:
     def __init__(self, filename):
         self.filename = filename
@@ -98,7 +110,11 @@ class model:
                   success)
         ret = numpy.array(ret).reshape((rdim,ftime,self.numpop))
         iret = numpy.array(iret).reshape((rdim,ftime-1,self.numint))
-        return { "success":success[0], "ret": ret, "iret": iret }
+        return { 
+            "success":success[0], 
+            "ret": ret, 
+            "iret": iret 
+            }
         #
     def sims(self,ftime,envir,prs,y0,rep=1):
         rets = []
@@ -115,8 +131,8 @@ class model:
                 else:
                     irets = numpy.vstack([irets,sim['iret']])
         return { 
-            "rets": numpy.percentile(rets,[5,50,95],axis=0),
-            "irets": numpy.percentile(irets,[5,50,95],axis=0)
+            "rets": calcEnsemble(rets),
+            "irets": calcEnsemble(irets)
         }
 
 """
