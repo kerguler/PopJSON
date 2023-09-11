@@ -4,9 +4,10 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "@cortex-js/compute-engine": "0.12.2"
+    "@cortex-js/compute-engine": "0.12.2",
+    "browserify-css": "0.15.0",
+    "reactify": "1.1.1"
   },
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
