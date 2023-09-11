@@ -14,8 +14,8 @@ def calcEnsemble(sim):
         'lower':p[0],
         'median':p[1],
         'higher':p[2],
-        'mean':numpy.nanmean(sim,axis=0),
-        'std':numpy.nanstd(sim,axis=0)
+        'mean':numpy.mean(sim,axis=0),
+        'std':numpy.std(sim,axis=0)
         }
 
 class model:
@@ -39,30 +39,21 @@ class model:
         try:
             self.get_names = self.dylib.parnames
             self.get_names.restype = None
-            self.get_names.argtypes = [POINTER(c_char_p), 
-                                       array_1d_double,
-                                       array_1d_double,
-                                       array_1d_double]
+            self.get_names.argtypes = [POINTER(c_char_p), array_1d_double]
             temp = (c_char_p * (self.numpop+self.numpar+self.numint))(256)
             param = numpy.ndarray(self.numpar, dtype=numpy.float64)
-            parmin = numpy.ndarray(self.numpar, dtype=numpy.float64)
-            parmax = numpy.ndarray(self.numpar, dtype=numpy.float64)
-            ret = self.get_names(temp, param, parmin, parmax)
+            ret = self.get_names(temp, param)
             temp = numpy.array([str(elm,'utf-8') for elm in temp])
             self.popnames = numpy.copy(temp[:self.numpop])
             self.parnames = numpy.copy(temp[self.numpop:(self.numpop+self.numpar)])
             self.intnames = numpy.copy(temp[(self.numpop+self.numpar):])
             self.param = numpy.copy(param)
-            self.parmin = numpy.copy(parmin)
-            self.parmax = numpy.copy(parmax)
         except:
             print("Falling back to default parameters")
             self.popnames = numpy.array(["coln%d" %(n) for n in range(self.numpop)])
             self.parnames = numpy.array(["par%d" %(n) for n in range(self.numpar)])
             self.intnames = numpy.array(["inter%d" %(n) for n in range(self.numint)])
             self.param = numpy.repeat(0.0, self.numpar)
-            self.parmin = numpy.repeat(0.0, self.numpar)
-            self.parmax = numpy.repeat(0.0, self.numpar)
         #
         self.popids = {}
         for elm in self.popnames:
@@ -110,31 +101,31 @@ class model:
                   success)
         ret = numpy.array(ret).reshape((rdim,ftime,self.numpop))
         iret = numpy.array(iret).reshape((rdim,ftime-1,self.numint))
-        return { 
-            "success":success[0], 
-            "ret": ret, 
-            "iret": iret 
-            }
+        return { "success":success[0], "ret": ret, "iret": iret }
         #
-    def sims(self,ftime,envir,prs,y0,rep=1):
-        rets = []
-        irets = []
+    def sims(self,ftime,envir,prs,y0,rep=1,boil=None):
+        if boil is None:
+            boil = {'success': True, 'ret': {}, 'iret': {}}
+            for elm in self.popnames:
+                boil['ret'][elm] = []
+            for elm in self.intnames:
+                boil['iret'][elm] = []
         for pr in prs:
-            sim = self.sim(ftime,envir,pr,y0,rep=rep)
-            if sim['success'] == ftime:
-                if len(rets) == 0:
-                    rets = sim['ret']
-                else:
-                    rets = numpy.vstack([rets,sim['ret']])
-                if len(irets) == 0:
-                    irets = sim['iret']
-                else:
-                    irets = numpy.vstack([irets,sim['iret']])
-        return { 
-            "rets": calcEnsemble(rets),
-            "irets": calcEnsemble(irets)
-        }
+            s = self.sim(ftime,envir,pr,y0,rep=rep)
+            if (s.__class__.__name__!='dict' or not s['success']):
+                return {'success':False}
+            for elm in boil['ret'].keys():
+                boil['ret'][elm].append(s['ret'][:,:,self.popids[elm]].copy())
+            for elm in boil['iret'].keys():
+                boil['ire'][elm].append(s['iret'][:,:,self.intids[elm]].copy())
+        for elm in boil['ret'].keys():
+            boil['ret'][elm] = calcEnsemble(boil['ret'][elm])
+        for elm in boil['iret'].keys():
+            boil['iret'][elm] = calcEnsemble(boil['iret'][elm])
+        boil['success'] = True
+        return boil
 
+        
 """
 TEST
 """
