@@ -4,6 +4,16 @@ o { color: Orange }
 g { color: Green }
 </style>
 
+<script src="keparser.max.js"></script>
+<script>
+        function process() {
+            var PopJSON = require('PopJSON');
+            var parser = new PopJSON.PopJSON();
+            let model = parser.parse_json(document.getElementById("model").textContent);
+            document.getElementById("output").textContent = model;
+        }
+</script>
+
 # Population
 
 Third-generation implementation of the dynamically-structured matrix population model, with multiple processes acting on member-classes, implementing both age-dependent and accumulative processes.
@@ -12,7 +22,7 @@ Third-generation implementation of the dynamically-structured matrix population 
 
 The following creates a pseudo-structured population with 10 individuals and iterates it one step with 0 mortality and an Erlang-distributed development time of $20\pm5$ steps.
 
-```json
+<textarea id="model" style="display:none;">
     {
         "modelTypes": {
             "Population": {
@@ -581,8 +591,24 @@ The following creates a pseudo-structured population with 10 individuals and ite
             }
        ]
     }
+</textarea>
+```json
+    {
+        "modelTypes": {
+            "Population": {
+                "url": "https://github.com/kerguler/Population",
+                "deterministic": true,
+                "parameters": {
+                    "algorithm": "Population",
+                    "istep": 0.0025,
+                    "ostep": 1
+                }
+            }
+        },
+    }
 ```
-
-
+<button onclick="process()">Parse</button>
+<textarea id="output" style="width:44vw; height:66vh;">
+</textarea>
 
 # Usage examples
