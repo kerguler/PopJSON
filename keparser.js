@@ -211,9 +211,9 @@ class PopJSON {
         this.model += "        names[i] = strdup(temp[i]);\n";
         this.model += "\n";
         this.json['parameters'].filter( (p) => !p['constant'] ).forEach( (pr, i) => {
-            that.model += "    param[" + pr['id'] + "] = " + util.format('value' in pr ? pr['value'] : 0.0) + ";\n";
-            that.model += "    parmin[" + pr['id'] + "] = " + util.format('min' in pr ? pr['min'] : ('value' in pr ? pr['value'] : 0.0)) + ";\n";
-            that.model += "    parmax[" + pr['id'] + "] = " + util.format('max' in pr ? pr['max'] : ('value' in pr ? pr['value'] : 0.0)) + ";\n";
+            that.model += "    param[" + pr['id'] + "] = " + util.format('value' in pr ? this.parse_value(pr['value']) : 0.0) + ";\n";
+            that.model += "    parmin[" + pr['id'] + "] = " + util.format('min' in pr ? this.parse_value(pr['min']) : ('value' in pr ? this.parse_value(pr['value']) : 0.0)) + ";\n";
+            that.model += "    parmax[" + pr['id'] + "] = " + util.format('max' in pr ? this.parse_value(pr['max']) : ('value' in pr ? this.parse_value(pr['value']) : 0.0)) + ";\n";
         } );
         this.model += "}\n";
         this.model += "\n";
@@ -327,13 +327,13 @@ class PopJSON {
             this.model += "\n";
         }
         //
-        this.model += "    int tm = 0;\n";
+        this.model += "    int TIME = 0;\n";
         this.json['populations'].forEach( (spc, i) => {
             that.model += "    size_" + spc['id'] + " = spop2_size(" + spc['id'] + ");\n";
         } );
         this.model += "\n";
         this.write_out(1, false);
-        this.model += "    for (tm=1; tm<tf; tm++) {\n";
+        this.model += "    for (TIME=1; TIME<tf; TIME++) {\n";
         //
         if ('intermediates' in this.json) {
             this.json['intermediates'].forEach( (elm) => {
@@ -422,7 +422,7 @@ class PopJSON {
         this.model += "\n";
         this.model += "  endall:\n";
         this.model += "\n";
-        this.model += "    *success = tm;\n";
+        this.model += "    *success = TIME;\n";
         this.model += "\n";
         if (this.json['model']['type'] == "Population") {
             this.json['populations'].forEach( (spc) => {
@@ -531,8 +531,10 @@ class PopJSON {
                     return value;
                 } else if (this.funparnames.includes(value)) {
                     return "(" + value + ")";
-                } else if (value == "tm") {
-                    return value;
+                } else if (value == "TIME") {
+                    return "TIME";
+                } else if (value == "TIME_1") {
+                    return "(TIME-1)";
                 } else if (!isNaN(parseFloat(value))) {
                     return value;
                 } else if (!isNaN(parseInt(value))) {
@@ -541,8 +543,10 @@ class PopJSON {
                     console.log(this.model + "\nUnknown reference to a user defined keyword\nERROR: " + value);
                     process.exit(1);
                 }
-            } else { // Number
-                console.log(this.model + "\nERROR: Numbers should be provided as strings");
+            } else if (typeof value === 'number') { // Number
+                return value.toString();
+            } else { // NaN
+                console.log(this.model + "\nERROR: Invalid value encountered");
                 console.log([fun,value])
                 process.exit(1);
         }

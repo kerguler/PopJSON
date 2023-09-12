@@ -1,0 +1,588 @@
+<style>
+r { color: Red }
+o { color: Orange }
+g { color: Green }
+</style>
+
+# Population
+
+Third-generation implementation of the dynamically-structured matrix population model, with multiple processes acting on member-classes, implementing both age-dependent and accumulative processes.
+
+## Using the library
+
+The following creates a pseudo-structured population with 10 individuals and iterates it one step with 0 mortality and an Erlang-distributed development time of $20\pm5$ steps.
+
+```json
+    {
+        "modelTypes": {
+            "Population": {
+                "url": "https://github.com/kerguler/Population",
+                "deterministic": true,
+                "parameters": {
+                    "algorithm": "Population",
+                    "istep": 0.0025,
+                    "ostep": 1
+                }
+            }
+        },
+        "model": {
+            "title": "Climate-sensitive population dynamics of Aedes albopictus",
+            "type": "Population"
+        },
+        "unitDefinitions": {
+            "time": {
+                "name": "time",
+                "exponent": 1,
+                "kind": "day",
+                "multiplier": 1,
+                "scale": 0
+            }
+        },
+        "compartments": {
+            "breeder": {
+                "constant": true,
+                "name": "container",
+                "size": 1,
+                "spatialDimensions": 3
+            }
+        },
+        "species": {
+            "albopictus": {
+                "name": "Aedes albopictus (Skuse)",
+                "url": ""
+            }
+        },
+        "functions": {
+            "dmin": ["define", ["x","y"], ["?", ["<", "x", "y"], "x", "y"]],
+            "dmax": ["define", ["x","y"], ["?", [">", "x", "y"], "x", "y"]]
+        },
+        "environ": [
+            {
+                "id": "photo",
+                "name": "Photoperiod (hours of daylight)",
+                "url": ""
+            },{
+                "id": "atemp",
+                "name": "Mean air temperature (°C)",
+                "url": ""
+            },{
+                "id": "stemp",
+                "name": "Skin temperature (°C)",
+                "url": ""
+            },{
+                "id": "prec",
+                "name": "Total precipitation",
+                "url": ""
+            },{
+                "id": "evap",
+                "name": "Evaporation",
+                "url": ""
+            },{
+                "id": "coef",
+                "name": "Breeding site availability coefficient",
+                "url": ""
+            },{
+                "id": "lat",
+                "name": "Latitude",
+                "url": ""
+            }
+        ],
+        "populations": [
+            {
+                "id": "egg_diap",
+                "name": "Egg (diapausing)",
+                "compartment": "container",
+                "species": "albopictus",
+                "processes": [
+                    {
+                        "id": "egg_diap_mort",
+                        "name": "Egg (diapausing) mortality",
+                        "arbiter": "NOAGE_CONST",
+                        "value": "pr_diap_mort"
+                    }, {
+                        "id": "egg_diap_dev",
+                        "name": "Egg (diapausing) termination",
+                        "arbiter": "NOAGE_CONST",
+                        "value": "pr_diap_hatch"
+                    }
+                ]
+            },{
+                "id": "egg",
+                "name": "Egg",
+                "compartment": "container",
+                "species": "albopictus",
+                "processes": [
+                    {
+                        "id": "egg_mort",
+                        "name": "Egg mortality",
+                        "arbiter": "NOAGE_CONST",
+                        "value": "pr_egg_mort"
+                    }, {
+                        "id": "egg_dev",
+                        "name": "Egg development",
+                        "arbiter": "ACC_FIXED",
+                        "value": "pr_egg_dev"
+                    }
+                ]
+            },{
+                "id": "egg_hatch",
+                "name": "Egg (hatching)",
+                "compartment": "container",
+                "species": "albopictus",
+                "processes": [
+                    {
+                        "id": "egg_hatch_mort",
+                        "name": "Egg (hatching) mortality",
+                        "arbiter": "NOAGE_CONST",
+                        "value": "pr_egg_mort"
+                    },{
+                        "id": "egg_hatch_dev",
+                        "name": "Egg (hatching) development",
+                        "arbiter": "NOAGE_CONST",
+                        "value": "pr_egg_hatch"
+                    }
+                ]
+            },{
+                "id": "larva",
+                "name": "Larva",
+                "compartment": "container",
+                "species": "albopictus",
+                "processes": [
+                    {
+                        "id": "larva_mort",
+                        "name": "Larva mortality",
+                        "arbiter": "NOAGE_CONST",
+                        "value": "pr_larva_mort"
+                    }, {
+                        "id": "larva_dev",
+                        "name": "Larva development",
+                        "arbiter": "ACC_FIXED",
+                        "value": "pr_larva_dev"
+                    }
+                ]
+            },{
+                "id": "pupa",
+                "name": "Pupa",
+                "compartment": "container",
+                "species": "albopictus",
+                "processes": [
+                    {
+                        "id": "pupa_mort",
+                        "name": "Pupa mortality",
+                        "arbiter": "NOAGE_CONST",
+                        "value": "pr_pupa_mort"
+                    }, {
+                        "id": "pupa_dev",
+                        "name": "Pupa development",
+                        "arbiter": "ACC_FIXED",
+                        "value": "pr_pupa_dev"
+                    }
+                ]
+            },{
+                "id": "juvenile",
+                "name": "Juvenile adult (female)",
+                "compartment": "container",
+                "species": "albopictus",
+                "processes": [
+                    {
+                        "id": "juvenile_life",
+                        "name": "Juvenile adult lifetime",
+                        "arbiter": "ACC_ERLANG",
+                        "value": ["pr_adult_life", ["*", "pr_stdev", "pr_adult_life"]]
+                    }, {
+                        "id": "juvenile_dev",
+                        "name": "Juvenile adult development",
+                        "arbiter": "ACC_FIXED",
+                        "value": "pr_juvenile_dev"
+                    }
+                ]
+            },{
+                "id": "adult",
+                "name": "Adult (female)",
+                "compartment": "container",
+                "species": "albopictus",
+                "processes": [
+                    {
+                        "id": "adult_life",
+                        "name": "Adult lifetime",
+                        "arbiter": "ACC_ERLANG",
+                        "value": ["pr_adult_life", ["*", "pr_stdev", "pr_adult_life"]]
+                    }, {
+                        "id": "adult_dev",
+                        "name": "Adult development",
+                        "arbiter": "ACC_FIXED",
+                        "value": "pr_adult_dev"
+                    }
+                ]
+            },{
+                "id": "male",
+                "name": "Adult (male)",
+                "compartment": "container",
+                "species": "albopictus",
+                "processes": [
+                    {
+                        "id": "male_life",
+                        "name": "Adult (male) lifetime",
+                        "arbiter": "ACC_ERLANG",
+                        "value": ["pr_male_life", ["*", "pr_stdev", "pr_male_life"]]
+                    }
+                ]
+            }
+        ],
+        "intermediates": [
+            {
+                "id": "pr_CPP",
+                "value": ["dmax", "12.0", ["dmin", "15.0", ["+", "pr_CPP_0", ["*", "pr_CPP_1", ["index", "lat", ["-", "tm", "1"]]]]]]
+            }, {
+                "id": "bsvol",
+                "value": ["+", ["index", "coef", ["-", "tm", "1"]], ["index", "prec", ["-", "tm", "1"]], ["*", ["index", "evap", ["-", "tm", "1"]], "bsvol"]]
+            }, {
+                "id": "KCap",
+                "value": ["/", ["*", ["exp", "pr_dens_scl"], "bsvol"], ["+", "1.0", ["size", "larva"]]]
+            }, {
+                "id": "pr_dens_imp",
+                "value": ["+", "1.0", ["/", "1.0", ["+", "1.0", ["exp", ["*", "pr_dens_str", ["-", "KCap", "pr_dens_thr"]]]]]]
+            }, {
+                "id": "pr_egg_dev",
+                "value": ["round", ["dmax", "0.0", ["+", "pr_d1_dev_0", ["*", "pr_d1_dev_1", ["index", "stemp", ["-", "tm", "1"]]], ["*", "pr_d1_dev_2", ["pow", ["index", "stemp", ["-", "tm", "1"]], "2"]]]]]
+            }, {
+                "id": "pr_egg_surv_perc",
+                "value": ["?", ["||", ["<", ["index", "stemp", ["-", "tm", "1"]], "pr_p1_pcent_1"], [">", ["index", "stemp", ["-", "tm", "1"]], ["+", "pr_p1_pcent_1", "pr_p1_pcent_2"]]], "0.0", ["dmax", "0.0", ["*", "pr_p1_pcent_0", ["index", "stemp", ["-", "tm", "1"]], ["-", ["index", "stemp", ["-", "tm", "1"]], "pr_p1_pcent_1"], ["sqrt", ["-", ["+", "pr_p1_pcent_1", "pr_p1_pcent_2"], ["index", "stemp", ["-", "tm", "1"]]]]]]]
+            }, {
+                "id": "pr_egg_mort",
+                "value": ["-", "1.0", ["pow", ["dmax", "0.0", ["dmin", "1.0", ["*", "0.01", "pr_egg_surv_perc"]]],["/","1.0","pr_egg_dev"]]]
+            }, {
+                "id": "pr_diap_mort",
+                "value": ["/", "1.0", ["+", "1.0", ["exp", ["*", "pr_p0_0", ["-", ["index", "stemp", ["-", "tm", "1"]], "pr_p0_1"]]]]]
+            }, {
+                "id": "pr_egg_hatch",
+                "value": ["?", [">", ["index", "stemp", ["-", "tm", "1"]], "pr_hatch_temp"], "1.0", "0.0"]
+            }, {
+                "id": "pr_larva_dev_raw",
+                "value": ["round", ["dmax", "0.0", ["+", "pr_d2_dev_0", ["*", "pr_d2_dev_1", ["index", "stemp", ["-", "tm", "1"]]], ["*", "pr_d2_dev_2", ["pow", ["index", "stemp", ["-", "tm", "1"]], "2"]]]]]
+            }, {
+                "id": "pr_larva_dev",
+                "value": ["*", "pr_dens_imp", "pr_larva_dev_raw"]
+            }, {
+                "id": "pr_larva_surv_perc",
+                "value": ["dmax", "0.0", ["dmin", "1.0", ["*", "0.01", ["+", "pr_p2_pcent_0", ["*", "pr_p2_pcent_1", ["index", "stemp", ["-", "tm", "1"]]], ["*", "pr_p2_pcent_2", ["pow", ["index", "stemp", ["-", "tm", "1"]], "2"]]]]]]
+            }, {
+                "id": "pr_larva_surv",
+                "value": ["-", "1.0", ["pow", "pr_larva_surv_perc", ["/","1.0","pr_larva_dev"]]]
+            }, {
+                "id": "pr_larva_mort",
+                "value": ["-", "1.0", ["/", ["-", "1.0", "pr_larva_surv"], ["pow", "pr_dens_imp", "2.0"]]]
+            }, {
+                "id": "pr_pupa_dev",
+                "value": ["round", ["dmax", "0.0", ["+", "pr_d3_dev_0", ["*", "pr_d3_dev_1", ["index", "stemp", ["-", "tm", "1"]]], ["*", "pr_d3_dev_2", ["pow", ["index", "stemp", ["-", "tm", "1"]], "2"]]]]]
+            }, {
+                "id": "pr_pupa_surv_perc",
+                "value": ["dmax", "0.0", ["dmin", "1.0", ["*", "0.01", ["+", "pr_p3_pcent_0", ["*", "pr_p3_pcent_1", ["index", "stemp", ["-", "tm", "1"]]], ["*", "pr_p3_pcent_2", ["pow", ["index", "stemp", ["-", "tm", "1"]], "2"]]]]]]
+            }, {
+                "id": "pr_pupa_mort",
+                "value": ["-", "1.0", ["pow", "pr_pupa_surv_perc", ["/","1.0","pr_pupa_dev"]]]
+            }, {
+                "id": "pr_juvenile_dev",
+                "value": ["round", ["dmax", "0.0", ["+", "pr_d4j_dev_0", ["*", "pr_d4j_dev_1", ["index", "atemp", ["-", "tm", "1"]]], ["*", "pr_d4j_dev_2", ["pow", ["index", "atemp", ["-", "tm", "1"]], "2"]]]]]
+            }, {
+                "id": "pr_adult_life",
+                "value": ["round", ["dmax", "0.0", ["+", "pr_d4_dev_0", ["*", "pr_d4_dev_1", ["index", "atemp", ["-", "tm", "1"]]], ["*", "pr_d4_dev_2", ["pow", ["index", "atemp", ["-", "tm", "1"]], "2"]]]]]
+            }, {
+                "id": "pr_adult_dev",
+                "value": ["round", ["dmax", "0.0", ["+", "pr_d4gc_dev_0", ["*", "pr_d4gc_dev_1", ["index", "atemp", ["-", "tm", "1"]]], ["*", "pr_d4gc_dev_2", ["pow", ["index", "atemp", ["-", "tm", "1"]], "2"]]]]]
+            }, {
+                "id": "pr_male_life",
+                "value": ["round", ["*", "pr_d4m_ratio", "pr_adult_life"]]
+            }, {
+                "id": "frac_diap",
+                "value": ["/", "1.0", ["+", "1.0", ["exp", ["*", "6.0", ["-", ["index", "photo", ["-", "tm", "1"]], "pr_CPP"]]]]]
+            }, {
+                "id": "num_egg_total",
+                "value": ["dmax", "0.0", ["+", "pr_f4_gc_0", ["*", "pr_f4_gc_1", ["index", "atemp", ["-", "tm", "1"]]], ["*", "pr_f4_gc_2", ["pow", ["index", "atemp", ["-", "tm", "1"]], "2"]]]]
+            }, {
+                "id": "num_egg_diap",
+                "value": ["*", "frac_diap", "num_egg_total"]
+            }, {
+                "id": "num_egg_norm",
+                "value": ["-", "num_egg_total", "num_egg_diap"]
+            }, {
+                "id": "pr_diap_hatch",
+                "value": ["/", "1.0", ["+", "1.0", ["exp", ["*", "6.0", ["-", "pr_CPP", ["index", "photo", ["-", "tm", "1"]]]]]]]
+            }
+        ],
+        "transformations": [
+            {
+                "id": "diap_to_hatch",
+                "name": "Egg (diapausing) to hatching",
+                "to": "egg_hatch",
+                "value": ["egg_diap_dev", "egg_diap"]
+            },{
+                "id": "egg_to_hatch",
+                "name": "Egg to hatching",
+                "to": "egg_hatch",
+                "value": ["egg_dev", "egg"]
+            },{
+                "id": "hatch_to_larva",
+                "name": "Egg (hatching) to larva",
+                "to": "larva",
+                "value": ["egg_hatch_dev", "egg_hatch"]
+            },{
+                "id": "larva_to_pupa",
+                "name": "Larva to pupa",
+                "to": "pupa",
+                "value": ["larva_dev", "larva"]
+            },{
+                "id": "pupa_to_juvenile",
+                "name": "Pupa to juvenile",
+                "to": "juvenile",
+                "value": ["*", ["pupa_dev", "pupa"], "sex_ratio"]
+            },{
+                "id": "pupa_to_male",
+                "name": "Pupa to adult (male)",
+                "to": "male",
+                "value": ["*", ["pupa_dev", "pupa"], ["-", "1.0", "sex_ratio"]]
+            },{
+                "id": "num_gravid",
+                "name": "Number of gravid females",
+                "value": ["adult_dev", "adult"]
+            },{
+                "id": "adult_to_egg",
+                "name": "Egg laying (non-diapausing)",
+                "to": "egg",
+                "value": ["*", "num_gravid", "num_egg_norm"]
+            },{
+                "id": "adult_to_egg_diap",
+                "name": "Egg laying (diapausing)",
+                "to": "egg_diap",
+                "value": ["*", "num_gravid", "num_egg_diap"]
+            }
+        ],
+        "transfers": [
+            {
+                "id": "gonotrophic_cycle",
+                "name": "Gonotrophic cycle",
+                "from": "adult_dev",
+                "to": "adult",
+                "value": [["adult_life", "adult"], "0"]
+            },{
+                "id": "juvenile_to_adult",
+                "name": "Juveniles becoming adults",
+                "from": "juvenile_dev",
+                "to": "adult",
+                "value": [["juvenile_life", "juvenile"], "0"]
+            }
+        ],
+        "parameters": [
+            {
+                "id": "sex_ratio",
+                "constant": true,
+                "name": "Sex ratio",
+                "value": 0.5
+            },{
+                "id": "pr_stdev",
+                "constant": true,
+                "name": "Standard deviation of mean lifetime for adults",
+                "value": 0.5
+            },{
+                "id": "pr_CPP_0",
+                "constant": false,
+                "name": "Critical photoperiod vs latitude no. 0",
+                "value": 12.0
+            },{
+                "id": "pr_CPP_1",
+                "constant": false,
+                "name": "Critical photoperiod vs latitude no. 1",
+                "value": 2.0
+            },{
+                "id": "pr_d1_dev_0",
+                "constant": false,
+                "name": "Temperature-driven egg development no.0",
+                "value": 0.0
+            },{
+                "id": "pr_d1_dev_1",
+                "constant": false,
+                "name": "Temperature-driven egg development no.1",
+                "value": 0.0
+            },{
+                "id": "pr_d1_dev_2",
+                "constant": false,
+                "name": "Temperature-driven egg development no.2",
+                "value": 0.0
+            },{
+                "id": "pr_d2_dev_0",
+                "constant": false,
+                "name": "Temperature-driven larva development no.0",
+                "value": 0.0
+            },{
+                "id": "pr_d2_dev_1",
+                "constant": false,
+                "name": "Temperature-driven larva development no.1",
+                "value": 0.0
+            },{
+                "id": "pr_d2_dev_2",
+                "constant": false,
+                "name": "Temperature-driven larva development no.2",
+                "value": 0.0
+             },{
+                "id": "pr_d3_dev_0",
+                "constant": false,
+                "name": "Temperature-driven pupa development no.0",
+                "value": 0.0
+            },{
+                "id": "pr_d3_dev_1",
+                "constant": false,
+                "name": "Temperature-driven pupa development no.1",
+                "value": 0.0
+            },{
+                "id": "pr_d3_dev_2",
+                "constant": false,
+                "name": "Temperature-driven pupa development no.2",
+                "value": 0.0
+             },{
+                "id": "pr_d4j_dev_0",
+                "constant": false,
+                "name": "Temperature-driven juvenile development no.0",
+                "value": 0.0
+            },{
+                "id": "pr_d4j_dev_1",
+                "constant": false,
+                "name": "Temperature-driven juvenile development no.1",
+                "value": 0.0
+            },{
+                "id": "pr_d4j_dev_2",
+                "constant": false,
+                "name": "Temperature-driven juvenile development no.2",
+                "value": 0.0
+             },{
+                "id": "pr_d4gc_dev_0",
+                "constant": false,
+                "name": "Temperature-driven gonotrophic cycle length no.0",
+                "value": 0.0
+            },{
+                "id": "pr_d4gc_dev_1",
+                "constant": false,
+                "name": "Temperature-driven gonotrophic cycle length no.1",
+                "value": 0.0
+            },{
+                "id": "pr_d4gc_dev_2",
+                "constant": false,
+                "name": "Temperature-driven gonotrophic cycle length no.2",
+                "value": 0.0
+             },{
+                "id": "pr_d4_dev_0",
+                "constant": false,
+                "name": "Temperature-driven adult (female) life expectancy no.0",
+                "value": 0.0
+            },{
+                "id": "pr_d4_dev_1",
+                "constant": false,
+                "name": "Temperature-driven adult (female) life expectancy no.1",
+                "value": 0.0
+            },{
+                "id": "pr_d4_dev_2",
+                "constant": false,
+                "name": "Temperature-driven adult (male) life expectancy no.2",
+                "value": 0.0
+             },{
+                "id": "pr_d4m_ratio",
+                "constant": false,
+                "name": "Adult male life expectancy compared to adult female life expectancy",
+                "value": 0.0
+            },{
+                "id": "pr_f4_gc_0",
+                "constant": false,
+                "name": "Temperature-driven number of eggs per female no.0",
+                "value": 0.0
+            },{
+                "id": "pr_f4_gc_1",
+                "constant": false,
+                "name": "Temperature-driven number of eggs per female no.1",
+                "value": 0.0
+            },{
+                "id": "pr_f4_gc_2",
+                "constant": false,
+                "name": "Temperature-driven number of eggs per female no.2",
+                "value": 0.0
+            },{
+                "id": "pr_p0_0",
+                "constant": false,
+                "name": "Temperature-driven diapausing egg survival no.0",
+                "value": 0.0
+            },{
+                "id": "pr_p0_1",
+                "constant": false,
+                "name": "Temperature-driven diapausing egg survival no.1",
+                "value": 0.0
+            },{
+                "id": "pr_p1_pcent_0",
+                "constant": false,
+                "name": "Temperature-driven egg survival no.0",
+                "value": 0.0
+            },{
+                "id": "pr_p1_pcent_1",
+                "constant": false,
+                "name": "Temperature-driven egg survival no.1",
+                "value": 0.0
+            },{
+                "id": "pr_p1_pcent_2",
+                "constant": false,
+                "name": "Temperature-driven egg survival no.2",
+                "value": 0.0
+            },{
+                "id": "pr_p2_pcent_0",
+                "constant": false,
+                "name": "Temperature-driven larva survival no.0",
+                "value": 0.0
+            },{
+                "id": "pr_p2_pcent_1",
+                "constant": false,
+                "name": "Temperature-driven larva survival no.1",
+                "value": 0.0
+            },{
+                "id": "pr_p2_pcent_2",
+                "constant": false,
+                "name": "Temperature-driven larva survival no.2",
+                "value": 0.0
+             },{
+                "id": "pr_p3_pcent_0",
+                "constant": false,
+                "name": "Temperature-driven pupa survival no.0",
+                "value": 0.0
+            },{
+                "id": "pr_p3_pcent_1",
+                "constant": false,
+                "name": "Temperature-driven pupa survival no.1",
+                "value": 0.0
+            },{
+                "id": "pr_p3_pcent_2",
+                "constant": false,
+                "name": "Temperature-driven pupa survival no.2",
+                "value": 0.0
+            },{
+                "id": "pr_dens_thr",
+                "constant": false,
+                "name": "Impact of larva density (threshold)",
+                "value": 0.0
+            },{
+                "id": "pr_dens_str",
+                "constant": false,
+                "name": "Impact of larva density (steepness)",
+                "value": 0.0
+            },{
+                "id": "pr_dens_scl",
+                "constant": false,
+                "name": "Impact of larva density (KCap scale - log)",
+                "value": 0.0
+            },{
+                "id": "pr_hatch_temp",
+                "constant": false,
+                "name": "Temperature threshold for egg hatching",
+                "value": 0.0
+            }
+       ]
+    }
+```
+
+
+
+# Usage examples
