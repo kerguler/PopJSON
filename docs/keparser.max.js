@@ -809,7 +809,6 @@ function hasOwnProperty(obj, prop) {
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./support/isBuffer":4,"_process":3,"inherits":2}],"PopJSON":[function(require,module,exports){
-(function (process){
 'use strict';
 
 const fs = require('fs');
@@ -830,24 +829,47 @@ const arbiter = {
 
 class PopJSON {
     constructor() {
+        this.model = "";
+        this.error = "";
+        this.json = {};
+    }
+    results() {
+        return({
+            "model": this.model,
+            "error": this.error
+        });
     }
     parse_file(filename) {
         this.filename = filename;
         let data = fs.readFileSync(this.filename);
-        this.json = JSON.parse(data);
+        if (!data) {
+            this.error += "File not found!\n";
+            return(this.results());
+        }
+        try {
+            this.json = JSON.parse(data);
+        } catch (e) {
+            this.error += "JSON parse error!\n";
+            return(this.results());
+        }
         //
         this.parse();
-        return(this.model);
+        return(this.results());
     }
     parse_json(text) {
-        this.json = JSON.parse(text);
+        try {
+            this.json = JSON.parse(text);
+        } catch (e) {
+            this.error += "JSON parse error!\n";
+            return(this.results());
+        }
         //
         this.parse();
-        return(this.model);
+        return(this.results());
     }
     parse() {
         let that = this;
-        this.deterministic = this.json['modelTypes'][this.json['model']['type']]['deterministic']
+        this.deterministic = this.json['model']['deterministic'];
         this.environs = 'environ' in this.json ? this.json['environ'].map( (pr) => pr['id'] ) : [];
         this.populations = this.json['populations'].map( (pr) => pr['id'] );
         this.processes = []; this.json['populations'].forEach( (pop) => 'processes' in pop ? pop['processes'].forEach( (pr) => { that.processes.push(pr['id']); } ) : [] );
@@ -989,8 +1011,8 @@ class PopJSON {
                 this.model += "    spop2_random_init();\n";
                 this.model += "\n";
             }
-            if ('istep' in this.json['modelTypes'][this.json['model']['type']]['parameters']) {
-                this.model += "    spop2_set_eps(" + util.format(this.json['modelTypes'][this.json['model']['type']]['parameters']['istep']) + ");\n";
+            if ('istep' in this.json['model']['parameters']) {
+                this.model += "    spop2_set_eps(" + util.format(this.json['model']['parameters']['istep']) + ");\n";
                 this.model += "\n";
             }
         }
@@ -1023,9 +1045,9 @@ class PopJSON {
         this.model += "        names[i] = strdup(temp[i]);\n";
         this.model += "\n";
         this.json['parameters'].filter( (p) => !p['constant'] ).forEach( (pr, i) => {
-            that.model += "    param[" + pr['id'] + "] = " + util.format('value' in pr ? pr['value'] : 0.0) + ";\n";
-            that.model += "    parmin[" + pr['id'] + "] = " + util.format('min' in pr ? pr['min'] : ('value' in pr ? pr['value'] : 0.0)) + ";\n";
-            that.model += "    parmax[" + pr['id'] + "] = " + util.format('max' in pr ? pr['max'] : ('value' in pr ? pr['value'] : 0.0)) + ";\n";
+            that.model += "    param[" + pr['id'] + "] = " + util.format('value' in pr ? this.parse_value(pr['value']) : 0.0) + ";\n";
+            that.model += "    parmin[" + pr['id'] + "] = " + util.format('min' in pr ? this.parse_value(pr['min']) : ('value' in pr ? this.parse_value(pr['value']) : 0.0)) + ";\n";
+            that.model += "    parmax[" + pr['id'] + "] = " + util.format('max' in pr ? this.parse_value(pr['max']) : ('value' in pr ? this.parse_value(pr['value']) : 0.0)) + ";\n";
         } );
         this.model += "}\n";
         this.model += "\n";
@@ -1139,13 +1161,13 @@ class PopJSON {
             this.model += "\n";
         }
         //
-        this.model += "    int tm = 0;\n";
+        this.model += "    int TIME = 0;\n";
         this.json['populations'].forEach( (spc, i) => {
             that.model += "    size_" + spc['id'] + " = spop2_size(" + spc['id'] + ");\n";
         } );
         this.model += "\n";
         this.write_out(1, false);
-        this.model += "    for (tm=1; tm<tf; tm++) {\n";
+        this.model += "    for (TIME=1; TIME<tf; TIME++) {\n";
         //
         if ('intermediates' in this.json) {
             this.json['intermediates'].forEach( (elm) => {
@@ -1234,7 +1256,7 @@ class PopJSON {
         this.model += "\n";
         this.model += "  endall:\n";
         this.model += "\n";
-        this.model += "    *success = tm;\n";
+        this.model += "    *success = TIME;\n";
         this.model += "\n";
         if (this.json['model']['type'] == "Population") {
             this.json['populations'].forEach( (spc) => {
@@ -1262,8 +1284,8 @@ class PopJSON {
             let fun = this.parse_value(value[0]);
             if (fun == "define") {
                 if (!(value[1].every( (v) => that.funparnames.includes(v) ))) {
-                    console.log(this.model + "\nError in function definition\nYou are allowed to use these as parameter names:\n" + that.funparnames + "\nERROR: " + fun + " : " + value);
-                    process.exit(1);
+                    this.error += "Error in function definition\nYou are allowed to use these as parameter names:\n" + that.funparnames + "\nERROR: " + fun + " : " + value + "\n";
+                    return "";
                 }
                 let def = this.parse_value(value[2]);
                 return "(" + value[1].join(",") + ") (" + def + ")";
@@ -1317,8 +1339,8 @@ class PopJSON {
                 } else if (fun == "<=") {
                     return "(" + prm[0] + " <= " + prm[1] + ")";
                 } else {
-                    console.log(this.model + "\nUnknown keyword in equation\nERROR: " + fun + " : " + value);
-                    process.exit(1);
+                    this.error += "Unknown keyword in equation\nERROR: " + fun + " : " + value + "\n";
+                    return "";
                 }
             }
         } else { // Parameter
@@ -1343,20 +1365,23 @@ class PopJSON {
                     return value;
                 } else if (this.funparnames.includes(value)) {
                     return "(" + value + ")";
-                } else if (value == "tm") {
-                    return value;
+                } else if (value == "TIME") {
+                    return "TIME";
+                } else if (value == "TIME_1") {
+                    return "(TIME-1)";
                 } else if (!isNaN(parseFloat(value))) {
                     return value;
                 } else if (!isNaN(parseInt(value))) {
                     return value;
                 } else {
-                    console.log(this.model + "\nUnknown reference to a user defined keyword\nERROR: " + value);
-                    process.exit(1);
+                    this.error += "Unknown reference to a user defined keyword\nERROR: " + value + "\n";
+                    return "";
                 }
-            } else { // Number
-                console.log(this.model + "\nERROR: Numbers should be provided as strings");
-                console.log([fun,value])
-                process.exit(1);
+            } else if (typeof value === 'number') { // Number
+                return value.toString();
+            } else { // NaN
+                this.error += "ERROR: Invalid value encountered" + fun + " : " + value + "\n";
+                return "";
         }
         }
     }
@@ -1364,5 +1389,4 @@ class PopJSON {
 
 exports.PopJSON = PopJSON;
 
-}).call(this,require('_process'))
-},{"_process":3,"fs":1,"util":5}]},{},["PopJSON"]);
+},{"fs":1,"util":5}]},{},["PopJSON"]);

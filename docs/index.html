@@ -131,7 +131,7 @@ structured population models</span>
         <div class="well toc">
 
         <ul>
-        <li><a href="#population" id="toc-population">Population</a>
+        <li><a href="#popjson" id="toc-popjson">PopJSON</a>
         <ul>
         <li><a href="#using-the-library"
         id="toc-using-the-library">Using the library</a></li>
@@ -156,10 +156,14 @@ g { color: Green }
     flex-direction: column;
     width: 100%;
 }
+.myError
 .myCode,
 .myJSON {
     width: 100%;
     height: 300px;
+}
+.myError {
+    color: red;
 }
 .sourceCode {
     overflow: auto;
@@ -170,170 +174,59 @@ g { color: Green }
         function process() {
             var PopJSON = require('PopJSON');
             var parser = new PopJSON.PopJSON();
-            let model = parser.parse_json(document.getElementById("model").textContent);
-            document.getElementById("output").textContent = model;
+            let text = document.getElementById("model").value;
+            console.dir(document.getElementById("model"));
+            let result = parser.parse_json(text);
+            console.log(result);
+            document.getElementById("output").value = result.model;
+            document.getElementById("error").value = result.error;
         }
 </script>
-<h1 id="population">Population</h1>
-<p>Third-generation implementation of the dynamically-structured matrix
-population model, with multiple processes acting on member-classes,
-implementing both age-dependent and accumulative processes.</p>
+<h1 id="popjson">PopJSON</h1>
+<p>JSON representation of the dynamically-structured matrix population
+models with multiple processes.</p>
 <h2 id="using-the-library">Using the library</h2>
-<p>The following creates a pseudo-structured population with 10
-individuals and iterates it one step with 0 mortality and an
-Erlang-distributed development time of <span
-class="math inline">20 ± 5</span> steps.</p>
+<p>To define the algorithm and its parameters for simulation. For now,
+only <code>Population</code> is defined (<code>ODE</code> is pending),
+which could be either deterministic or stochastic. To set the precision
+of the accumulative process indicator, <code>istep</code> is used. This
+effectively limits the maximum number of pseudo-stage classes.</p>
 <div class="sourceCode" id="cb1"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;modelTypes&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;Population&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>                <span class="dt">&quot;url&quot;</span><span class="fu">:</span> <span class="st">&quot;https://github.com/kerguler/Population&quot;</span><span class="fu">,</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>                <span class="dt">&quot;deterministic&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>                <span class="dt">&quot;parameters&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;algorithm&quot;</span><span class="fu">:</span> <span class="st">&quot;Population&quot;</span><span class="fu">,</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;istep&quot;</span><span class="fu">:</span> <span class="fl">0.0025</span><span class="fu">,</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;ostep&quot;</span><span class="fu">:</span> <span class="dv">1</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>                <span class="fu">}</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>            <span class="fu">}</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>        <span class="fu">},</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span></code></pre></div>
+class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>    <span class="er">&quot;model&quot;:</span> <span class="fu">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;title&quot;</span><span class="fu">:</span> <span class="st">&quot;Climate-sensitive population dynamics of Aedes albopictus&quot;</span><span class="fu">,</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;type&quot;</span><span class="fu">:</span> <span class="st">&quot;Population&quot;</span><span class="fu">,</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;url&quot;</span><span class="fu">:</span> <span class="st">&quot;https://github.com/kerguler/Population&quot;</span><span class="fu">,</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;deterministic&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;parameters&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;algorithm&quot;</span><span class="fu">:</span> <span class="st">&quot;Population&quot;</span><span class="fu">,</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;istep&quot;</span><span class="fu">:</span> <span class="fl">0.01</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span></code></pre></div>
 <h1 id="sandbox">SandBox</h1>
 <div class="myGroup">
 <textarea id="model" class="myJSON">
     {
-        "modelTypes": {
-            "Population": {
-                "url": "https://github.com/kerguler/Population",
-                "deterministic": true,
-                "parameters": {
-                    "algorithm": "Population",
-                    "istep": 0.0025,
-                    "ostep": 1
-                }
-            }
-        },
         "model": {
             "title": "Climate-sensitive population dynamics of Aedes albopictus",
-            "type": "Population"
-        },
-        "unitDefinitions": {
-            "time": {
-                "name": "time",
-                "exponent": 1,
-                "kind": "day",
-                "multiplier": 1,
-                "scale": 0
+            "type": "Population",
+            "url": "https://github.com/kerguler/Population",
+            "deterministic": true,
+            "parameters": {
+                "algorithm": "Population",
+                "istep": 0.01
             }
-        },
-        "compartments": {
-            "breeder": {
-                "constant": true,
-                "name": "container",
-                "size": 1,
-                "spatialDimensions": 3
-            }
-        },
-        "species": {
-            "albopictus": {
-                "name": "Aedes albopictus (Skuse)",
-                "url": ""
-            }
-        },
-        "functions": {
-            "dmin": ["define", ["x","y"], ["?", ["<", "x", "y"], "x", "y"]],
-            "dmax": ["define", ["x","y"], ["?", [">", "x", "y"], "x", "y"]]
         },
         "environ": [
             {
-                "id": "photo",
-                "name": "Photoperiod (hours of daylight)",
-                "url": ""
-            },{
                 "id": "atemp",
                 "name": "Mean air temperature (°C)",
-                "url": ""
-            },{
-                "id": "stemp",
-                "name": "Skin temperature (°C)",
-                "url": ""
-            },{
-                "id": "prec",
-                "name": "Total precipitation",
-                "url": ""
-            },{
-                "id": "evap",
-                "name": "Evaporation",
-                "url": ""
-            },{
-                "id": "coef",
-                "name": "Breeding site availability coefficient",
-                "url": ""
-            },{
-                "id": "lat",
-                "name": "Latitude",
                 "url": ""
             }
         ],
         "populations": [
             {
-                "id": "egg_diap",
-                "name": "Egg (diapausing)",
-                "compartment": "container",
-                "species": "albopictus",
-                "processes": [
-                    {
-                        "id": "egg_diap_mort",
-                        "name": "Egg (diapausing) mortality",
-                        "arbiter": "NOAGE_CONST",
-                        "value": "pr_diap_mort"
-                    }, {
-                        "id": "egg_diap_dev",
-                        "name": "Egg (diapausing) termination",
-                        "arbiter": "NOAGE_CONST",
-                        "value": "pr_diap_hatch"
-                    }
-                ]
-            },{
-                "id": "egg",
-                "name": "Egg",
-                "compartment": "container",
-                "species": "albopictus",
-                "processes": [
-                    {
-                        "id": "egg_mort",
-                        "name": "Egg mortality",
-                        "arbiter": "NOAGE_CONST",
-                        "value": "pr_egg_mort"
-                    }, {
-                        "id": "egg_dev",
-                        "name": "Egg development",
-                        "arbiter": "ACC_FIXED",
-                        "value": "pr_egg_dev"
-                    }
-                ]
-            },{
-                "id": "egg_hatch",
-                "name": "Egg (hatching)",
-                "compartment": "container",
-                "species": "albopictus",
-                "processes": [
-                    {
-                        "id": "egg_hatch_mort",
-                        "name": "Egg (hatching) mortality",
-                        "arbiter": "NOAGE_CONST",
-                        "value": "pr_egg_mort"
-                    },{
-                        "id": "egg_hatch_dev",
-                        "name": "Egg (hatching) development",
-                        "arbiter": "NOAGE_CONST",
-                        "value": "pr_egg_hatch"
-                    }
-                ]
-            },{
                 "id": "larva",
                 "name": "Larva",
-                "compartment": "container",
-                "species": "albopictus",
                 "processes": [
                     {
                         "id": "larva_mort",
@@ -350,198 +243,34 @@ class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="
             },{
                 "id": "pupa",
                 "name": "Pupa",
-                "compartment": "container",
-                "species": "albopictus",
                 "processes": [
-                    {
-                        "id": "pupa_mort",
-                        "name": "Pupa mortality",
-                        "arbiter": "NOAGE_CONST",
-                        "value": "pr_pupa_mort"
-                    }, {
-                        "id": "pupa_dev",
-                        "name": "Pupa development",
-                        "arbiter": "ACC_FIXED",
-                        "value": "pr_pupa_dev"
-                    }
-                ]
-            },{
-                "id": "juvenile",
-                "name": "Juvenile adult (female)",
-                "compartment": "container",
-                "species": "albopictus",
-                "processes": [
-                    {
-                        "id": "juvenile_life",
-                        "name": "Juvenile adult lifetime",
-                        "arbiter": "ACC_ERLANG",
-                        "value": ["pr_adult_life", ["*", "pr_stdev", "pr_adult_life"]]
-                    }, {
-                        "id": "juvenile_dev",
-                        "name": "Juvenile adult development",
-                        "arbiter": "ACC_FIXED",
-                        "value": "pr_juvenile_dev"
-                    }
-                ]
-            },{
-                "id": "adult",
-                "name": "Adult (female)",
-                "compartment": "container",
-                "species": "albopictus",
-                "processes": [
-                    {
-                        "id": "adult_life",
-                        "name": "Adult lifetime",
-                        "arbiter": "ACC_ERLANG",
-                        "value": ["pr_adult_life", ["*", "pr_stdev", "pr_adult_life"]]
-                    }, {
-                        "id": "adult_dev",
-                        "name": "Adult development",
-                        "arbiter": "ACC_FIXED",
-                        "value": "pr_adult_dev"
-                    }
-                ]
-            },{
-                "id": "male",
-                "name": "Adult (male)",
-                "compartment": "container",
-                "species": "albopictus",
-                "processes": [
-                    {
-                        "id": "male_life",
-                        "name": "Adult (male) lifetime",
-                        "arbiter": "ACC_ERLANG",
-                        "value": ["pr_male_life", ["*", "pr_stdev", "pr_male_life"]]
-                    }
                 ]
             }
         ],
         "intermediates": [
             {
-                "id": "pr_CPP",
-                "value": ["dmax", "12.0", ["dmin", "15.0", ["+", "pr_CPP_0", ["*", "pr_CPP_1", ["index", "lat", ["-", "tm", "1"]]]]]]
-            }, {
-                "id": "bsvol",
-                "value": ["+", ["index", "coef", ["-", "tm", "1"]], ["index", "prec", ["-", "tm", "1"]], ["*", ["index", "evap", ["-", "tm", "1"]], "bsvol"]]
-            }, {
-                "id": "KCap",
-                "value": ["/", ["*", ["exp", "pr_dens_scl"], "bsvol"], ["+", "1.0", ["size", "larva"]]]
-            }, {
-                "id": "pr_dens_imp",
-                "value": ["+", "1.0", ["/", "1.0", ["+", "1.0", ["exp", ["*", "pr_dens_str", ["-", "KCap", "pr_dens_thr"]]]]]]
-            }, {
-                "id": "pr_egg_dev",
-                "value": ["round", ["dmax", "0.0", ["+", "pr_d1_dev_0", ["*", "pr_d1_dev_1", ["index", "stemp", ["-", "tm", "1"]]], ["*", "pr_d1_dev_2", ["pow", ["index", "stemp", ["-", "tm", "1"]], "2"]]]]]
-            }, {
-                "id": "pr_egg_surv_perc",
-                "value": ["?", ["||", ["<", ["index", "stemp", ["-", "tm", "1"]], "pr_p1_pcent_1"], [">", ["index", "stemp", ["-", "tm", "1"]], ["+", "pr_p1_pcent_1", "pr_p1_pcent_2"]]], "0.0", ["dmax", "0.0", ["*", "pr_p1_pcent_0", ["index", "stemp", ["-", "tm", "1"]], ["-", ["index", "stemp", ["-", "tm", "1"]], "pr_p1_pcent_1"], ["sqrt", ["-", ["+", "pr_p1_pcent_1", "pr_p1_pcent_2"], ["index", "stemp", ["-", "tm", "1"]]]]]]]
-            }, {
-                "id": "pr_egg_mort",
-                "value": ["-", "1.0", ["pow", ["dmax", "0.0", ["dmin", "1.0", ["*", "0.01", "pr_egg_surv_perc"]]],["/","1.0","pr_egg_dev"]]]
-            }, {
-                "id": "pr_diap_mort",
-                "value": ["/", "1.0", ["+", "1.0", ["exp", ["*", "pr_p0_0", ["-", ["index", "stemp", ["-", "tm", "1"]], "pr_p0_1"]]]]]
-            }, {
-                "id": "pr_egg_hatch",
-                "value": ["?", [">", ["index", "stemp", ["-", "tm", "1"]], "pr_hatch_temp"], "1.0", "0.0"]
-            }, {
                 "id": "pr_larva_dev_raw",
-                "value": ["round", ["dmax", "0.0", ["+", "pr_d2_dev_0", ["*", "pr_d2_dev_1", ["index", "stemp", ["-", "tm", "1"]]], ["*", "pr_d2_dev_2", ["pow", ["index", "stemp", ["-", "tm", "1"]], "2"]]]]]
+                "value": ["round", ["dmax", "0.0", ["+", "pr_d2_dev_0", ["*", "pr_d2_dev_1", ["index", "stemp", ["-", "TIME", "1"]]], ["*", "pr_d2_dev_2", ["pow", ["index", "stemp", ["-", "TIME", "1"]], "2"]]]]]
             }, {
                 "id": "pr_larva_dev",
                 "value": ["*", "pr_dens_imp", "pr_larva_dev_raw"]
             }, {
                 "id": "pr_larva_surv_perc",
-                "value": ["dmax", "0.0", ["dmin", "1.0", ["*", "0.01", ["+", "pr_p2_pcent_0", ["*", "pr_p2_pcent_1", ["index", "stemp", ["-", "tm", "1"]]], ["*", "pr_p2_pcent_2", ["pow", ["index", "stemp", ["-", "tm", "1"]], "2"]]]]]]
+                "value": ["dmax", "0.0", ["dmin", "1.0", ["*", "0.01", ["+", "pr_p2_pcent_0", ["*", "pr_p2_pcent_1", ["index", "stemp", ["-", "TIME", "1"]]], ["*", "pr_p2_pcent_2", ["pow", ["index", "stemp", ["-", "TIME", "1"]], "2"]]]]]]
             }, {
                 "id": "pr_larva_surv",
                 "value": ["-", "1.0", ["pow", "pr_larva_surv_perc", ["/","1.0","pr_larva_dev"]]]
             }, {
                 "id": "pr_larva_mort",
                 "value": ["-", "1.0", ["/", ["-", "1.0", "pr_larva_surv"], ["pow", "pr_dens_imp", "2.0"]]]
-            }, {
-                "id": "pr_pupa_dev",
-                "value": ["round", ["dmax", "0.0", ["+", "pr_d3_dev_0", ["*", "pr_d3_dev_1", ["index", "stemp", ["-", "tm", "1"]]], ["*", "pr_d3_dev_2", ["pow", ["index", "stemp", ["-", "tm", "1"]], "2"]]]]]
-            }, {
-                "id": "pr_pupa_surv_perc",
-                "value": ["dmax", "0.0", ["dmin", "1.0", ["*", "0.01", ["+", "pr_p3_pcent_0", ["*", "pr_p3_pcent_1", ["index", "stemp", ["-", "tm", "1"]]], ["*", "pr_p3_pcent_2", ["pow", ["index", "stemp", ["-", "tm", "1"]], "2"]]]]]]
-            }, {
-                "id": "pr_pupa_mort",
-                "value": ["-", "1.0", ["pow", "pr_pupa_surv_perc", ["/","1.0","pr_pupa_dev"]]]
-            }, {
-                "id": "pr_juvenile_dev",
-                "value": ["round", ["dmax", "0.0", ["+", "pr_d4j_dev_0", ["*", "pr_d4j_dev_1", ["index", "atemp", ["-", "tm", "1"]]], ["*", "pr_d4j_dev_2", ["pow", ["index", "atemp", ["-", "tm", "1"]], "2"]]]]]
-            }, {
-                "id": "pr_adult_life",
-                "value": ["round", ["dmax", "0.0", ["+", "pr_d4_dev_0", ["*", "pr_d4_dev_1", ["index", "atemp", ["-", "tm", "1"]]], ["*", "pr_d4_dev_2", ["pow", ["index", "atemp", ["-", "tm", "1"]], "2"]]]]]
-            }, {
-                "id": "pr_adult_dev",
-                "value": ["round", ["dmax", "0.0", ["+", "pr_d4gc_dev_0", ["*", "pr_d4gc_dev_1", ["index", "atemp", ["-", "tm", "1"]]], ["*", "pr_d4gc_dev_2", ["pow", ["index", "atemp", ["-", "tm", "1"]], "2"]]]]]
-            }, {
-                "id": "pr_male_life",
-                "value": ["round", ["*", "pr_d4m_ratio", "pr_adult_life"]]
-            }, {
-                "id": "frac_diap",
-                "value": ["/", "1.0", ["+", "1.0", ["exp", ["*", "6.0", ["-", ["index", "photo", ["-", "tm", "1"]], "pr_CPP"]]]]]
-            }, {
-                "id": "num_egg_total",
-                "value": ["dmax", "0.0", ["+", "pr_f4_gc_0", ["*", "pr_f4_gc_1", ["index", "atemp", ["-", "tm", "1"]]], ["*", "pr_f4_gc_2", ["pow", ["index", "atemp", ["-", "tm", "1"]], "2"]]]]
-            }, {
-                "id": "num_egg_diap",
-                "value": ["*", "frac_diap", "num_egg_total"]
-            }, {
-                "id": "num_egg_norm",
-                "value": ["-", "num_egg_total", "num_egg_diap"]
-            }, {
-                "id": "pr_diap_hatch",
-                "value": ["/", "1.0", ["+", "1.0", ["exp", ["*", "6.0", ["-", "pr_CPP", ["index", "photo", ["-", "tm", "1"]]]]]]]
             }
         ],
         "transformations": [
             {
-                "id": "diap_to_hatch",
-                "name": "Egg (diapausing) to hatching",
-                "to": "egg_hatch",
-                "value": ["egg_diap_dev", "egg_diap"]
-            },{
-                "id": "egg_to_hatch",
-                "name": "Egg to hatching",
-                "to": "egg_hatch",
-                "value": ["egg_dev", "egg"]
-            },{
-                "id": "hatch_to_larva",
-                "name": "Egg (hatching) to larva",
-                "to": "larva",
-                "value": ["egg_hatch_dev", "egg_hatch"]
-            },{
                 "id": "larva_to_pupa",
                 "name": "Larva to pupa",
                 "to": "pupa",
                 "value": ["larva_dev", "larva"]
-            },{
-                "id": "pupa_to_juvenile",
-                "name": "Pupa to juvenile",
-                "to": "juvenile",
-                "value": ["*", ["pupa_dev", "pupa"], "sex_ratio"]
-            },{
-                "id": "pupa_to_male",
-                "name": "Pupa to adult (male)",
-                "to": "male",
-                "value": ["*", ["pupa_dev", "pupa"], ["-", "1.0", "sex_ratio"]]
-            },{
-                "id": "num_gravid",
-                "name": "Number of gravid females",
-                "value": ["adult_dev", "adult"]
-            },{
-                "id": "adult_to_egg",
-                "name": "Egg laying (non-diapausing)",
-                "to": "egg",
-                "value": ["*", "num_gravid", "num_egg_norm"]
-            },{
-                "id": "adult_to_egg_diap",
-                "name": "Egg laying (diapausing)",
-                "to": "egg_diap",
-                "value": ["*", "num_gravid", "num_egg_diap"]
             }
         ],
         "transfers": [
@@ -773,6 +502,8 @@ class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="
 Parse
 </button>
 <textarea id="output" class="myCode">
+</textarea>
+<textarea id="error" class="myError">
 </textarea>
 </div>
 <h1 id="usage-examples">Usage examples</h1>
