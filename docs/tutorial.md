@@ -2,6 +2,22 @@
 r { color: Red }
 o { color: Orange }
 g { color: Green }
+.hidden {
+    display: none;
+}
+.myGroup {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+.myCode,
+.myJSON {
+    width: 100%;
+    height: 300px;
+}
+.sourceCode {
+    overflow: auto;
+}
 </style>
 
 <script src="keparser.max.js"></script>
@@ -22,7 +38,26 @@ Third-generation implementation of the dynamically-structured matrix population 
 
 The following creates a pseudo-structured population with 10 individuals and iterates it one step with 0 mortality and an Erlang-distributed development time of $20\pm5$ steps.
 
-<textarea id="model" style="display:none;">
+```json
+    {
+        "modelTypes": {
+            "Population": {
+                "url": "https://github.com/kerguler/Population",
+                "deterministic": true,
+                "parameters": {
+                    "algorithm": "Population",
+                    "istep": 0.0025,
+                    "ostep": 1
+                }
+            }
+        },
+    }
+```
+
+# SandBox
+
+<div class="myGroup">
+<textarea id="model" class="myJSON">
     {
         "modelTypes": {
             "Population": {
@@ -592,23 +627,9 @@ The following creates a pseudo-structured population with 10 individuals and ite
        ]
     }
 </textarea>
-```json
-    {
-        "modelTypes": {
-            "Population": {
-                "url": "https://github.com/kerguler/Population",
-                "deterministic": true,
-                "parameters": {
-                    "algorithm": "Population",
-                    "istep": 0.0025,
-                    "ostep": 1
-                }
-            }
-        },
-    }
-```
 <button onclick="process()">Parse</button>
-<textarea id="output" style="width:44vw; height:66vh;">
+<textarea id="output" class="myCode">
 </textarea>
+</div>
 
 # Usage examples

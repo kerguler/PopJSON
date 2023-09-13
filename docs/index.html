@@ -136,6 +136,7 @@ structured population models</span>
         <li><a href="#using-the-library"
         id="toc-using-the-library">Using the library</a></li>
         </ul></li>
+        <li><a href="#sandbox" id="toc-sandbox">SandBox</a></li>
         <li><a href="#usage-examples" id="toc-usage-examples">Usage
         examples</a></li>
         </ul>
@@ -147,6 +148,22 @@ structured population models</span>
 r { color: Red }
 o { color: Orange }
 g { color: Green }
+.hidden {
+    display: none;
+}
+.myGroup {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+.myCode,
+.myJSON {
+    width: 100%;
+    height: 300px;
+}
+.sourceCode {
+    overflow: auto;
+}
 </style>
 <script src="keparser.max.js"></script>
 <script>
@@ -166,7 +183,23 @@ implementing both age-dependent and accumulative processes.</p>
 individuals and iterates it one step with 0 mortality and an
 Erlang-distributed development time of <span
 class="math inline">20 ± 5</span> steps.</p>
-<textarea id="model" style="display:none;">
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;modelTypes&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;Population&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>                <span class="dt">&quot;url&quot;</span><span class="fu">:</span> <span class="st">&quot;https://github.com/kerguler/Population&quot;</span><span class="fu">,</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>                <span class="dt">&quot;deterministic&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>                <span class="dt">&quot;parameters&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;algorithm&quot;</span><span class="fu">:</span> <span class="st">&quot;Population&quot;</span><span class="fu">,</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;istep&quot;</span><span class="fu">:</span> <span class="fl">0.0025</span><span class="fu">,</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;ostep&quot;</span><span class="fu">:</span> <span class="dv">1</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>                <span class="fu">}</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>            <span class="fu">}</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>        <span class="fu">},</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span></code></pre></div>
+<h1 id="sandbox">SandBox</h1>
+<div class="myGroup">
+<textarea id="model" class="myJSON">
     {
         "modelTypes": {
             "Population": {
@@ -736,25 +769,12 @@ class="math inline">20 ± 5</span> steps.</p>
        ]
     }
 </textarea>
-<div class="sourceCode" id="cb1"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;modelTypes&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;Population&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>                <span class="dt">&quot;url&quot;</span><span class="fu">:</span> <span class="st">&quot;https://github.com/kerguler/Population&quot;</span><span class="fu">,</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>                <span class="dt">&quot;deterministic&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>                <span class="dt">&quot;parameters&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;algorithm&quot;</span><span class="fu">:</span> <span class="st">&quot;Population&quot;</span><span class="fu">,</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;istep&quot;</span><span class="fu">:</span> <span class="fl">0.0025</span><span class="fu">,</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;ostep&quot;</span><span class="fu">:</span> <span class="dv">1</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>                <span class="fu">}</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>            <span class="fu">}</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>        <span class="fu">},</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span></code></pre></div>
 <button onclick="process()">
 Parse
 </button>
-<textarea id="output" style="width:44vw; height:66vh;">
+<textarea id="output" class="myCode">
 </textarea>
+</div>
 <h1 id="usage-examples">Usage examples</h1>
             </div>
     </div>
