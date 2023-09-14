@@ -67,8 +67,8 @@ class PopJSON {
             return(this.results());
         }
         this.populations = this.json['populations'].map( (pr) => pr['id'] );
-        this.processes = this.json['populations'].forEach( (pop) => 'processes' in pop ? pop['processes'].forEach( (pr) => { that.processes.push(pr['id']); } ) : [] );
-        this.processobj = this.json['populations'].forEach( (pop) => 'processes' in pop ? pop['processes'].forEach( (pr) => { that.processobj[pr['id']] = pr; that.processobj[pr['id']]['parent_id'] = pop['id']; } ) : {} );
+        this.processes = []; this.json['populations'].forEach( (pop) => 'processes' in pop ? pop['processes'].forEach( (pr) => { that.processes.push(pr['id']); } ) : [] );
+        this.processobj = {}; this.json['populations'].forEach( (pop) => 'processes' in pop ? pop['processes'].forEach( (pr) => { that.processobj[pr['id']] = pr; that.processobj[pr['id']]['parent_id'] = pop['id']; } ) : {} );
         if (!('parameters' in this.json)) this.json['parameters'] = [];
         this.parametersv = this.json['parameters'].filter( (p) => !p['constant'] ).map( (pr) => pr['id'] );
         this.parametersc = this.json['parameters'].filter( (p) => p['constant'] ).map( (pr) => pr['id'] );

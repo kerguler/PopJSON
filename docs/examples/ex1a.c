@@ -8,6 +8,7 @@
 #define NumInt 0
 
 
+#define adult_lifetime 0
 
 
 double dmin(double a, double b) { return a < b ? a : b; }
@@ -24,7 +25,7 @@ void init(int *no, int *np, int *ni) {
 
 void parnames(char **names, double *param, double *parmin, double *parmax) {
     char temp[NumPop+NumPar+NumInt][256] = {
-        "larva",
+        "adult",
     };
 
     int i;
@@ -38,25 +39,28 @@ void destroy(void) {
 
 void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, double *iret, int *success) {
 
-    population larva;
+    population adult;
 
     number num = numZERO;
-    char arbiters[1];
-    number key[1];
-    number size_larva;
-    double par[0];
+    char arbiters[2];
+    number key[2];
+    number size_adult;
+    number completed_adult[2];
+    double par[2];
 
-    arbiters[0] = STOP;
+    arbiters[0] = ACC_ERLANG;
     key[0] = numZERO;
-    larva = spop2_init(arbiters, DETERMINISTIC);
-    if (y0[0]) { num.d = y0[0]; spop2_add(larva, key, num); }
+    arbiters[1] = STOP;
+    key[1] = numZERO;
+    adult = spop2_init(arbiters, DETERMINISTIC);
+    if (y0[0]) { num.d = y0[0]; spop2_add(adult, key, num); }
 
 
 
     int TIME = 0;
-    size_larva = spop2_size(larva);
+    size_adult = spop2_size(adult);
 
-    ret[0] = size_larva.d;
+    ret[0] = size_adult.d;
     if (CHECK(ret[0])) {goto endall;};
 
     ret += 1;
@@ -64,13 +68,17 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, do
     for (TIME=1; TIME<tf; TIME++) {
 
         if (rep >= 0) {
+                par[0] = 10;
+                par[1] = 4;
+                spop2_step(adult, par, &size_adult, completed_adult, 0);
+
 
 
 
 
         }
 
-        ret[0] = size_larva.d;
+        ret[0] = size_adult.d;
         if (CHECK(ret[0])) {goto endall;};
 
         ret += 1;
@@ -85,7 +93,7 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, do
 
     *success = TIME;
 
-    spop2_free(&larva);
+    spop2_free(&adult);
 
 }
 

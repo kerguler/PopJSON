@@ -134,7 +134,14 @@ structured population models</span>
         <li><a href="#popjson" id="toc-popjson">PopJSON</a>
         <ul>
         <li><a href="#using-the-library"
-        id="toc-using-the-library">Using the library</a></li>
+        id="toc-using-the-library">Using the library</a>
+        <ul>
+        <li><a href="#model-definition" id="toc-model-definition">Model
+        definition</a></li>
+        <li><a href="#declaring-a-population-or-a-development-stage"
+        id="toc-declaring-a-population-or-a-development-stage">Declaring
+        a population (or a development stage)</a></li>
+        </ul></li>
         </ul></li>
         <li><a href="#sandbox" id="toc-sandbox">SandBox</a></li>
         <li><a href="#usage-examples" id="toc-usage-examples">Usage
@@ -156,7 +163,7 @@ g { color: Green }
     flex-direction: column;
     width: 100%;
 }
-.myError
+.myError,
 .myCode,
 .myJSON {
     width: 100%;
@@ -164,6 +171,7 @@ g { color: Green }
 }
 .myError {
     color: red;
+    height: 100px;
 }
 .sourceCode {
     overflow: auto;
@@ -184,345 +192,62 @@ g { color: Green }
 <p>JSON representation of the dynamically-structured matrix population
 models with multiple processes.</p>
 <h2 id="using-the-library">Using the library</h2>
+<h3 id="model-definition">Model definition</h3>
 <p>To define the algorithm and its parameters for simulation. For now,
 only <code>Population</code> is defined (<code>ODE</code> is pending),
 which could be either deterministic or stochastic. To set the precision
 of the accumulative process indicator, <code>istep</code> is used. This
 effectively limits the maximum number of pseudo-stage classes.</p>
 <div class="sourceCode" id="cb1"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>    <span class="er">&quot;model&quot;:</span> <span class="fu">{</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;title&quot;</span><span class="fu">:</span> <span class="st">&quot;Climate-sensitive population dynamics of Aedes albopictus&quot;</span><span class="fu">,</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;type&quot;</span><span class="fu">:</span> <span class="st">&quot;Population&quot;</span><span class="fu">,</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;url&quot;</span><span class="fu">:</span> <span class="st">&quot;https://github.com/kerguler/Population&quot;</span><span class="fu">,</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;deterministic&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;parameters&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>                <span class="dt">&quot;algorithm&quot;</span><span class="fu">:</span> <span class="st">&quot;Population&quot;</span><span class="fu">,</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>                <span class="dt">&quot;istep&quot;</span><span class="fu">:</span> <span class="fl">0.01</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>            <span class="fu">}</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span></code></pre></div>
-<div class="myGroup">
-<textarea id="model0" class="hidden">
-{
-    "model": {
-            "title": "Climate-sensitive population dynamics of Aedes albopictus",
-            "type": "Population",
-            "url": "https://github.com/kerguler/Population",
-            "deterministic": true,
-            "parameters": {
-                "algorithm": "Population",
-                "istep": 0.01
-            }
-        },
-    "populations": [
-        {
-            "id": "larva",
-            "name": "Larva",
-            "processes": []
-        }
-    ]
-}
-</textarea>
-<textarea id="output0" class="myCode">
-</textarea>
-<textarea id="error0" class="myError">
-</textarea>
-<script>process(['model0','output0','error0']);</script>
-</div>
+class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;model&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;title&quot;</span><span class="fu">:</span> <span class="st">&quot;Climate-sensitive population dynamics of Aedes albopictus&quot;</span><span class="fu">,</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;type&quot;</span><span class="fu">:</span> <span class="st">&quot;Population&quot;</span><span class="fu">,</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;url&quot;</span><span class="fu">:</span> <span class="st">&quot;https://github.com/kerguler/Population&quot;</span><span class="fu">,</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;deterministic&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;parameters&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>                <span class="dt">&quot;algorithm&quot;</span><span class="fu">:</span> <span class="st">&quot;Population&quot;</span><span class="fu">,</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>                <span class="dt">&quot;istep&quot;</span><span class="fu">:</span> <span class="fl">0.01</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>            <span class="fu">}</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<h3 id="declaring-a-population-or-a-development-stage">Declaring a
+population (or a development stage)</h3>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;model&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;title&quot;</span><span class="fu">:</span> <span class="st">&quot;Climate-sensitive population dynamics of Aedes albopictus&quot;</span><span class="fu">,</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;type&quot;</span><span class="fu">:</span> <span class="st">&quot;Population&quot;</span><span class="fu">,</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;url&quot;</span><span class="fu">:</span> <span class="st">&quot;https://github.com/kerguler/Population&quot;</span><span class="fu">,</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;deterministic&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;parameters&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>                <span class="dt">&quot;algorithm&quot;</span><span class="fu">:</span> <span class="st">&quot;Population&quot;</span><span class="fu">,</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>                <span class="dt">&quot;istep&quot;</span><span class="fu">:</span> <span class="fl">0.01</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>            <span class="fu">}</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        <span class="fu">},</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;populations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult&quot;</span><span class="fu">,</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Adult females&quot;</span><span class="fu">,</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;processes&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>                <span class="fu">{</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_lifetime&quot;</span><span class="fu">,</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Adult female lifetime&quot;</span><span class="fu">,</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;arbiter&quot;</span><span class="fu">:</span> <span class="st">&quot;ACC_ERLANG&quot;</span><span class="fu">,</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="dv">10</span><span class="ot">,</span> <span class="dv">4</span><span class="ot">]</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>                <span class="fu">}</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>            <span class="ot">]</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p><img src="figures/ex1a.png"
+title="Deterministic - Erlang-distributed"
+alt="Erlang-distributed adult female mosquito lifetime" /> <img
+src="figures/ex1b.png" title="Stochastic - Erlang-distributed"
+alt="Erlang-distributed adult female mosquito lifetime" /></p>
 <h1 id="sandbox">SandBox</h1>
 <div class="myGroup">
 <textarea id="model" class="myJSON">
-    {
-        "model": {
-            "title": "Climate-sensitive population dynamics of Aedes albopictus",
-            "type": "Population",
-            "url": "https://github.com/kerguler/Population",
-            "deterministic": true,
-            "parameters": {
-                "algorithm": "Population",
-                "istep": 0.01
-            }
-        },
-        "environ": [
-            {
-                "id": "atemp",
-                "name": "Mean air temperature (°C)",
-                "url": ""
-            }
-        ],
-        "populations": [
-            {
-                "id": "larva",
-                "name": "Larva",
-                "processes": [
-                    {
-                        "id": "larva_mort",
-                        "name": "Larva mortality",
-                        "arbiter": "NOAGE_CONST",
-                        "value": "pr_larva_mort"
-                    }, {
-                        "id": "larva_dev",
-                        "name": "Larva development",
-                        "arbiter": "ACC_FIXED",
-                        "value": "pr_larva_dev"
-                    }
-                ]
-            },{
-                "id": "pupa",
-                "name": "Pupa",
-                "processes": [
-                ]
-            }
-        ],
-        "intermediates": [
-            {
-                "id": "pr_larva_dev_raw",
-                "value": ["round", ["dmax", "0.0", ["+", "pr_d2_dev_0", ["*", "pr_d2_dev_1", ["index", "stemp", ["-", "TIME", "1"]]], ["*", "pr_d2_dev_2", ["pow", ["index", "stemp", ["-", "TIME", "1"]], "2"]]]]]
-            }, {
-                "id": "pr_larva_dev",
-                "value": ["*", "pr_dens_imp", "pr_larva_dev_raw"]
-            }, {
-                "id": "pr_larva_surv_perc",
-                "value": ["dmax", "0.0", ["dmin", "1.0", ["*", "0.01", ["+", "pr_p2_pcent_0", ["*", "pr_p2_pcent_1", ["index", "stemp", ["-", "TIME", "1"]]], ["*", "pr_p2_pcent_2", ["pow", ["index", "stemp", ["-", "TIME", "1"]], "2"]]]]]]
-            }, {
-                "id": "pr_larva_surv",
-                "value": ["-", "1.0", ["pow", "pr_larva_surv_perc", ["/","1.0","pr_larva_dev"]]]
-            }, {
-                "id": "pr_larva_mort",
-                "value": ["-", "1.0", ["/", ["-", "1.0", "pr_larva_surv"], ["pow", "pr_dens_imp", "2.0"]]]
-            }
-        ],
-        "transformations": [
-            {
-                "id": "larva_to_pupa",
-                "name": "Larva to pupa",
-                "to": "pupa",
-                "value": ["larva_dev", "larva"]
-            }
-        ],
-        "transfers": [
-            {
-                "id": "gonotrophic_cycle",
-                "name": "Gonotrophic cycle",
-                "from": "adult_dev",
-                "to": "adult",
-                "value": [["adult_life", "adult"], "0"]
-            },{
-                "id": "juvenile_to_adult",
-                "name": "Juveniles becoming adults",
-                "from": "juvenile_dev",
-                "to": "adult",
-                "value": [["juvenile_life", "juvenile"], "0"]
-            }
-        ],
-        "parameters": [
-            {
-                "id": "sex_ratio",
-                "constant": true,
-                "name": "Sex ratio",
-                "value": 0.5
-            },{
-                "id": "pr_stdev",
-                "constant": true,
-                "name": "Standard deviation of mean lifetime for adults",
-                "value": 0.5
-            },{
-                "id": "pr_CPP_0",
-                "constant": false,
-                "name": "Critical photoperiod vs latitude no. 0",
-                "value": 12.0
-            },{
-                "id": "pr_CPP_1",
-                "constant": false,
-                "name": "Critical photoperiod vs latitude no. 1",
-                "value": 2.0
-            },{
-                "id": "pr_d1_dev_0",
-                "constant": false,
-                "name": "Temperature-driven egg development no.0",
-                "value": 0.0
-            },{
-                "id": "pr_d1_dev_1",
-                "constant": false,
-                "name": "Temperature-driven egg development no.1",
-                "value": 0.0
-            },{
-                "id": "pr_d1_dev_2",
-                "constant": false,
-                "name": "Temperature-driven egg development no.2",
-                "value": 0.0
-            },{
-                "id": "pr_d2_dev_0",
-                "constant": false,
-                "name": "Temperature-driven larva development no.0",
-                "value": 0.0
-            },{
-                "id": "pr_d2_dev_1",
-                "constant": false,
-                "name": "Temperature-driven larva development no.1",
-                "value": 0.0
-            },{
-                "id": "pr_d2_dev_2",
-                "constant": false,
-                "name": "Temperature-driven larva development no.2",
-                "value": 0.0
-             },{
-                "id": "pr_d3_dev_0",
-                "constant": false,
-                "name": "Temperature-driven pupa development no.0",
-                "value": 0.0
-            },{
-                "id": "pr_d3_dev_1",
-                "constant": false,
-                "name": "Temperature-driven pupa development no.1",
-                "value": 0.0
-            },{
-                "id": "pr_d3_dev_2",
-                "constant": false,
-                "name": "Temperature-driven pupa development no.2",
-                "value": 0.0
-             },{
-                "id": "pr_d4j_dev_0",
-                "constant": false,
-                "name": "Temperature-driven juvenile development no.0",
-                "value": 0.0
-            },{
-                "id": "pr_d4j_dev_1",
-                "constant": false,
-                "name": "Temperature-driven juvenile development no.1",
-                "value": 0.0
-            },{
-                "id": "pr_d4j_dev_2",
-                "constant": false,
-                "name": "Temperature-driven juvenile development no.2",
-                "value": 0.0
-             },{
-                "id": "pr_d4gc_dev_0",
-                "constant": false,
-                "name": "Temperature-driven gonotrophic cycle length no.0",
-                "value": 0.0
-            },{
-                "id": "pr_d4gc_dev_1",
-                "constant": false,
-                "name": "Temperature-driven gonotrophic cycle length no.1",
-                "value": 0.0
-            },{
-                "id": "pr_d4gc_dev_2",
-                "constant": false,
-                "name": "Temperature-driven gonotrophic cycle length no.2",
-                "value": 0.0
-             },{
-                "id": "pr_d4_dev_0",
-                "constant": false,
-                "name": "Temperature-driven adult (female) life expectancy no.0",
-                "value": 0.0
-            },{
-                "id": "pr_d4_dev_1",
-                "constant": false,
-                "name": "Temperature-driven adult (female) life expectancy no.1",
-                "value": 0.0
-            },{
-                "id": "pr_d4_dev_2",
-                "constant": false,
-                "name": "Temperature-driven adult (male) life expectancy no.2",
-                "value": 0.0
-             },{
-                "id": "pr_d4m_ratio",
-                "constant": false,
-                "name": "Adult male life expectancy compared to adult female life expectancy",
-                "value": 0.0
-            },{
-                "id": "pr_f4_gc_0",
-                "constant": false,
-                "name": "Temperature-driven number of eggs per female no.0",
-                "value": 0.0
-            },{
-                "id": "pr_f4_gc_1",
-                "constant": false,
-                "name": "Temperature-driven number of eggs per female no.1",
-                "value": 0.0
-            },{
-                "id": "pr_f4_gc_2",
-                "constant": false,
-                "name": "Temperature-driven number of eggs per female no.2",
-                "value": 0.0
-            },{
-                "id": "pr_p0_0",
-                "constant": false,
-                "name": "Temperature-driven diapausing egg survival no.0",
-                "value": 0.0
-            },{
-                "id": "pr_p0_1",
-                "constant": false,
-                "name": "Temperature-driven diapausing egg survival no.1",
-                "value": 0.0
-            },{
-                "id": "pr_p1_pcent_0",
-                "constant": false,
-                "name": "Temperature-driven egg survival no.0",
-                "value": 0.0
-            },{
-                "id": "pr_p1_pcent_1",
-                "constant": false,
-                "name": "Temperature-driven egg survival no.1",
-                "value": 0.0
-            },{
-                "id": "pr_p1_pcent_2",
-                "constant": false,
-                "name": "Temperature-driven egg survival no.2",
-                "value": 0.0
-            },{
-                "id": "pr_p2_pcent_0",
-                "constant": false,
-                "name": "Temperature-driven larva survival no.0",
-                "value": 0.0
-            },{
-                "id": "pr_p2_pcent_1",
-                "constant": false,
-                "name": "Temperature-driven larva survival no.1",
-                "value": 0.0
-            },{
-                "id": "pr_p2_pcent_2",
-                "constant": false,
-                "name": "Temperature-driven larva survival no.2",
-                "value": 0.0
-             },{
-                "id": "pr_p3_pcent_0",
-                "constant": false,
-                "name": "Temperature-driven pupa survival no.0",
-                "value": 0.0
-            },{
-                "id": "pr_p3_pcent_1",
-                "constant": false,
-                "name": "Temperature-driven pupa survival no.1",
-                "value": 0.0
-            },{
-                "id": "pr_p3_pcent_2",
-                "constant": false,
-                "name": "Temperature-driven pupa survival no.2",
-                "value": 0.0
-            },{
-                "id": "pr_dens_thr",
-                "constant": false,
-                "name": "Impact of larva density (threshold)",
-                "value": 0.0
-            },{
-                "id": "pr_dens_str",
-                "constant": false,
-                "name": "Impact of larva density (steepness)",
-                "value": 0.0
-            },{
-                "id": "pr_dens_scl",
-                "constant": false,
-                "name": "Impact of larva density (KCap scale - log)",
-                "value": 0.0
-            },{
-                "id": "pr_hatch_temp",
-                "constant": false,
-                "name": "Temperature threshold for egg hatching",
-                "value": 0.0
-            }
-       ]
-    }
 </textarea>
 <button onclick="process([&#39;model&#39;,&#39;output&#39;,&#39;error&#39;])">
 Parse
