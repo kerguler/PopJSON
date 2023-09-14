@@ -26,15 +26,13 @@ g { color: Green }
 
 <script src="keparser.max.js"></script>
 <script>
-        function process() {
+        function process(ids=["model","output","error"]) {
             var PopJSON = require('PopJSON');
             var parser = new PopJSON.PopJSON();
-            let text = document.getElementById("model").value;
-            console.dir(document.getElementById("model"));
+            let text = document.getElementById(ids[0]).value;
             let result = parser.parse_json(text);
-            console.log(result);
-            document.getElementById("output").value = result.model;
-            document.getElementById("error").value = result.error;
+            document.getElementById(ids[1]).value = result.model;
+            document.getElementById(ids[2]).value = result.error;
         }
 </script>
 
@@ -47,16 +45,44 @@ JSON representation of the dynamically-structured matrix population models with 
 To define the algorithm and its parameters for simulation. For now, only <code>Population</code> is defined (<code>ODE</code> is pending), which could be either deterministic or stochastic. To set the precision of the accumulative process indicator, <code>istep</code> is used. This effectively limits the maximum number of pseudo-stage classes.
 ```json
     "model": {
-        "title": "Climate-sensitive population dynamics of Aedes albopictus",
-        "type": "Population",
-        "url": "https://github.com/kerguler/Population",
-        "deterministic": true,
-        "parameters": {
-            "algorithm": "Population",
-            "istep": 0.01
+            "title": "Climate-sensitive population dynamics of Aedes albopictus",
+            "type": "Population",
+            "url": "https://github.com/kerguler/Population",
+            "deterministic": true,
+            "parameters": {
+                "algorithm": "Population",
+                "istep": 0.01
+            }
         }
-    }
 ```
+<div class="myGroup">
+<textarea id="model0" class="hidden">
+{
+    "model": {
+            "title": "Climate-sensitive population dynamics of Aedes albopictus",
+            "type": "Population",
+            "url": "https://github.com/kerguler/Population",
+            "deterministic": true,
+            "parameters": {
+                "algorithm": "Population",
+                "istep": 0.01
+            }
+        },
+    "populations": [
+        {
+            "id": "larva",
+            "name": "Larva",
+            "processes": []
+        }
+    ]
+}
+</textarea>
+<textarea id="output0" class="myCode">
+</textarea>
+<textarea id="error0" class="myError">
+</textarea>
+<script>process(['model0','output0','error0']);</script>
+</div>
 
 # SandBox
 
@@ -355,7 +381,7 @@ To define the algorithm and its parameters for simulation. For now, only <code>P
        ]
     }
 </textarea>
-<button onclick="process()">Parse</button>
+<button onclick="process(['model','output','error'])">Parse</button>
 <textarea id="output" class="myCode">
 </textarea>
 <textarea id="error" class="myError">

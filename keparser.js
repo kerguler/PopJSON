@@ -59,16 +59,27 @@ class PopJSON {
     parse() {
         let that = this;
         this.deterministic = this.json['model']['deterministic'];
-        this.environs = 'environ' in this.json ? this.json['environ'].map( (pr) => pr['id'] ) : [];
+        if (!('environ' in this.json)) this.json['environ'] = [];
+        this.environs = this.json['environ'].map( (pr) => pr['id'] );
+        if (!('populations' in this.json)) {
+            this.json['populations'] = [];
+            this.error += "Couldn't find any populations!\n";
+            return(this.results());
+        }
         this.populations = this.json['populations'].map( (pr) => pr['id'] );
-        this.processes = []; this.json['populations'].forEach( (pop) => 'processes' in pop ? pop['processes'].forEach( (pr) => { that.processes.push(pr['id']); } ) : [] );
-        this.processobj = {}; this.json['populations'].forEach( (pop) => 'processes' in pop ? pop['processes'].forEach( (pr) => { that.processobj[pr['id']] = pr; that.processobj[pr['id']]['parent_id'] = pop['id']; } ) : {} );
+        this.processes = this.json['populations'].forEach( (pop) => 'processes' in pop ? pop['processes'].forEach( (pr) => { that.processes.push(pr['id']); } ) : [] );
+        this.processobj = this.json['populations'].forEach( (pop) => 'processes' in pop ? pop['processes'].forEach( (pr) => { that.processobj[pr['id']] = pr; that.processobj[pr['id']]['parent_id'] = pop['id']; } ) : {} );
+        if (!('parameters' in this.json)) this.json['parameters'] = [];
         this.parametersv = this.json['parameters'].filter( (p) => !p['constant'] ).map( (pr) => pr['id'] );
         this.parametersc = this.json['parameters'].filter( (p) => p['constant'] ).map( (pr) => pr['id'] );
-        this.functions = 'functions' in this.json ? Object.keys(this.json['functions']) : [];
+        if (!('functions' in this.json)) this.json['functions'] = [];
+        this.functions = Object.keys(this.json['functions']);
+        if (!('intermediates' in this.json)) this.json['intermediates'] = [];
         this.intermediates = this.json['intermediates'].map( (pr) => pr['id'] );
+        if (!('transformations' in this.json)) this.json['transformations'] = [];
         this.transformations = this.json['transformations'].map( (pr) => pr['id'] );
-        this.transfers = 'transfers' in this.json ? Array.from(new Set(this.json['transfers'].map( (pr) => that.processobj[pr['from']]['parent_id'] ))) : [];
+        if (!('transfers' in this.json)) this.json['transfers'] = [];
+        this.transfers = Array.from(new Set(this.json['transfers'].map( (pr) => that.processobj[pr['from']]['parent_id'] )));
         this.operations = ["min","max","round","poisson","binomial","define","?","&&","||",">=","<=",">","<","==","sqrt","pow","exp","log","log2","log10","indicator","index","size","*","+","-","/"];
         this.funparnames = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z",
                             "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
@@ -113,18 +124,24 @@ class PopJSON {
         this.numint = this.numint_int + this.numint_trans;
         //
         if (this.json['model']['type'] == "Population") {
-            this.numproc = 1 + Math.max(...this.json['populations'].map( (s) => s['processes'].length ));
-            this.numprocpar = Math.max(...this.json['populations'].map( (spc, i) => {
-                let pars = 0;
-                spc['processes'].forEach( (s) => {
-                    if (Array.isArray(s['value'])) {
-                        pars += s['value'].length;
-                    } else {
-                        pars += 1;
-                    }
-                } );
-                return pars;
-            } ));
+            if (this.json['populations'].length == 0) {
+                this.numproc = 0;
+                this.numprocpar = 0;
+            } else {
+                this.numproc = 1 + Math.max(...this.json['populations'].map( (s) => 'processes' in s ? s['processes'].length : 0 ));
+                this.numprocpar = Math.max(...this.json['populations'].map( (spc, i) => {
+                    let pars = 0;
+                    if (!('processes' in spc)) return pars;
+                    spc['processes'].forEach( (s) => {
+                        if (Array.isArray(s['value'])) {
+                            pars += s['value'].length;
+                        } else {
+                            pars += 1;
+                        }
+                    } );
+                    return pars;
+                } ));
+            }
         }
         //
         this.popart = {};

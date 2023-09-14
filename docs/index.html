@@ -171,15 +171,13 @@ g { color: Green }
 </style>
 <script src="keparser.max.js"></script>
 <script>
-        function process() {
+        function process(ids=["model","output","error"]) {
             var PopJSON = require('PopJSON');
             var parser = new PopJSON.PopJSON();
-            let text = document.getElementById("model").value;
-            console.dir(document.getElementById("model"));
+            let text = document.getElementById(ids[0]).value;
             let result = parser.parse_json(text);
-            console.log(result);
-            document.getElementById("output").value = result.model;
-            document.getElementById("error").value = result.error;
+            document.getElementById(ids[1]).value = result.model;
+            document.getElementById(ids[2]).value = result.error;
         }
 </script>
 <h1 id="popjson">PopJSON</h1>
@@ -193,15 +191,43 @@ of the accumulative process indicator, <code>istep</code> is used. This
 effectively limits the maximum number of pseudo-stage classes.</p>
 <div class="sourceCode" id="cb1"><pre
 class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>    <span class="er">&quot;model&quot;:</span> <span class="fu">{</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;title&quot;</span><span class="fu">:</span> <span class="st">&quot;Climate-sensitive population dynamics of Aedes albopictus&quot;</span><span class="fu">,</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;type&quot;</span><span class="fu">:</span> <span class="st">&quot;Population&quot;</span><span class="fu">,</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;url&quot;</span><span class="fu">:</span> <span class="st">&quot;https://github.com/kerguler/Population&quot;</span><span class="fu">,</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;deterministic&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;parameters&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;algorithm&quot;</span><span class="fu">:</span> <span class="st">&quot;Population&quot;</span><span class="fu">,</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;istep&quot;</span><span class="fu">:</span> <span class="fl">0.01</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span></code></pre></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;title&quot;</span><span class="fu">:</span> <span class="st">&quot;Climate-sensitive population dynamics of Aedes albopictus&quot;</span><span class="fu">,</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;type&quot;</span><span class="fu">:</span> <span class="st">&quot;Population&quot;</span><span class="fu">,</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;url&quot;</span><span class="fu">:</span> <span class="st">&quot;https://github.com/kerguler/Population&quot;</span><span class="fu">,</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;deterministic&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;parameters&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>                <span class="dt">&quot;algorithm&quot;</span><span class="fu">:</span> <span class="st">&quot;Population&quot;</span><span class="fu">,</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>                <span class="dt">&quot;istep&quot;</span><span class="fu">:</span> <span class="fl">0.01</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>            <span class="fu">}</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span></code></pre></div>
+<div class="myGroup">
+<textarea id="model0" class="hidden">
+{
+    "model": {
+            "title": "Climate-sensitive population dynamics of Aedes albopictus",
+            "type": "Population",
+            "url": "https://github.com/kerguler/Population",
+            "deterministic": true,
+            "parameters": {
+                "algorithm": "Population",
+                "istep": 0.01
+            }
+        },
+    "populations": [
+        {
+            "id": "larva",
+            "name": "Larva",
+            "processes": []
+        }
+    ]
+}
+</textarea>
+<textarea id="output0" class="myCode">
+</textarea>
+<textarea id="error0" class="myError">
+</textarea>
+<script>process(['model0','output0','error0']);</script>
+</div>
 <h1 id="sandbox">SandBox</h1>
 <div class="myGroup">
 <textarea id="model" class="myJSON">
@@ -498,7 +524,7 @@ class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="
        ]
     }
 </textarea>
-<button onclick="process()">
+<button onclick="process([&#39;model&#39;,&#39;output&#39;,&#39;error&#39;])">
 Parse
 </button>
 <textarea id="output" class="myCode">
