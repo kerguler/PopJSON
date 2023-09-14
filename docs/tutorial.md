@@ -93,7 +93,8 @@ To define the algorithm and its parameters for simulation. For now, only <code>P
 ```
 
 ![Erlang-distributed adult female mosquito lifetime](figures/ex1a.png "Deterministic - Erlang-distributed")
-![Erlang-distributed adult female mosquito lifetime](figures/ex1b.png "Stochastic - Erlang-distributed")
+
+![Three realisations of stochastic mortality in a population of 100](figures/ex1b.png "Stochastic - Erlang-distributed")
 
 # SandBox
 
