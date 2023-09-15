@@ -8,7 +8,7 @@
 #define NumInt 0
 
 
-#define adult_lifetime 0
+#define larva_dev 0
 
 
 double dmin(double a, double b) { return a < b ? a : b; }
@@ -25,7 +25,7 @@ void init(int *no, int *np, int *ni) {
 
 void parnames(char **names, double *param, double *parmin, double *parmax) {
     char temp[NumPop+NumPar+NumInt][256] = {
-        "adult",
+        "larva",
     };
 
     int i;
@@ -39,28 +39,28 @@ void destroy(void) {
 
 void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, double *iret, int *success) {
 
-    population adult;
+    population larva;
 
     number num = numZERO;
     char arbiters[2];
     number key[2];
-    number size_adult;
-    number completed_adult[2];
+    number size_larva;
+    number completed_larva[2];
     double par[2];
 
     arbiters[0] = ACC_ERLANG;
     key[0] = numZERO;
     arbiters[1] = STOP;
     key[1] = numZERO;
-    adult = spop2_init(arbiters, DETERMINISTIC);
-    if (y0[0]) { num.d = y0[0]; spop2_add(adult, key, num); }
+    larva = spop2_init(arbiters, DETERMINISTIC);
+    if (y0[0]) { num.d = y0[0]; spop2_add(larva, key, num); }
 
 
 
     int TIME = 0;
-    size_adult = spop2_size(adult);
+    size_larva = spop2_size(larva);
 
-    ret[0] = size_adult.d;
+    ret[0] = size_larva.d;
     if (CHECK(ret[0])) {goto endall;};
 
     ret += 1;
@@ -70,7 +70,7 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, do
         if (rep >= 0) {
                 par[0] = 10;
                 par[1] = 4;
-                spop2_step(adult, par, &size_adult, completed_adult, 0);
+                spop2_step(larva, par, &size_larva, completed_larva, 0);
 
 
 
@@ -78,7 +78,7 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, do
 
         }
 
-        ret[0] = size_adult.d;
+        ret[0] = size_larva.d;
         if (CHECK(ret[0])) {goto endall;};
 
         ret += 1;
@@ -93,7 +93,7 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, do
 
     *success = TIME;
 
-    spop2_free(&adult);
+    spop2_free(&larva);
 
 }
 

@@ -141,6 +141,12 @@ structured population models</span>
         <li><a href="#declaring-a-population-or-a-development-stage"
         id="toc-declaring-a-population-or-a-development-stage">Declaring
         a population (or a development stage)</a></li>
+        <li><a href="#declaring-multiple-processes"
+        id="toc-declaring-multiple-processes">Declaring multiple
+        processes</a></li>
+        <li><a href="#declaring-cyclic-development-gonotrophic-cycle"
+        id="toc-declaring-cyclic-development-gonotrophic-cycle">Declaring
+        cyclic development (gonotrophic cycle)</a></li>
         </ul></li>
         </ul></li>
         <li><a href="#sandbox" id="toc-sandbox">SandBox</a></li>
@@ -157,6 +163,15 @@ o { color: Orange }
 g { color: Green }
 .hidden {
     display: none;
+}
+pre.sourceCode {
+    max-height: 300px;
+}
+.myFigures {
+    display: flex;
+}
+.myFigures figure {
+    width: 50%;
 }
 .myGroup {
     display: flex;
@@ -189,9 +204,26 @@ g { color: Green }
         }
 </script>
 <h1 id="popjson">PopJSON</h1>
-<p>JSON representation of the dynamically-structured matrix population
-models with multiple processes.</p>
+<p>We propose a JSON representation of dynamically-structured matrix
+population models, which can accommodate multiple processes, such as
+survival, development, and egg laying. At present, PopJSON deals only
+with the <code>sPop</code> models of Erguler et
+al. [<a href="https://f1000research.com/articles/7-1220/v3" target="_blank" rel="noreferrer">sPop</a>,
+<a href="https://www.nature.com/articles/s41598-022-15806-2" target="_blank" rel="noreferrer">sPop2</a>,
+<a href="https://github.com/kerguler/Population" target="_blank" rel="noreferrer">Population</a>],
+but soon, and with your help, it will expand to cover more.</p>
 <h2 id="using-the-library">Using the library</h2>
+<p>The parser takes a JSON string, or a file, and converts it to its raw
+ANSI C equivalent. You’ll then need to compile this in your system and
+run using the
+<a href="https://github.com/kerguler/Population" target="_blank" rel="noreferrer">Population</a>
+package. The package includes a wrapper for <code>Python</code>, and
+soon, will have another one for <code>R</code>.</p>
+<p>We are working on developing the
+<a href="https://VEClim.com" target="_blank" rel="noreferrer">VEClim</a>
+API to take PopJSON requests and run sample simulations. But this shall
+be used to preview models. We will not reproduce the functionality of
+advanced analysis tools.</p>
 <h3 id="model-definition">Model definition</h3>
 <p>To define the algorithm and its parameters for simulation. For now,
 only <code>Population</code> is defined (<code>ODE</code> is pending),
@@ -227,12 +259,12 @@ class="sourceCode json"><code class="sourceCode json"><span id="cb2-1"><a href="
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        <span class="fu">},</span></span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;populations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult&quot;</span><span class="fu">,</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Adult females&quot;</span><span class="fu">,</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;larva&quot;</span><span class="fu">,</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;The larva stage&quot;</span><span class="fu">,</span></span>
 <span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;processes&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>                <span class="fu">{</span></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_lifetime&quot;</span><span class="fu">,</span></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Adult female lifetime&quot;</span><span class="fu">,</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;larva_dev&quot;</span><span class="fu">,</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Larva development time&quot;</span><span class="fu">,</span></span>
 <span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;arbiter&quot;</span><span class="fu">:</span> <span class="st">&quot;ACC_ERLANG&quot;</span><span class="fu">,</span></span>
 <span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="dv">10</span><span class="ot">,</span> <span class="dv">4</span><span class="ot">]</span></span>
 <span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>                <span class="fu">}</span></span>
@@ -240,18 +272,166 @@ class="sourceCode json"><code class="sourceCode json"><span id="cb2-1"><a href="
 <span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
 <span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
 <span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;math.h&gt;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&quot;population.h&quot;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#define CHECK(x) (isnan(x) || isinf(x))</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="pp">#define NumPar 0</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="pp">#define NumPop 1</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="pp">#define NumInt 0</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="pp">#define larva_dev 0</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> dmin<span class="op">(</span><span class="dt">double</span> a<span class="op">,</span> <span class="dt">double</span> b<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> a <span class="op">&lt;</span> b <span class="op">?</span> a <span class="op">:</span> b<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> dmax<span class="op">(</span><span class="dt">double</span> a<span class="op">,</span> <span class="dt">double</span> b<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> a <span class="op">&gt;</span> b <span class="op">?</span> a <span class="op">:</span> b<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> init<span class="op">(</span><span class="dt">int</span> <span class="op">*</span>no<span class="op">,</span> <span class="dt">int</span> <span class="op">*</span>np<span class="op">,</span> <span class="dt">int</span> <span class="op">*</span>ni<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    spop2_set_eps<span class="op">(</span><span class="fl">0.01</span><span class="op">);</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="op">*</span>no <span class="op">=</span> NumPop<span class="op">;</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="op">*</span>np <span class="op">=</span> NumPar<span class="op">;</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    <span class="op">*</span>ni <span class="op">=</span> NumInt<span class="op">;</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> parnames<span class="op">(</span><span class="dt">char</span> <span class="op">**</span>names<span class="op">,</span> <span class="dt">double</span> <span class="op">*</span>param<span class="op">,</span> <span class="dt">double</span> <span class="op">*</span>parmin<span class="op">,</span> <span class="dt">double</span> <span class="op">*</span>parmax<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    <span class="dt">char</span> temp<span class="op">[</span>NumPop<span class="op">+</span>NumPar<span class="op">+</span>NumInt<span class="op">][</span><span class="dv">256</span><span class="op">]</span> <span class="op">=</span> <span class="op">{</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;larva&quot;</span><span class="op">,</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    <span class="op">};</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> i<span class="op">;</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span>i<span class="op">=</span><span class="dv">0</span><span class="op">;</span> i<span class="op">&lt;(</span>NumPop<span class="op">+</span>NumPar<span class="op">+</span>NumInt<span class="op">);</span> i<span class="op">++)</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>        names<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> strdup<span class="op">(</span>temp<span class="op">[</span>i<span class="op">]);</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> destroy<span class="op">(</span><span class="dt">void</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> sim<span class="op">(</span><span class="dt">int</span> tf<span class="op">,</span> <span class="dt">int</span> rep<span class="op">,</span> <span class="dt">double</span> <span class="op">*</span>envir<span class="op">,</span> <span class="dt">double</span> <span class="op">*</span>pr<span class="op">,</span> <span class="dt">double</span> <span class="op">*</span>y0<span class="op">,</span> <span class="dt">double</span> <span class="op">*</span>ret<span class="op">,</span> <span class="dt">double</span> <span class="op">*</span>iret<span class="op">,</span> <span class="dt">int</span> <span class="op">*</span>success<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    population larva<span class="op">;</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    number num <span class="op">=</span> numZERO<span class="op">;</span></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>    <span class="dt">char</span> arbiters<span class="op">[</span><span class="dv">2</span><span class="op">];</span></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>    number key<span class="op">[</span><span class="dv">2</span><span class="op">];</span></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>    number size_larva<span class="op">;</span></span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>    number completed_larva<span class="op">[</span><span class="dv">2</span><span class="op">];</span></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>    <span class="dt">double</span> par<span class="op">[</span><span class="dv">2</span><span class="op">];</span></span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>    arbiters<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> ACC_ERLANG<span class="op">;</span></span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>    key<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> numZERO<span class="op">;</span></span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>    arbiters<span class="op">[</span><span class="dv">1</span><span class="op">]</span> <span class="op">=</span> STOP<span class="op">;</span></span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>    key<span class="op">[</span><span class="dv">1</span><span class="op">]</span> <span class="op">=</span> numZERO<span class="op">;</span></span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>    larva <span class="op">=</span> spop2_init<span class="op">(</span>arbiters<span class="op">,</span> DETERMINISTIC<span class="op">);</span></span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>y0<span class="op">[</span><span class="dv">0</span><span class="op">])</span> <span class="op">{</span> num<span class="op">.</span>d <span class="op">=</span> y0<span class="op">[</span><span class="dv">0</span><span class="op">];</span> spop2_add<span class="op">(</span>larva<span class="op">,</span> key<span class="op">,</span> num<span class="op">);</span> <span class="op">}</span></span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> TIME <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>    size_larva <span class="op">=</span> spop2_size<span class="op">(</span>larva<span class="op">);</span></span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>    ret<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> size_larva<span class="op">.</span>d<span class="op">;</span></span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>CHECK<span class="op">(</span>ret<span class="op">[</span><span class="dv">0</span><span class="op">]))</span> <span class="op">{</span><span class="cf">goto</span> endall<span class="op">;};</span></span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>    ret <span class="op">+=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span>TIME<span class="op">=</span><span class="dv">1</span><span class="op">;</span> TIME<span class="op">&lt;</span>tf<span class="op">;</span> TIME<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>rep <span class="op">&gt;=</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>                par<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> <span class="dv">10</span><span class="op">;</span></span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>                par<span class="op">[</span><span class="dv">1</span><span class="op">]</span> <span class="op">=</span> <span class="dv">4</span><span class="op">;</span></span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>                spop2_step<span class="op">(</span>larva<span class="op">,</span> par<span class="op">,</span> <span class="op">&amp;</span>size_larva<span class="op">,</span> completed_larva<span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>        ret<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> size_larva<span class="op">.</span>d<span class="op">;</span></span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>CHECK<span class="op">(</span>ret<span class="op">[</span><span class="dv">0</span><span class="op">]))</span> <span class="op">{</span><span class="cf">goto</span> endall<span class="op">;};</span></span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>        ret <span class="op">+=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>        iret <span class="op">+=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>  endall<span class="op">:</span></span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>    <span class="op">*</span>success <span class="op">=</span> TIME<span class="op">;</span></span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a>    spop2_free<span class="op">(&amp;</span>larva<span class="op">);</span></span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">(</span><span class="dt">int</span> argc<span class="op">,</span> <span class="dt">char</span> <span class="op">*</span>argv<span class="op">[])</span> <span class="op">{</span></span>
+<span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<div class="myFigures">
 <figure>
 <img src="figures/ex1a.png" title="Deterministic - Erlang-distributed"
-alt="Erlang-distributed adult female mosquito lifetime" />
-<figcaption aria-hidden="true">Erlang-distributed adult female mosquito
-lifetime</figcaption>
+alt="Erlang-distributed larva development time" />
+<figcaption aria-hidden="true">Erlang-distributed larva development
+time</figcaption>
 </figure>
 <figure>
 <img src="figures/ex1b.png" title="Stochastic - Erlang-distributed"
-alt="Three realisations of stochastic mortality in a population of 100" />
+alt="Three realisations of stochastic development in 100 larvae" />
 <figcaption aria-hidden="true">Three realisations of stochastic
-mortality in a population of 100</figcaption>
+development in 100 larvae</figcaption>
 </figure>
+</div>
+<h3 id="declaring-multiple-processes">Declaring multiple processes</h3>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;model&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;title&quot;</span><span class="fu">:</span> <span class="st">&quot;Climate-sensitive population dynamics of Aedes albopictus&quot;</span><span class="fu">,</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;type&quot;</span><span class="fu">:</span> <span class="st">&quot;Population&quot;</span><span class="fu">,</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;url&quot;</span><span class="fu">:</span> <span class="st">&quot;https://github.com/kerguler/Population&quot;</span><span class="fu">,</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;deterministic&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;parameters&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>                <span class="dt">&quot;algorithm&quot;</span><span class="fu">:</span> <span class="st">&quot;Population&quot;</span><span class="fu">,</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>                <span class="dt">&quot;istep&quot;</span><span class="fu">:</span> <span class="fl">0.01</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>            <span class="fu">}</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>        <span class="fu">},</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;populations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;larva&quot;</span><span class="fu">,</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;The larva stage&quot;</span><span class="fu">,</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;processes&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>                <span class="fu">{</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;larva_mort&quot;</span><span class="fu">,</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Larva lifetime&quot;</span><span class="fu">,</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;arbiter&quot;</span><span class="fu">:</span> <span class="st">&quot;ACC_ERLANG&quot;</span><span class="fu">,</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="dv">7</span><span class="ot">,</span> <span class="dv">2</span><span class="ot">]</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>                <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>                <span class="fu">{</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;larva_dev&quot;</span><span class="fu">,</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Larva development time&quot;</span><span class="fu">,</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;arbiter&quot;</span><span class="fu">:</span> <span class="st">&quot;ACC_ERLANG&quot;</span><span class="fu">,</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="dv">10</span><span class="ot">,</span> <span class="dv">4</span><span class="ot">]</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>                <span class="fu">}</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>            <span class="ot">]</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;transformations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;larva_death&quot;</span><span class="fu">,</span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Larva dying today&quot;</span><span class="fu">,</span></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;larva_mort&quot;</span><span class="ot">,</span> <span class="st">&quot;larva&quot;</span><span class="ot">]</span></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span> <span class="fu">{</span></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;larva_to_pupa&quot;</span><span class="fu">,</span></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Larva developing into pupa&quot;</span><span class="fu">,</span></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;larva_dev&quot;</span><span class="ot">,</span> <span class="st">&quot;larva&quot;</span><span class="ot">]</span></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>    <span class="er">&quot;transformations&quot;:</span> <span class="ot">[</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;larva_death&quot;</span><span class="fu">,</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Larva dying today&quot;</span><span class="fu">,</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;larva_mort&quot;</span><span class="ot">,</span> <span class="st">&quot;larva&quot;</span><span class="ot">]</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span> <span class="fu">{</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;larva_to_pupa&quot;</span><span class="fu">,</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Larva developing into pupa&quot;</span><span class="fu">,</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;larva_dev&quot;</span><span class="ot">,</span> <span class="st">&quot;larva&quot;</span><span class="ot">]</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span></code></pre></div>
+<figure>
+<img src="figures/ex2a.png" title="Deterministic - Erlang-distributed"
+alt="Erlang-distributed larva lifetime and development time" />
+<figcaption aria-hidden="true">Erlang-distributed larva lifetime and
+development time</figcaption>
+</figure>
+<h3 id="declaring-cyclic-development-gonotrophic-cycle">Declaring cyclic
+development (gonotrophic cycle)</h3>
 <h1 id="sandbox">SandBox</h1>
 <div class="myGroup">
 <textarea id="model" class="myJSON">
