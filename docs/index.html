@@ -134,10 +134,10 @@ structured population models</span>
         <li><a href="#popjson" id="toc-popjson">PopJSON</a>
         <ul>
         <li><a href="#using-the-library"
-        id="toc-using-the-library">Using the library</a>
-        <ul>
+        id="toc-using-the-library">Using the library</a></li>
         <li><a href="#model-definition" id="toc-model-definition">Model
-        definition</a></li>
+        definition</a>
+        <ul>
         <li><a href="#declaring-a-population-or-a-development-stage"
         id="toc-declaring-a-population-or-a-development-stage">Declaring
         a population (or a development stage)</a></li>
@@ -224,12 +224,14 @@ soon, will have another one for <code>R</code>.</p>
 API to take PopJSON requests and run sample simulations. But this shall
 be used to preview models. We will not reproduce the functionality of
 advanced analysis tools.</p>
-<h3 id="model-definition">Model definition</h3>
-<p>To define the algorithm and its parameters for simulation. For now,
-only <code>Population</code> is defined (<code>ODE</code> is pending),
-which could be either deterministic or stochastic. To set the precision
-of the accumulative process indicator, <code>istep</code> is used. This
-effectively limits the maximum number of pseudo-stage classes.</p>
+<h2 id="model-definition">Model definition</h2>
+<p>We first define the <strong>model</strong> with its
+<strong>type</strong> and <strong>parameters</strong>. algorithm
+(<code>Population</code> for now) and its parameters for simulation. The
+<strong>deterministic</strong> option will declare the model as either
+deterministic or stochastic. To set the precision of the accumulative
+process indicator, <strong>istep</strong> is used. This effectively
+limits the maximum number of pseudo-stage classes.</p>
 <div class="sourceCode" id="cb1"><pre
 class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;model&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>

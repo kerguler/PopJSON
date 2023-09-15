@@ -48,17 +48,17 @@ pre.sourceCode {
 
 # PopJSON
 
-We propose a JSON representation of dynamically-structured matrix population models, which can accommodate multiple processes, such as survival, development, and egg laying. At present, PopJSON deals only with the <code>sPop</code> models of Erguler et al. \[<a href="https://f1000research.com/articles/7-1220/v3" target="_blank" rel="noreferrer">sPop</a>, <a href="https://www.nature.com/articles/s41598-022-15806-2" target="_blank" rel="noreferrer">sPop2</a>, <a href="https://github.com/kerguler/Population" target="_blank" rel="noreferrer">Population</a>\], but soon, and with your help, it will expand to cover more.
+We propose a JSON representation of dynamically-structured matrix population models, which can accommodate multiple processes, such as survival, development, and egg laying. At present, PopJSON deals only with the `sPop` models of Erguler et al. \[<a href="https://f1000research.com/articles/7-1220/v3" target="_blank" rel="noreferrer">sPop</a>, <a href="https://www.nature.com/articles/s41598-022-15806-2" target="_blank" rel="noreferrer">sPop2</a>, <a href="https://github.com/kerguler/Population" target="_blank" rel="noreferrer">Population</a>\], but soon, and with your help, it will expand to cover more.
 
 ## Using the library
 
-The parser takes a JSON string, or a file, and converts it to its raw ANSI C equivalent. You'll then need to compile this in your system and run using the <a href="https://github.com/kerguler/Population" target="_blank" rel="noreferrer">Population</a> package. The package includes a wrapper for <code>Python</code>, and soon, will have another one for <code>R</code>.
+The parser takes a JSON string, or a file, and converts it to its raw ANSI C equivalent. You'll then need to compile this in your system and run using the <a href="https://github.com/kerguler/Population" target="_blank" rel="noreferrer">Population</a> package. The package includes a wrapper for `Python`, and soon, will have another one for `R`.
 
 We are working on developing the <a href="https://VEClim.com" target="_blank" rel="noreferrer">VEClim</a> API to take PopJSON requests and run sample simulations. But this shall be used to preview models. We will not reproduce the functionality of advanced analysis tools.
 
-### Model definition
+## Model definition
 
-To define the algorithm and its parameters for simulation. For now, only <code>Population</code> is defined (<code>ODE</code> is pending), which could be either deterministic or stochastic. To set the precision of the accumulative process indicator, <code>istep</code> is used. This effectively limits the maximum number of pseudo-stage classes.
+We first define the **model** with its **type** and **parameters**. algorithm (`Population` for now) and its parameters for simulation. The **deterministic** option will declare the model as either deterministic or stochastic. To set the precision of the accumulative process indicator, **istep** is used. This effectively limits the maximum number of pseudo-stage classes.
 ```json
 {
     "model": {
