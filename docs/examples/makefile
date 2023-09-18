@@ -1,4 +1,4 @@
 examples:
-	for MNAME in ex1a ex1b ex2a; do \
+	for MNAME in ex1a ex1b ex2a ex3a; do \
 		gcc -L/usr/local/lib -I/usr/local/include -Wall -lm -lpopulation -lgsl -lgslcblas -shared -fPIC -single_module -o $$MNAME.dylib $$MNAME.c ; \
 	done
