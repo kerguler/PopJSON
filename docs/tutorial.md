@@ -479,6 +479,67 @@ int main(int argc, char *argv[]) {
 
 ![Erlang-distributed adult lifetime and gonotrophic cycle](figures/ex3a.png "Deterministic - Erlang-distributed")
 
+```json
+{
+    "model": {
+            "title": "Climate-sensitive population dynamics of Aedes albopictus",
+            "type": "Population",
+            "url": "https://github.com/kerguler/Population",
+            "deterministic": false,
+            "parameters": {
+                "algorithm": "Population",
+                "istep": 0.01
+            }
+        },
+    "populations": [
+        {
+            "id": "adult",
+            "name": "Adult females",
+            "processes": [
+                {
+                    "id": "adult_mort",
+                    "name": "Adult lifetime",
+                    "arbiter": "ACC_ERLANG",
+                    "value": [20, 5]
+                },
+                {
+                    "id": "adult_dev",
+                    "name": "Egg development in adult females",
+                    "arbiter": "ACC_ERLANG",
+                    "value": [5, 1]
+                }
+            ]
+        }
+    ],
+    "transfers": [
+        {
+            "id": "gonotrophic_cycle",
+            "name": "Gonotrophic cycle",
+            "from": "adult_dev",
+            "to": "adult",
+            "value": [["adult_mort", "adult"], "0"]
+        }
+    ],
+    "transformations": [
+        {
+            "id": "adult_death",
+            "name": "Adult females dying today",
+            "value": ["adult_mort", "adult"]
+        }, {
+            "id": "num_gravid",
+            "name": "Number of gravid females",
+            "value": ["adult_dev", "adult"]
+        },{
+            "id": "egg_laying",
+            "name": "Egg laying at the end of gonotrophic cycle",
+            "value": ["poisson", ["*", "num_gravid", 10]]
+        }
+    ]
+}
+```
+
+![Erlang-distributed adult lifetime and gonotrophic cycle](figures/ex3b.png "Stochastic - Erlang-distributed")
+
 # SandBox
 
 <div class="myGroup">

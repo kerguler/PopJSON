@@ -37,3 +37,13 @@ plt.legend()
 plt.savefig("figures/ex3a.png",bbox_inches="tight",dpi=300)
 plt.close()
 
+ex3a = pop.model("examples/ex3a.dylib")
+ex3b = pop.model("examples/ex3b.dylib")
+out3a = ex3a.sim(30,[],[],[100.0])
+plt.plot(numpy.arange(1,30),out3a['iret'][0,:,2],'o-',c="black",label="Newly laid eggs")
+for n in range(3):
+    out3b = ex3b.sim(30,[],[],[100.0])
+    plt.plot(numpy.arange(1,30),out3b['iret'][0,:,2],'o',c="blue")
+plt.legend()
+plt.savefig("figures/ex3b.png",bbox_inches="tight",dpi=300)
+plt.close()
