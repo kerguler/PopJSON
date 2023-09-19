@@ -61,6 +61,7 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, do
     number key[3];
     number size_adult;
     number completed_adult[3];
+    population popdone_adult[3];
     unsigned int adult_death = 0;
     unsigned int num_gravid = 0;
     unsigned int egg_laying = 0;
@@ -75,7 +76,6 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, do
     adult = spop2_init(arbiters, STOCHASTIC);
     if (y0[0]) { num.i = y0[0]; spop2_add(adult, key, num); }
 
-    population popdone_adult[3];
     popdone_adult[0] = spop2_init(arbiters, STOCHASTIC);
     popdone_adult[1] = spop2_init(arbiters, STOCHASTIC);
     popdone_adult[2] = spop2_init(arbiters, STOCHASTIC);
@@ -144,3 +144,4 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, do
 int main(int argc, char *argv[]) {
     return 0;
 }
+

@@ -329,6 +329,11 @@ class PopJSON {
                 //
                 that.model += "    number completed_" + spc['id'] + "[" + util.format(that.numproc) + "];\n";
             } );
+            this.json['populations'].forEach( (spc, i) => {
+                if (that.transfers && that.transfers.includes(spc['id'])) {
+                    that.model += "    population popdone_" + spc['id'] + "[" + util.format(that.numproc) + "];\n";
+                }
+            } );
             if ('transformations' in this.json) {
                 if (this.deterministic) {
                     this.json['transformations'].map( (trx) => trx['id'] ).forEach( (id) => {
@@ -342,6 +347,7 @@ class PopJSON {
             }
             this.model += "    double par[" + util.format(this.numprocpar) + "];\n";
             this.model += "\n";
+            //
             this.json['populations'].forEach( (spc, i) => {
                 for (j=0; j<that.numproc; j++) {
                     that.model += "    arbiters[" + util.format(j) + "] = " + (j < spc['processes'].length ? spc['processes'][j]['arbiter'] : "STOP") + ";\n";
@@ -351,7 +357,6 @@ class PopJSON {
                 that.model += "    if (y0[" + util.format(i) + "]) { num." + ("i",that.deterministic ? "d" : "i") + " = y0[" + util.format(i) + "]; spop2_add(" + spc['id'] + ", key, num); }\n";
                 that.model += "\n";
                 if (that.transfers && that.transfers.includes(spc['id'])) {
-                    that.model += "    population popdone_" + spc['id'] + "[" + util.format(that.numproc) + "];\n";
                     for (j=0; j<that.numproc; j++) {
                         that.model += "    popdone_" + spc['id'] + "[" + util.format(j) + "] = spop2_init(arbiters, " + det + ");\n";
                     }
