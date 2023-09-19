@@ -52,7 +52,7 @@ void destroy(void) {
     spop2_random_destroy();
 }
 
-void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, double *iret, int *success) {
+void sim(int tf, int rep, double *envir, double *pr, double *y0, char *file0, char *file1, double *ret, double *iret, int *success) {
 
     population adult;
 
@@ -67,19 +67,44 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, do
     unsigned int egg_laying = 0;
     double par[4];
 
-    arbiters[0] = ACC_ERLANG;
-    key[0] = numZERO;
-    arbiters[1] = ACC_ERLANG;
-    key[1] = numZERO;
-    arbiters[2] = STOP;
-    key[2] = numZERO;
-    adult = spop2_init(arbiters, STOCHASTIC);
-    if (y0[0]) { num.i = y0[0]; spop2_add(adult, key, num); }
+    FILE *file;
+    number *buff = 0;
+    unsigned int buffsz = 0;
+    if (file0) {
+        file = fopen(file0,"rb");
+        rewind(file);
+    }
 
-    popdone_adult[0] = spop2_init(arbiters, STOCHASTIC);
-    popdone_adult[1] = spop2_init(arbiters, STOCHASTIC);
-    popdone_adult[2] = spop2_init(arbiters, STOCHASTIC);
+    if (file0) {
+        fread(&buffsz, sizeof(unsigned int), 1, file);
+        buff = (number *)malloc(buffsz);
+        fread(buff, buffsz, 1, file);
+        adult = spop2_loadstate(buff);
 
+        popdone_adult[0] = spop2_loadstate_empty(buff);
+        popdone_adult[1] = spop2_loadstate_empty(buff);
+        popdone_adult[2] = spop2_loadstate_empty(buff);
+
+        free(buff);
+
+    } else {
+        arbiters[0] = ACC_ERLANG;
+        key[0] = numZERO;
+        arbiters[1] = ACC_ERLANG;
+        key[1] = numZERO;
+        arbiters[2] = STOP;
+        key[2] = numZERO;
+        adult = spop2_init(arbiters, STOCHASTIC);
+        if (y0[0]) { num.i = y0[0]; spop2_add(adult, key, num); }
+
+        popdone_adult[0] = spop2_init(arbiters, STOCHASTIC);
+        popdone_adult[1] = spop2_init(arbiters, STOCHASTIC);
+        popdone_adult[2] = spop2_init(arbiters, STOCHASTIC);
+    }
+
+    if (file0) {
+        fclose(file);
+    }
 
     int TIME = 0;
     size_adult = spop2_size(adult);
@@ -133,6 +158,19 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, do
   endall:
 
     *success = TIME;
+
+    if (file1) {
+        file = fopen(file1,"wb");
+        rewind(file);
+
+        buffsz = spop2_buffsize(adult);
+        buff = spop2_savestate(adult);
+        fwrite(&buffsz, sizeof(unsigned int), 1, file);
+        fwrite(buff, buffsz, 1, file);
+        free(buff);
+
+        fclose(file);
+    }
 
     spop2_free(&adult);
     spop2_free(&(popdone_adult[0]));

@@ -1,4 +1,3 @@
-
 import atexit
 import numpy
 from ctypes import *
@@ -83,11 +82,13 @@ class model:
                               array_1d_double,
                               array_1d_double,
                               array_1d_double,
+                              POINTER(c_char_p),
+                              POINTER(c_char_p),
                               array_1d_double,
                               array_1d_double,
                               array_1d_int]
         #
-    def sim(self,ftime,envir,pr,y0,rep=1):
+    def sim(self,ftime,envir,pr,y0,rep=1,file0="",file1=""):
         """
             Note: Final time point is ftime - 1
         """
@@ -95,6 +96,8 @@ class model:
         envir = numpy.array(envir)
         pr = numpy.array(pr)
         y0 = numpy.array(y0)
+        file0 = c_char_p(bytes(file0,'utf-8'))
+        file1 = c_char_p(bytes(file1,'utf-8'))
         rep = numpy.int32(rep)
         rdim = rep if rep >= 0 else -rep
         ret = numpy.ndarray(rdim*ftime*self.numpop, dtype=numpy.float64)
@@ -105,6 +108,8 @@ class model:
                   envir,
                   pr,
                   y0,
+                  file0,
+                  file1,
                   ret,
                   iret,
                   success)
@@ -116,11 +121,11 @@ class model:
             "iret": iret 
         }
         #
-    def sims(self,ftime,envir,prs,y0,rep=1):
+    def sims(self,ftime,envir,prs,y0,rep=1,file0="",file1=""):
         rets = []
         irets = []
         for pr in prs:
-            sim = self.sim(ftime,envir,pr,y0,rep=rep)
+            sim = self.sim(ftime,envir,pr,y0,rep=rep,file0=file0,file1=file1)
             if sim['success'] == ftime:
                 if len(rets) == 0:
                     rets = sim['ret']

@@ -3,6 +3,7 @@
 const fs = require('fs');
 // const { emitWarning } = require('process');
 const util = require('util');
+var sanitizer = require('sanitize')();
 
 const arbiter = {
     'ACC_FIXED': 'd',
@@ -21,6 +22,14 @@ class PopJSON {
         this.model = "";
         this.error = "";
         this.json = {};
+    }
+    check_ids(id) {
+        /* TO DO */
+        /*
+        if (sanitizer.value(id, /abc123/) != id)
+            return "";
+        */
+        return id;
     }
     results() {
         return({
@@ -60,24 +69,24 @@ class PopJSON {
         let that = this;
         this.deterministic = this.json['model']['deterministic'];
         if (!('environ' in this.json)) this.json['environ'] = [];
-        this.environs = this.json['environ'].map( (pr) => pr['id'] );
+        this.environs = this.json['environ'].map( (pr) => that.check_ids(pr['id']) );
         if (!('populations' in this.json)) {
             this.json['populations'] = [];
             this.error += "Couldn't find any populations!\n";
             return(this.results());
         }
-        this.populations = this.json['populations'].map( (pr) => pr['id'] );
-        this.processes = []; this.json['populations'].forEach( (pop) => 'processes' in pop ? pop['processes'].forEach( (pr) => { that.processes.push(pr['id']); } ) : [] );
-        this.processobj = {}; this.json['populations'].forEach( (pop) => 'processes' in pop ? pop['processes'].forEach( (pr) => { that.processobj[pr['id']] = pr; that.processobj[pr['id']]['parent_id'] = pop['id']; } ) : {} );
+        this.populations = this.json['populations'].map( (pr) => that.check_ids(pr['id']) );
+        this.processes = []; this.json['populations'].forEach( (pop) => 'processes' in pop ? pop['processes'].forEach( (pr) => { that.processes.push(that.check_ids(pr['id'])); } ) : [] );
+        this.processobj = {}; this.json['populations'].forEach( (pop) => 'processes' in pop ? pop['processes'].forEach( (pr) => { that.processobj[that.check_ids(pr['id'])] = pr; that.processobj[that.check_ids(pr['id'])]['parent_id'] = that.check_ids(pop['id']); } ) : {} );
         if (!('parameters' in this.json)) this.json['parameters'] = [];
-        this.parametersv = this.json['parameters'].filter( (p) => !p['constant'] ).map( (pr) => pr['id'] );
-        this.parametersc = this.json['parameters'].filter( (p) => p['constant'] ).map( (pr) => pr['id'] );
+        this.parametersv = this.json['parameters'].filter( (p) => !p['constant'] ).map( (pr) => that.check_ids(pr['id']) );
+        this.parametersc = this.json['parameters'].filter( (p) => p['constant'] ).map( (pr) => that.check_ids(pr['id']) );
         if (!('functions' in this.json)) this.json['functions'] = [];
         this.functions = Object.keys(this.json['functions']);
         if (!('intermediates' in this.json)) this.json['intermediates'] = [];
-        this.intermediates = this.json['intermediates'].map( (pr) => pr['id'] );
+        this.intermediates = this.json['intermediates'].map( (pr) => that.check_ids(pr['id']) );
         if (!('transformations' in this.json)) this.json['transformations'] = [];
-        this.transformations = this.json['transformations'].map( (pr) => pr['id'] );
+        this.transformations = this.json['transformations'].map( (pr) => that.check_ids(pr['id']) );
         if (!('transfers' in this.json)) this.json['transfers'] = [];
         this.transfers = Array.from(new Set(this.json['transfers'].map( (pr) => that.processobj[pr['from']]['parent_id'] )));
         this.operations = ["min","max","round","poisson","binomial","define","?","&&","||",">=","<=",">","<","==","sqrt","pow","exp","log","log2","log10","indicator","index","size","*","+","-","/"];
@@ -303,7 +312,7 @@ class PopJSON {
         let i, j;
         let that = this;
         let det = this.deterministic ? 'DETERMINISTIC' : 'STOCHASTIC';
-        this.model += "void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, double *iret, int *success) {\n";
+        this.model += "void sim(int tf, int rep, double *envir, double *pr, double *y0, char *file0, char *file1, double *ret, double *iret, int *success) {\n";
         if ('environ' in this.json) {
            this.json['environ'].forEach( (elm, i) => {
                 that.model += "    double *" + elm['id'] + " = envir + " + util.format(i) + " * tf;\n";
@@ -348,21 +357,50 @@ class PopJSON {
             this.model += "    double par[" + util.format(this.numprocpar) + "];\n";
             this.model += "\n";
             //
+            this.model += "    FILE *file;\n";
+            this.model += "    number *buff = 0;\n";
+            this.model += "    unsigned int buffsz = 0;\n";
+            this.model += "    if (file0) {\n";
+            this.model += "        file = fopen(file0,\"rb\");\n";
+            this.model += "        rewind(file);\n";
+            this.model += "    }\n";
+            this.model += "\n";
+            this.model += "    if (file0) {\n";
             this.json['populations'].forEach( (spc, i) => {
-                for (j=0; j<that.numproc; j++) {
-                    that.model += "    arbiters[" + util.format(j) + "] = " + (j < spc['processes'].length ? spc['processes'][j]['arbiter'] : "STOP") + ";\n";
-                    that.model += "    key[" + util.format(j) + "] = numZERO;\n";
-                }
-                that.model += "    " + spc['id'] + " = spop2_init(arbiters, " + det + ");\n";
-                that.model += "    if (y0[" + util.format(i) + "]) { num." + ("i",that.deterministic ? "d" : "i") + " = y0[" + util.format(i) + "]; spop2_add(" + spc['id'] + ", key, num); }\n";
+                that.model += "        fread(&buffsz, sizeof(unsigned int), 1, file);\n";
+                that.model += "        buff = (number *)malloc(buffsz);\n";
+                that.model += "        fread(buff, buffsz, 1, file);\n";
+                that.model += "        " + spc['id'] + " = spop2_loadstate(buff);\n";
                 that.model += "\n";
                 if (that.transfers && that.transfers.includes(spc['id'])) {
                     for (j=0; j<that.numproc; j++) {
-                        that.model += "    popdone_" + spc['id'] + "[" + util.format(j) + "] = spop2_init(arbiters, " + det + ");\n";
+                        that.model += "        popdone_" + spc['id'] + "[" + util.format(j) + "] = spop2_loadstate_empty(buff);\n";
                     }
                 }
+                that.model += "\n";
+                that.model += "        free(buff);\n";
+                that.model += "\n";
+            } );
+            this.model += "    } else {\n";
+            this.json['populations'].forEach( (spc, i) => {
+                for (j=0; j<that.numproc; j++) {
+                    that.model += "        arbiters[" + util.format(j) + "] = " + (j < spc['processes'].length ? spc['processes'][j]['arbiter'] : "STOP") + ";\n";
+                    that.model += "        key[" + util.format(j) + "] = numZERO;\n";
+                }
+                that.model += "        " + spc['id'] + " = spop2_init(arbiters, " + det + ");\n";
+                that.model += "        if (y0[" + util.format(i) + "]) { num." + ("i",that.deterministic ? "d" : "i") + " = y0[" + util.format(i) + "]; spop2_add(" + spc['id'] + ", key, num); }\n";
+                that.model += "\n";
+                if (that.transfers && that.transfers.includes(spc['id'])) {
+                    for (j=0; j<that.numproc; j++) {
+                        that.model += "        popdone_" + spc['id'] + "[" + util.format(j) + "] = spop2_init(arbiters, " + det + ");\n";
+                    }
+                }
+                that.model += "    }\n";
             });
             this.model += "\n";
+            this.model += "    if (file0) {\n";
+            this.model += "        fclose(file);\n";
+            this.model += "    }\n";
         }
         //
         if ('intermediates' in this.json) {
@@ -382,12 +420,12 @@ class PopJSON {
         //
         if ('intermediates' in this.json) {
             this.json['intermediates'].forEach( (elm) => {
-                this.model += "        " + elm['id'] + " = " + that.parse_value(elm['value']) + ";\n";
+                that.model += "        " + elm['id'] + " = " + that.parse_value(elm['value']) + ";\n";
             });
             this.model += "\n";
         }
         //
-        that.model += "        if (rep >= 0) {\n";
+        this.model += "        if (rep >= 0) {\n";
         //
         if (this.json['model']['type'] == "Population") {
             this.json['populations'].forEach( (spc, i) => {
@@ -468,6 +506,23 @@ class PopJSON {
         this.model += "  endall:\n";
         this.model += "\n";
         this.model += "    *success = TIME;\n";
+        this.model += "\n";
+        this.model += "    if (file1) {\n";
+        this.model += "        file = fopen(file1,\"wb\");\n";
+        this.model += "        rewind(file);\n";
+        this.model += "\n";
+        if (this.json['model']['type'] == "Population") {
+            this.json['populations'].forEach( (spc) => {
+                that.model += "        buffsz = spop2_buffsize(" + spc['id'] + ");\n";
+                that.model += "        buff = spop2_savestate(" + spc['id'] + ");\n";
+                that.model += "        fwrite(&buffsz, sizeof(unsigned int), 1, file);\n";
+                that.model += "        fwrite(buff, buffsz, 1, file);\n";
+                that.model += "        free(buff);\n";
+                that.model += "\n";
+            });
+        }
+        this.model += "        fclose(file);\n";
+        this.model += "    }\n";
         this.model += "\n";
         if (this.json['model']['type'] == "Population") {
             this.json['populations'].forEach( (spc) => {
