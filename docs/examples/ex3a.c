@@ -47,7 +47,10 @@ void parnames(char **names, double *param, double *parmin, double *parmax) {
 void destroy(void) {
 }
 
-void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, double *iret, int *success) {
+void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *file0, const char *file1, double *ret, double *iret, int *success) {
+
+    int TIME = 0;
+
 
     population adult;
 
@@ -56,27 +59,55 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, do
     number key[3];
     number size_adult;
     number completed_adult[3];
+    population popdone_adult[3];
     double adult_death = 0.0;
     double num_gravid = 0.0;
     double egg_laying = 0.0;
     double par[4];
 
-    arbiters[0] = ACC_ERLANG;
-    key[0] = numZERO;
-    arbiters[1] = ACC_ERLANG;
-    key[1] = numZERO;
-    arbiters[2] = STOP;
-    key[2] = numZERO;
-    adult = spop2_init(arbiters, DETERMINISTIC);
-    if (y0[0]) { num.d = y0[0]; spop2_add(adult, key, num); }
+    FILE *file;
+    number *buff = 0;
+    unsigned int buffsz = 0;
+    if (file0 && file0[0]!=' ') {
+        file = fopen(file0,"rb");
+        if (!file) {
+            *success = 0;
+            goto endall;
+        }
+        rewind(file);
+    }
 
-    population popdone_adult[3];
-    popdone_adult[0] = spop2_init(arbiters, DETERMINISTIC);
-    popdone_adult[1] = spop2_init(arbiters, DETERMINISTIC);
-    popdone_adult[2] = spop2_init(arbiters, DETERMINISTIC);
+    if (file0 && file0[0]!=' ') {
+        fread(&buffsz, sizeof(unsigned int), 1, file);
+        buff = (number *)malloc(buffsz);
+        fread(buff, buffsz, 1, file);
+        adult = spop2_loadstate(buff);
 
+        popdone_adult[0] = spop2_loadstate_empty(buff);
+        popdone_adult[1] = spop2_loadstate_empty(buff);
+        popdone_adult[2] = spop2_loadstate_empty(buff);
 
-    int TIME = 0;
+        free(buff);
+
+    } else {
+        arbiters[0] = ACC_ERLANG;
+        key[0] = numZERO;
+        arbiters[1] = ACC_ERLANG;
+        key[1] = numZERO;
+        arbiters[2] = STOP;
+        key[2] = numZERO;
+        adult = spop2_init(arbiters, DETERMINISTIC);
+        if (y0[0]) { num.d = y0[0]; spop2_add(adult, key, num); }
+
+        popdone_adult[0] = spop2_init(arbiters, DETERMINISTIC);
+        popdone_adult[1] = spop2_init(arbiters, DETERMINISTIC);
+        popdone_adult[2] = spop2_init(arbiters, DETERMINISTIC);
+    }
+
+    if (file0 && file0[0]!=' ') {
+        fclose(file);
+    }
+
     size_adult = spop2_size(adult);
 
     ret[0] = size_adult.d;
@@ -129,6 +160,23 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, do
 
     *success = TIME;
 
+    if (file1 && file1[0]!=' ') {
+        file = fopen(file1,"wb");
+        if (!file) {
+            *success = 0;
+        } else {
+            rewind(file);
+
+            buffsz = spop2_buffsize(adult);
+            buff = spop2_savestate(adult);
+            fwrite(&buffsz, sizeof(unsigned int), 1, file);
+            fwrite(buff, buffsz, 1, file);
+            free(buff);
+
+            fclose(file);
+        }
+    }
+
     spop2_free(&adult);
     spop2_free(&(popdone_adult[0]));
     spop2_free(&(popdone_adult[1]));
@@ -139,3 +187,4 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, double *ret, do
 int main(int argc, char *argv[]) {
     return 0;
 }
+

@@ -52,7 +52,10 @@ void destroy(void) {
     spop2_random_destroy();
 }
 
-void sim(int tf, int rep, double *envir, double *pr, double *y0, char *file0, char *file1, double *ret, double *iret, int *success) {
+void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *file0, const char *file1, double *ret, double *iret, int *success) {
+
+    int TIME = 0;
+
 
     population adult;
 
@@ -70,12 +73,16 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, char *file0, ch
     FILE *file;
     number *buff = 0;
     unsigned int buffsz = 0;
-    if (file0) {
+    if (file0 && file0[0]!=' ') {
         file = fopen(file0,"rb");
+        if (!file) {
+            *success = 0;
+            goto endall;
+        }
         rewind(file);
     }
 
-    if (file0) {
+    if (file0 && file0[0]!=' ') {
         fread(&buffsz, sizeof(unsigned int), 1, file);
         buff = (number *)malloc(buffsz);
         fread(buff, buffsz, 1, file);
@@ -102,11 +109,10 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, char *file0, ch
         popdone_adult[2] = spop2_init(arbiters, STOCHASTIC);
     }
 
-    if (file0) {
+    if (file0 && file0[0]!=' ') {
         fclose(file);
     }
 
-    int TIME = 0;
     size_adult = spop2_size(adult);
 
     ret[0] = (double)(size_adult.i);
@@ -159,17 +165,21 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, char *file0, ch
 
     *success = TIME;
 
-    if (file1) {
+    if (file1 && file1[0]!=' ') {
         file = fopen(file1,"wb");
-        rewind(file);
+        if (!file) {
+            *success = 0;
+        } else {
+            rewind(file);
 
-        buffsz = spop2_buffsize(adult);
-        buff = spop2_savestate(adult);
-        fwrite(&buffsz, sizeof(unsigned int), 1, file);
-        fwrite(buff, buffsz, 1, file);
-        free(buff);
+            buffsz = spop2_buffsize(adult);
+            buff = spop2_savestate(adult);
+            fwrite(&buffsz, sizeof(unsigned int), 1, file);
+            fwrite(buff, buffsz, 1, file);
+            free(buff);
 
-        fclose(file);
+            fclose(file);
+        }
     }
 
     spop2_free(&adult);

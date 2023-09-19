@@ -26295,7 +26295,10 @@ class PopJSON {
         let i, j;
         let that = this;
         let det = this.deterministic ? 'DETERMINISTIC' : 'STOCHASTIC';
-        this.model += "void sim(int tf, int rep, double *envir, double *pr, double *y0, char *file0, char *file1, double *ret, double *iret, int *success) {\n";
+        this.model += "void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *file0, const char *file1, double *ret, double *iret, int *success) {\n";
+        this.model += "\n";
+        this.model += "    int TIME = 0;\n";
+        this.model += "\n";
         if ('environ' in this.json) {
            this.json['environ'].forEach( (elm, i) => {
                 that.model += "    double *" + elm['id'] + " = envir + " + util.format(i) + " * tf;\n";
@@ -26343,12 +26346,16 @@ class PopJSON {
             this.model += "    FILE *file;\n";
             this.model += "    number *buff = 0;\n";
             this.model += "    unsigned int buffsz = 0;\n";
-            this.model += "    if (file0) {\n";
+            this.model += "    if (file0 && file0[0]!=' ') {\n";
             this.model += "        file = fopen(file0,\"rb\");\n";
+            this.model += "        if (!file) {\n";
+            this.model += "            *success = 0;\n";
+            this.model += "            goto endall;\n";
+            this.model += "        }\n";
             this.model += "        rewind(file);\n";
             this.model += "    }\n";
             this.model += "\n";
-            this.model += "    if (file0) {\n";
+            this.model += "    if (file0 && file0[0]!=' ') {\n";
             this.json['populations'].forEach( (spc, i) => {
                 that.model += "        fread(&buffsz, sizeof(unsigned int), 1, file);\n";
                 that.model += "        buff = (number *)malloc(buffsz);\n";
@@ -26381,7 +26388,7 @@ class PopJSON {
                 that.model += "    }\n";
             });
             this.model += "\n";
-            this.model += "    if (file0) {\n";
+            this.model += "    if (file0 && file0[0]!=' ') {\n";
             this.model += "        fclose(file);\n";
             this.model += "    }\n";
         }
@@ -26393,7 +26400,6 @@ class PopJSON {
             this.model += "\n";
         }
         //
-        this.model += "    int TIME = 0;\n";
         this.json['populations'].forEach( (spc, i) => {
             that.model += "    size_" + spc['id'] + " = spop2_size(" + spc['id'] + ");\n";
         } );
@@ -26490,21 +26496,25 @@ class PopJSON {
         this.model += "\n";
         this.model += "    *success = TIME;\n";
         this.model += "\n";
-        this.model += "    if (file1) {\n";
+        this.model += "    if (file1 && file1[0]!=' ') {\n";
         this.model += "        file = fopen(file1,\"wb\");\n";
-        this.model += "        rewind(file);\n";
+        this.model += "        if (!file) {\n";
+        this.model += "            *success = 0;\n";
+        this.model += "        } else {\n";
+        this.model += "            rewind(file);\n";
         this.model += "\n";
         if (this.json['model']['type'] == "Population") {
             this.json['populations'].forEach( (spc) => {
-                that.model += "        buffsz = spop2_buffsize(" + spc['id'] + ");\n";
-                that.model += "        buff = spop2_savestate(" + spc['id'] + ");\n";
-                that.model += "        fwrite(&buffsz, sizeof(unsigned int), 1, file);\n";
-                that.model += "        fwrite(buff, buffsz, 1, file);\n";
-                that.model += "        free(buff);\n";
+                that.model += "            buffsz = spop2_buffsize(" + spc['id'] + ");\n";
+                that.model += "            buff = spop2_savestate(" + spc['id'] + ");\n";
+                that.model += "            fwrite(&buffsz, sizeof(unsigned int), 1, file);\n";
+                that.model += "            fwrite(buff, buffsz, 1, file);\n";
+                that.model += "            free(buff);\n";
                 that.model += "\n";
             });
         }
-        this.model += "        fclose(file);\n";
+        this.model += "            fclose(file);\n";
+        this.model += "        }\n";
         this.model += "    }\n";
         this.model += "\n";
         if (this.json['model']['type'] == "Population") {

@@ -82,8 +82,8 @@ class model:
                               array_1d_double,
                               array_1d_double,
                               array_1d_double,
-                              POINTER(c_char_p),
-                              POINTER(c_char_p),
+                              c_char_p,
+                              c_char_p,
                               array_1d_double,
                               array_1d_double,
                               array_1d_int]
@@ -96,8 +96,8 @@ class model:
         envir = numpy.array(envir)
         pr = numpy.array(pr)
         y0 = numpy.array(y0)
-        file0 = c_char_p(bytes(file0,'utf-8'))
-        file1 = c_char_p(bytes(file1,'utf-8'))
+        file0 = bytes(file0,'utf-8') if file0 else bytes(" ",'utf-8')
+        file1 = bytes(file1,'utf-8') if file1 else bytes(" ",'utf-8')
         rep = numpy.int32(rep)
         rdim = rep if rep >= 0 else -rep
         ret = numpy.ndarray(rdim*ftime*self.numpop, dtype=numpy.float64)
