@@ -31,7 +31,8 @@
                 "name": "Number of gonotrophic cycles in adult females",
                 "arbiter": "AGE_CUSTOM",
                 "stepper": "NO_STEPPER",
-                "value": 0
+                "hazard": ["AGE_GAMMA", 10, 1],
+                "value": []
             }
         ]
     }

@@ -831,7 +831,15 @@ const stepper = {
     'NO_STEPPER': '0',
     'AGE_STEPPER': 'age_stepper',
     'ACC_STEPPER': 'acc_stepper'
-}
+};
+
+const hazard = {
+    'AGE_FIXED': ['age_fixed_pars', 'age_hazard_calc', 'age_fixed_haz'],
+    'AGE_CONST': ['age_const_pars', 'age_const_calc', 'age_const_haz'],
+    'AGE_GAMMA': ['age_gamma_pars','age_hazard_calc','age_gamma_haz'],
+    'AGE_NBINOM': ['age_nbinom_pars', 'age_hazard_calc', 'age_nbinom_haz'],
+    'NOAGE_CONST': ['age_const_pars', 'age_const_calc', 'age_const_haz']
+};
 
 class PopJSON {
     constructor() {
@@ -915,6 +923,7 @@ class PopJSON {
         this.write_header();
         this.write_functions();
         this.write_transfer();
+        this.write_custom();
         this.write_init();
         this.write_parnames();
         this.write_destroy();
@@ -1027,11 +1036,30 @@ class PopJSON {
                 di = that.popart[pop['id']][proc['arbiter']];
                 that.model += "        {." + di + "=" + that.parse_value(trn['value'][j], true) + "},\n";
             } );
-            this.model += "    };\n";
-            this.model += "    spop2_add(*(population *)pop, q, num);\n";
-            this.model += "}\n";
-            this.model += "\n";
+            that.model += "    };\n";
+            that.model += "    spop2_add(*(population *)pop, q, num);\n";
+            that.model += "}\n";
+            that.model += "\n";
         } );
+    }
+    write_custom() {
+        let that = this;
+        this.json['populations'].forEach( (pop) => {
+            if (!('processes' in pop) || (pop['processes'].length == 0)) return;
+            pop['processes'].forEach( (proc) => {
+                if (proc['arbiter'] == "AGE_CUSTOM") {
+                    if (!('hazard' in proc)) return;
+                    that.model += "double fun_custom_" + proc['id'] + "_" + pop['id'] + "(hazard hfun, unsigned int d, number q, number k, double theta, const number *key) {\n";
+                    that.model += "    double devmn = " + that.parse_value(proc['hazard'][1], true) + ";\n";
+                    that.model += "    double devsd = " + that.parse_value(proc['hazard'][2], true) + ";\n";
+                    that.model += "    hazpar hz = " + hazard[proc['hazard'][0]][0] + "(devmn, devsd);\n";
+                    that.model += "    double a = " + hazard[proc['hazard'][0]][1] + "(" + hazard[proc['hazard'][0]][2] + ", 0, key[" + proc['id'] + "], hz.k, hz.theta, key);\n";
+                    that.model += "    return a;\n";
+                    that.model += "}\n";
+                    that.model += "\n";
+                }
+            } );
+        } );        
     }
     write_init() {
         this.model += "void init(int *no, int *np, int *ni) {\n";
@@ -1216,6 +1244,13 @@ class PopJSON {
                             break;
                         }
                         that.model += "        " + spc['id'] + "->arbiters[" + util.format(j) + "]->fun_step = " + stepper[spc['processes'][j]['stepper']] + ";\n";
+                    }
+                    if ((j < spc['processes'].length) && ('hazard' in spc['processes'][j])) {
+                        if (!(spc['processes'][j]['hazard'][0] in hazard)) {
+                            that.error += "Hazard not defined. Please choose one of these: " + Object.keys(hazard).join(", ") + "\n";
+                            break;
+                        }
+                        that.model += "        " + spc['id'] + "->arbiters[" + util.format(j) + "]->fun_calc = fun_custom_" + spc['processes'][j]['id'] + "_" + spc['id'] + ";\n";
                     }
                 }
                 that.model += "        if (y0[" + util.format(i) + "]) { num." + ("i",that.deterministic ? "d" : "i") + " = y0[" + util.format(i) + "]; spop2_add(" + spc['id'] + ", key, num); }\n";

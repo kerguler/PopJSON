@@ -7,6 +7,6 @@ examples:
 	done
 
 examplesC:
-	for MNAME in ex4bC; do \
+	for MNAME in ex4aC ex4bC; do \
 		gcc -L/usr/local/lib -I/usr/local/include -Wall -lm -lpopulation -lgsl -lgslcblas -fPIC -o $$MNAME $$MNAME.c ; \
 	done

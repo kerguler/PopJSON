@@ -26,6 +26,14 @@ void fun_transfer_gonotrophic_cycle(number *key, number num, void *pop) {
     spop2_add(*(population *)pop, q, num);
 }
 
+double fun_custom_adult_num_dev_adult(hazard hfun, unsigned int d, number q, number k, double theta, const number *key) {
+    double devmn = 10;
+    double devsd = 1;
+    hazpar hz = age_gamma_pars(devmn, devsd);
+    double a = age_hazard_calc(age_gamma_haz, 0, key[adult_num_dev], hz.k, hz.theta, key);
+    return a;
+}
+
 void init(int *no, int *np, int *ni) {
     spop2_set_eps(0.01);
 
@@ -65,7 +73,7 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
     double adult_death = 0.0;
     double num_gravid = 0.0;
     double egg_laying = 0.0;
-    double par[5];
+    double par[4];
 
     FILE *file;
     number *buff = 0;
@@ -103,6 +111,7 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
         key[3] = numZERO;
         adult = spop2_init(arbiters, DETERMINISTIC);
         adult->arbiters[2]->fun_step = 0;
+        adult->arbiters[2]->fun_calc = fun_custom_adult_num_dev_adult;
         if (y0[0]) { num.d = y0[0]; spop2_add(adult, key, num); }
 
         popdone_adult[0] = spop2_init(arbiters, DETERMINISTIC);
@@ -129,7 +138,6 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
                 par[1] = 5;
                 par[2] = 5;
                 par[3] = 1;
-                par[4] = 0;
                 spop2_step(adult, par, &size_adult, completed_adult, popdone_adult);
 
                 adult_death = completed_adult[adult_mort].d;
