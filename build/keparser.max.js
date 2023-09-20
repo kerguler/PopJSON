@@ -26007,11 +26007,8 @@ class PopJSON {
         this.json = {};
     }
     check_ids(id) {
-        /* TO DO */
-        /*
-        if (sanitizer.value(id, /abc123/) != id)
-            return "";
-        */
+        if (!/^[a-zA-Z][a-zA-Z0-9\_]+$/.test(id))
+            this.error += "Only numeric and alphanumeric characters and \"_\" are allowed in IDs. Also, IDs should not start with a number.\n";
         return id;
     }
     results() {
@@ -26077,7 +26074,8 @@ class PopJSON {
                             "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
         //
         this.model = "";
-        this.write_model();
+        if (!this.error)
+            this.write_model();
     }
     write_model() {
         this.model = "";
