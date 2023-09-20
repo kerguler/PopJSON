@@ -540,6 +540,10 @@ int main(int argc, char *argv[]) {
 
 ![Erlang-distributed adult lifetime and gonotrophic cycle](figures/ex3b.png "Stochastic - Erlang-distributed")
 
+### Linking rates to pseudo-states
+
+
+
 # SandBox
 
 <div class="myGroup">

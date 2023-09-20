@@ -554,16 +554,16 @@ class PopJSON {
     parse_value(value, transfers=false) {
         let that = this;
         if (Array.isArray(value)) { // Function
-            let fun = this.parse_value(value[0]);
+            let fun = this.parse_value(value[0], transfers=transfers);
             if (fun == "define") {
                 if (!(value[1].every( (v) => that.funparnames.includes(v) ))) {
                     this.error += "Error in function definition\nYou are allowed to use these as parameter names:\n" + that.funparnames + "\nERROR: " + fun + " : " + value + "\n";
                     return "";
                 }
-                let def = this.parse_value(value[2]);
+                let def = this.parse_value(value[2], transfers=transfers);
                 return "(" + value[1].join(",") + ") (" + def + ")";
             } else {
-                let prm = value.slice(1).map( (v) => that.parse_value(v) );
+                let prm = value.slice(1).map( (v) => that.parse_value(v, transfers=transfers) );
                 if (this.processes.includes(fun)) {
                     if (transfers) {
                         return "key[" + fun + "]." + this.popart[prm[0]][this.processobj[fun]['arbiter']];
