@@ -3,7 +3,6 @@
 const fs = require('fs');
 // const { emitWarning } = require('process');
 const util = require('util');
-var sanitizer = require('sanitize')();
 
 const arbiter = {
     'ACC_FIXED': 'd',
