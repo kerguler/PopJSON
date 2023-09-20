@@ -3,7 +3,7 @@
         "title": "Climate-sensitive population dynamics of Aedes albopictus",
         "type": "Population",
         "url": "https://github.com/kerguler/Population",
-        "deterministic": true,
+        "deterministic": false,
         "parameters": {
             "algorithm": "Population",
             "istep": 0.01
@@ -57,7 +57,7 @@
     },{
         "id": "egg_laying",
         "name": "Egg laying at the end of gonotrophic cycle",
-        "value": ["*", "num_gravid", 10]
+        "value": ["poisson", ["*", "num_gravid", 10]]
     }
 ]
 }

@@ -1,0 +1,43 @@
+{
+    "model": {
+            "title": "Climate-sensitive population dynamics of Aedes albopictus",
+            "type": "Population",
+            "url": "https://github.com/kerguler/Population",
+            "deterministic": true,
+            "parameters": {
+                "algorithm": "Population",
+                "istep": 0.01
+            }
+        },
+    "populations": [
+        {
+            "id": "larva",
+            "name": "The larva stage",
+            "processes": [
+                {
+                    "id": "larva_mort",
+                    "name": "Larva lifetime",
+                    "arbiter": "ACC_ERLANG",
+                    "value": [7, 2]
+                },
+                {
+                    "id": "larva_dev",
+                    "name": "Larva development time",
+                    "arbiter": "ACC_ERLANG",
+                    "value": [10, 4]
+                }
+            ]
+        }
+    ],
+    "transformations": [
+        {
+            "id": "larva_death",
+            "name": "Larva dying today",
+            "value": ["larva_mort", "larva"]
+        }, {
+            "id": "larva_to_pupa",
+            "name": "Larva developing into pupa",
+            "value": ["larva_dev", "larva"]
+        }
+    ]
+}

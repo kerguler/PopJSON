@@ -1,6 +1,8 @@
 #include <math.h>
 #include "population.h"
 
+extern gsl_rng *RANDOM;
+
 #define CHECK(x) (isnan(x) || isinf(x))
 
 #define NumPar 0
@@ -27,6 +29,8 @@ void fun_transfer_gonotrophic_cycle(number *key, number num, void *pop) {
 }
 
 void init(int *no, int *np, int *ni) {
+    spop2_random_init();
+
     spop2_set_eps(0.01);
 
     *no = NumPop;
@@ -62,9 +66,9 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
     number size_adult;
     number completed_adult[4];
     population popdone_adult[4];
-    double adult_death = 0.0;
-    double num_gravid = 0.0;
-    double egg_laying = 0.0;
+    unsigned int adult_death = 0;
+    unsigned int num_gravid = 0;
+    unsigned int egg_laying = 0;
     double par[5];
 
     FILE *file;
@@ -101,14 +105,14 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
         key[2] = numZERO;
         arbiters[3] = STOP;
         key[3] = numZERO;
-        adult = spop2_init(arbiters, DETERMINISTIC);
+        adult = spop2_init(arbiters, STOCHASTIC);
         adult->arbiters[2]->fun_step = 0;
-        if (y0[0]) { num.d = y0[0]; spop2_add(adult, key, num); }
+        if (y0[0]) { num.i = y0[0]; spop2_add(adult, key, num); }
 
-        popdone_adult[0] = spop2_init(arbiters, DETERMINISTIC);
-        popdone_adult[1] = spop2_init(arbiters, DETERMINISTIC);
-        popdone_adult[2] = spop2_init(arbiters, DETERMINISTIC);
-        popdone_adult[3] = spop2_init(arbiters, DETERMINISTIC);
+        popdone_adult[0] = spop2_init(arbiters, STOCHASTIC);
+        popdone_adult[1] = spop2_init(arbiters, STOCHASTIC);
+        popdone_adult[2] = spop2_init(arbiters, STOCHASTIC);
+        popdone_adult[3] = spop2_init(arbiters, STOCHASTIC);
     }
 
     if (file0 && file0[0]!=' ') {
@@ -117,7 +121,7 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
 
     size_adult = spop2_size(adult);
 
-    ret[0] = size_adult.d;
+    ret[0] = (double)(size_adult.i);
     if (CHECK(ret[0])) {goto endall;};
 
     ret += 1;
@@ -132,9 +136,9 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
                 par[4] = 0;
                 spop2_step(adult, par, &size_adult, completed_adult, popdone_adult);
 
-                adult_death = completed_adult[adult_mort].d;
-                num_gravid = completed_adult[adult_dev].d;
-                egg_laying = (num_gravid * 10);
+                adult_death = completed_adult[adult_mort].i;
+                num_gravid = completed_adult[adult_dev].i;
+                egg_laying = (unsigned int)gsl_ran_poisson(RANDOM, (num_gravid * 10));
 
 
                 spop2_foreach(popdone_adult[adult_dev], fun_transfer_gonotrophic_cycle, (void *)(&adult));
@@ -148,8 +152,10 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
 
         }
 
-        ret[0] = size_adult.d;
+        ret[0] = (double)(size_adult.i);
         if (CHECK(ret[0])) {goto endall;};
+
+        printf("%u %g\n",TIME,ret[0]);
 
         ret += 1;
 
@@ -186,6 +192,8 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
         }
     }
 
+    spop2_printable(adult,0);
+
     spop2_free(&adult);
     spop2_free(&(popdone_adult[0]));
     spop2_free(&(popdone_adult[1]));
@@ -194,7 +202,16 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
 
 }
 
+#define TF 20
+
 int main(int argc, char *argv[]) {
+    spop2_random_init();
+
+    double y0 = 100.0;
+    double ret[1*(TF+1)];
+    double iret[3*(TF+1)];
+    int success;
+    sim(TF, 1, 0, 0, &y0, 0, 0, ret, iret, &success);
     return 0;
 }
 

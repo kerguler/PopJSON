@@ -827,6 +827,12 @@ const arbiter = {
     'NOAGE_CONST': 'i'
 };
 
+const stepper = {
+    'NO_STEPPER': '0',
+    'AGE_STEPPER': 'age_stepper',
+    'ACC_STEPPER': 'acc_stepper'
+}
+
 class PopJSON {
     constructor() {
         this.model = "";
@@ -1203,6 +1209,15 @@ class PopJSON {
                     that.model += "        key[" + util.format(j) + "] = numZERO;\n";
                 }
                 that.model += "        " + spc['id'] + " = spop2_init(arbiters, " + det + ");\n";
+                for (j=0; j<that.numproc; j++) {
+                    if ((j < spc['processes'].length) && ('stepper' in spc['processes'][j])) {
+                        if (!(spc['processes'][j]['stepper'] in stepper)) {
+                            that.error += "Stepper not defined. Please choose one of these: " + Object.keys(stepper).join(", ") + "\n";
+                            break;
+                        }
+                        that.model += "        " + spc['id'] + "->arbiters[" + util.format(j) + "]->fun_step = " + stepper[spc['processes'][j]['stepper']] + ";\n";
+                    }
+                }
                 that.model += "        if (y0[" + util.format(i) + "]) { num." + ("i",that.deterministic ? "d" : "i") + " = y0[" + util.format(i) + "]; spop2_add(" + spc['id'] + ", key, num); }\n";
                 that.model += "\n";
                 if (that.transfers && that.transfers.includes(spc['id'])) {

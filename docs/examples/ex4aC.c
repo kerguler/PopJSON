@@ -151,6 +151,8 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
         ret[0] = size_adult.d;
         if (CHECK(ret[0])) {goto endall;};
 
+        printf("%u %g\n",TIME,ret[0]);
+
         ret += 1;
 
 
@@ -186,6 +188,8 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
         }
     }
 
+    spop2_printable(adult,0);
+
     spop2_free(&adult);
     spop2_free(&(popdone_adult[0]));
     spop2_free(&(popdone_adult[1]));
@@ -194,7 +198,14 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
 
 }
 
+#define TF 20
+
 int main(int argc, char *argv[]) {
+    double y0 = 100.0;
+    double ret[1*(TF+1)];
+    double iret[3*(TF+1)];
+    int success;
+    sim(TF, 1, 0, 0, &y0, 0, 0, ret, iret, &success);
     return 0;
 }
 
