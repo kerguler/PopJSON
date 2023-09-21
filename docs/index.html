@@ -156,6 +156,9 @@ structured population models</span>
         <li><a href="#linking-rates-with-pseudo-states"
         id="toc-linking-rates-with-pseudo-states">Linking rates with
         pseudo-states</a></li>
+        <li><a href="#genetic-structure-and-inheritance"
+        id="toc-genetic-structure-and-inheritance">Genetic structure and
+        inheritance</a></li>
         </ul></li>
         <li><a href="#operators-for-equations"
         id="toc-operators-for-equations">Operators for
@@ -539,8 +542,18 @@ alt="Erlang-distributed larva lifetime and development time" />
 development time</figcaption>
 </figure>
 <h1 id="advanced-usage">Advanced usage</h1>
+<p>We can do more with the <code>Populations</code> package, and here we
+describe a few interesting examples we could think of. Please
+<a href="https://github.com/kerguler/PopJSON/issues" target="_blank" rel="noreferrer">contact
+us</a> with requests or your own examples. Feel free to use the <a
+href="#sandbox">SandBox</a> below.</p>
 <h2 id="declaring-cyclic-development-gonotrophic-cycle">Declaring cyclic
 development (gonotrophic cycle)</h2>
+<p>Gonotrophic cycle is a complex process. After blood feeding, females
+develop eggs in their bodies and lay them before searching for blood
+again. To model the process, we define adult lifetime
+(<strong>adult_mort</strong>) and egg development (inside females)
+(<strong>adult_dev</strong>) for adult females.</p>
 <div class="sourceCode" id="cb11"><pre
 class="sourceCode json"><code class="sourceCode json"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;populations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
@@ -563,56 +576,59 @@ class="sourceCode json"><code class="sourceCode json"><span id="cb11-1"><a href=
 <span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>            <span class="ot">]</span></span>
 <span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
 <span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span><span class="fu">,</span></span>
-<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;transfers&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;transformations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
 <span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
-<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;gonotrophic_cycle&quot;</span><span class="fu">,</span></span>
-<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Gonotrophic cycle&quot;</span><span class="fu">,</span></span>
-<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;from&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_dev&quot;</span><span class="fu">,</span></span>
-<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;to&quot;</span><span class="fu">:</span> <span class="st">&quot;adult&quot;</span><span class="fu">,</span></span>
-<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[[</span><span class="st">&quot;adult_mort&quot;</span><span class="ot">,</span> <span class="st">&quot;adult&quot;</span><span class="ot">],</span> <span class="st">&quot;0&quot;</span><span class="ot">]</span></span>
-<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
-<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span><span class="fu">,</span></span>
-<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;transformations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
-<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_death&quot;</span><span class="fu">,</span></span>
-<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Adult females dying today&quot;</span><span class="fu">,</span></span>
-<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;adult_mort&quot;</span><span class="ot">,</span> <span class="st">&quot;adult&quot;</span><span class="ot">]</span></span>
-<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span> <span class="fu">{</span></span>
-<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;num_gravid&quot;</span><span class="fu">,</span></span>
-<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Number of gravid females&quot;</span><span class="fu">,</span></span>
-<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;adult_dev&quot;</span><span class="ot">,</span> <span class="st">&quot;adult&quot;</span><span class="ot">]</span></span>
-<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span><span class="fu">{</span></span>
-<span id="cb11-41"><a href="#cb11-41" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;egg_laying&quot;</span><span class="fu">,</span></span>
-<span id="cb11-42"><a href="#cb11-42" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Egg laying at the end of gonotrophic cycle&quot;</span><span class="fu">,</span></span>
-<span id="cb11-43"><a href="#cb11-43" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;*&quot;</span><span class="ot">,</span> <span class="st">&quot;num_gravid&quot;</span><span class="ot">,</span> <span class="dv">10</span><span class="ot">]</span></span>
-<span id="cb11-44"><a href="#cb11-44" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
-<span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
-<span id="cb11-46"><a href="#cb11-46" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_death&quot;</span><span class="fu">,</span></span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Adult females dying today&quot;</span><span class="fu">,</span></span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;adult_mort&quot;</span><span class="ot">,</span> <span class="st">&quot;adult&quot;</span><span class="ot">]</span></span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span> <span class="fu">{</span></span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;num_gravid&quot;</span><span class="fu">,</span></span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Number of gravid females&quot;</span><span class="fu">,</span></span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;adult_dev&quot;</span><span class="ot">,</span> <span class="st">&quot;adult&quot;</span><span class="ot">]</span></span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span><span class="fu">{</span></span>
+<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;egg_laying&quot;</span><span class="fu">,</span></span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Egg laying at the end of gonotrophic cycle&quot;</span><span class="fu">,</span></span>
+<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;*&quot;</span><span class="ot">,</span> <span class="st">&quot;num_gravid&quot;</span><span class="ot">,</span> <span class="dv">10</span><span class="ot">]</span></span>
+<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>When <strong>adult_dev</strong> is completed (in 5 days plus or minus
+1), we will have the females ready for egg laying. Then, the number of
+eggs laid can be estimated by employing an average, for instance, 10
+eggs per gravid female (as in <strong>egg_laying</strong>).</p>
+<p>The problem, however, is the need to add the females back into the
+population. For this, we define a <strong>transfer</strong>, which
+transfers each sub-class from one population to another (here, from
+<strong>adult_dev</strong> back to <strong>adult</strong>).</p>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;transfers&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;gonotrophic_cycle&quot;</span><span class="fu">,</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Gonotrophic cycle&quot;</span><span class="fu">,</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;from&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_dev&quot;</span><span class="fu">,</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;to&quot;</span><span class="fu">:</span> <span class="st">&quot;adult&quot;</span><span class="fu">,</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[[</span><span class="st">&quot;adult_mort&quot;</span><span class="ot">,</span> <span class="st">&quot;adult&quot;</span><span class="ot">],</span> <span class="dv">0</span><span class="ot">]</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>Before making the transfer, the algorithm allows us to apply a
+transformation on the sub-class structure. This is defined in the
+<strong>value</strong> tag above. Namely, the value of the process
+<strong>adult_mort</strong> (of <strong>adult</strong>) should stay as
+is, but the <strong>adult_dev</strong> (the second one in the list)
+should be reset to 0.</p>
 <p>See <a href="./examples/ex3a.json">ex3a.json</a> and <a
 href="./examples/ex3a.c">ex3a.c</a> for the full PopJSON representation
-and the C translation.</p>
+and the C translation (<a href="./examples/ex3b.json">ex3b.json</a> and
+<a href="./examples/ex3b.c">ex3b.c</a> for the stochastic version).</p>
+<p>And, voila!</p>
 <figure>
 <img src="figures/ex3a.png" title="Deterministic - Erlang-distributed"
 alt="Erlang-distributed adult lifetime and gonotrophic cycle" />
 <figcaption aria-hidden="true">Erlang-distributed adult lifetime and
 gonotrophic cycle</figcaption>
 </figure>
-<div class="sourceCode" id="cb12"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;model&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;deterministic&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>        <span class="fu">},</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;transformations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;egg_laying&quot;</span><span class="fu">,</span></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Egg laying at the end of gonotrophic cycle&quot;</span><span class="fu">,</span></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;poisson&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;*&quot;</span><span class="ot">,</span> <span class="st">&quot;num_gravid&quot;</span><span class="ot">,</span> <span class="dv">10</span><span class="ot">]]</span></span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
-<p>See <a href="./examples/ex3b.json">ex3b.json</a> and <a
-href="./examples/ex3b.c">ex3b.c</a> for the full PopJSON representation
-and the C translation.</p>
 <figure>
 <img src="figures/ex3b.png" title="Stochastic - Erlang-distributed"
 alt="Erlang-distributed adult lifetime and gonotrophic cycle" />
@@ -621,6 +637,10 @@ gonotrophic cycle</figcaption>
 </figure>
 <h2 id="linking-rates-with-pseudo-states">Linking rates with
 pseudo-states</h2>
+<p>Using the <code>Population</code> package, we can define customised
+hazard functions to apply to every sub-class of a population. For
+instance, we can induce mortality based on a condition, let’s say, if
+the total number of eggs laid exceeds 150.</p>
 <div class="sourceCode" id="cb13"><pre
 class="sourceCode json"><code class="sourceCode json"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;populations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
@@ -634,6 +654,25 @@ class="sourceCode json"><code class="sourceCode json"><span id="cb13-1"><a href=
 <span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
 <span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
 <span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>Once again, please refer to the
+<a href="https://kerguler.github.io/Population/" target="_blank" rel="noreferrer">Population</a>
+package description for <strong>AGE_CUSTOM</strong> and more. To recap,
+<strong>AGE_CUSTOM</strong> imposes an age-structured population with a
+unit stepper by default. This means, each sub-class ages one unit after
+each iteration. To prevent this, we select
+<strong>stepper:NO_STEPPER</strong>.</p>
+<p>Then, we declare the hazard function based on a constant probability
+(probability of death). The <strong>hazard</strong> tag accepts a list
+of three elements: The base (<strong>AGE_FIXED</strong>,
+<strong>AGE_CONST</strong>, <strong>AGE_GAMMA</strong>,
+<strong>AGE_NBINOM</strong>, and <strong>NOAGE_CONST</strong>), the
+mean, and the standard deviation. The mean of
+<strong>NOAGE_CONST</strong> is sufficient to define mortality (the
+standard deviation is not used). In the above example, mortality is 1 if
+<strong>total_eggs</strong> (defined below) exceeds 150 (otherwise,
+0).</p>
+<p>Please note that <strong>value: []</strong> is required in order not
+to interfere with the parameters of other processes.</p>
 <div class="sourceCode" id="cb14"><pre
 class="sourceCode json"><code class="sourceCode json"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;transfers&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
@@ -646,6 +685,11 @@ class="sourceCode json"><code class="sourceCode json"><span id="cb14-1"><a href=
 <span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
 <span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
 <span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>Above, we increment the <strong>adult_num_dev</strong> counter by one
+while transferring the females that have just laid eggs back to the
+host-seeking population.</p>
+<p>Finally, we define <strong>total_eggs</strong> as the cumulative
+number of eggs laid.</p>
 <div class="sourceCode" id="cb15"><pre
 class="sourceCode json"><code class="sourceCode json"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;transformations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
@@ -669,6 +713,12 @@ alt="Limited number of gonotrophic cycles" />
 <figcaption aria-hidden="true">Limited number of gonotrophic
 cycles</figcaption>
 </figure>
+<h2 id="genetic-structure-and-inheritance">Genetic structure and
+inheritance</h2>
+<p>
+<img src="figures/044-forklift.png" width="200px" alt="Under construction"></img>
+</p>
+<p>We are working on this. Please come back soon for updates.</p>
 <h1 id="operators-for-equations">Operators for equations</h1>
 <table>
 <colgroup>

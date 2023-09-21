@@ -304,7 +304,11 @@ The resulting larva population size and the number of larvae completing each pro
 
 # Advanced usage
 
+We can do more with the `Populations` package, and here we describe a few interesting examples we could think of. Please <a href="https://github.com/kerguler/PopJSON/issues" target="_blank" rel="noreferrer">contact us</a> with requests or your own examples. Feel free to use the [SandBox](#sandbox) below.
+
 ## Declaring cyclic development (gonotrophic cycle)
+
+Gonotrophic cycle is a complex process. After blood feeding, females develop eggs in their bodies and lay them before searching for blood again. To model the process, we define adult lifetime (**adult_mort**) and egg development (inside females) (**adult_dev**) for adult females.
 
 ```json
 {
@@ -328,15 +332,6 @@ The resulting larva population size and the number of larvae completing each pro
             ]
         }
     ],
-    "transfers": [
-        {
-            "id": "gonotrophic_cycle",
-            "name": "Gonotrophic cycle",
-            "from": "adult_dev",
-            "to": "adult",
-            "value": [["adult_mort", "adult"], "0"]
-        }
-    ],
     "transformations": [
         {
             "id": "adult_death",
@@ -354,30 +349,38 @@ The resulting larva population size and the number of larvae completing each pro
     ]
 }
 ```
-See [ex3a.json](./examples/ex3a.json) and [ex3a.c](./examples/ex3a.c) for the full PopJSON representation and the C translation.
 
+When **adult_dev** is completed (in 5 days plus or minus 1), we will have the females ready for egg laying. Then, the number of eggs laid can be estimated by employing an average, for instance, 10 eggs per gravid female (as in **egg_laying**).
 
-![Erlang-distributed adult lifetime and gonotrophic cycle](figures/ex3a.png "Deterministic - Erlang-distributed")
+The problem, however, is the need to add the females back into the population. For this, we define a **transfer**, which transfers each sub-class from one population to another (here, from **adult_dev** back to **adult**).
 
 ```json
 {
-    "model": {
-            "deterministic": false,
-        },
-    "transformations": [
+    "transfers": [
         {
-            "id": "egg_laying",
-            "name": "Egg laying at the end of gonotrophic cycle",
-            "value": ["poisson", ["*", "num_gravid", 10]]
+            "id": "gonotrophic_cycle",
+            "name": "Gonotrophic cycle",
+            "from": "adult_dev",
+            "to": "adult",
+            "value": [["adult_mort", "adult"], 0]
         }
-    ]
+    ],
 }
 ```
-See [ex3b.json](./examples/ex3b.json) and [ex3b.c](./examples/ex3b.c) for the full PopJSON representation and the C translation.
+
+Before making the transfer, the algorithm allows us to apply a transformation on the sub-class structure. This is defined in the **value** tag above. Namely, the value of the process **adult_mort** (of **adult**) should stay as is, but the **adult_dev** (the second one in the list) should be reset to 0.
+
+See [ex3a.json](./examples/ex3a.json) and [ex3a.c](./examples/ex3a.c) for the full PopJSON representation and the C translation ([ex3b.json](./examples/ex3b.json) and [ex3b.c](./examples/ex3b.c) for the stochastic version).
+
+And, voila!
+
+![Erlang-distributed adult lifetime and gonotrophic cycle](figures/ex3a.png "Deterministic - Erlang-distributed")
 
 ![Erlang-distributed adult lifetime and gonotrophic cycle](figures/ex3b.png "Stochastic - Erlang-distributed")
 
 ## Linking rates with pseudo-states
+
+Using the `Population` package, we can define customised hazard functions to apply to every sub-class of a population. For instance, we can induce mortality based on a condition, let's say, if the total number of eggs laid exceeds 150.
 
 ```json
 {
@@ -394,6 +397,12 @@ See [ex3b.json](./examples/ex3b.json) and [ex3b.c](./examples/ex3b.c) for the fu
 }
 ```
 
+Once again, please refer to the <a href="https://kerguler.github.io/Population/" target="_blank" rel="noreferrer">Population</a> package description for **AGE_CUSTOM** and more. To recap, **AGE_CUSTOM** imposes an age-structured population with a unit stepper by default. This means, each sub-class ages one unit after each iteration. To prevent this, we select **stepper:NO_STEPPER**.
+
+Then, we declare the hazard function based on a constant probability (probability of death). The **hazard** tag accepts a list of three elements: The base (**AGE_FIXED**, **AGE_CONST**, **AGE_GAMMA**, **AGE_NBINOM**, and **NOAGE_CONST**), the mean, and the standard deviation. The mean of **NOAGE_CONST** is sufficient to define mortality (the standard deviation is not used). In the above example, mortality is 1 if **total_eggs** (defined below) exceeds 150 (otherwise, 0).
+
+Please note that **value: []** is required in order not to interfere with the parameters of other processes.
+
 ```json
 {
     "transfers": [
@@ -407,6 +416,10 @@ See [ex3b.json](./examples/ex3b.json) and [ex3b.c](./examples/ex3b.c) for the fu
     ]
 }
 ```
+
+Above, we increment the **adult_num_dev** counter by one while transferring the females that have just laid eggs back to the host-seeking population.
+
+Finally, we define **total_eggs** as the cumulative number of eggs laid. 
 
 ```json
 {
@@ -423,10 +436,14 @@ See [ex3b.json](./examples/ex3b.json) and [ex3b.c](./examples/ex3b.c) for the fu
     ]
 }
 ```
-
 See [ex4a.json](./examples/ex4a.json) and [ex4a.c](./examples/ex4a.c) for the full PopJSON representation and the C translation.
 
 ![Limited number of gonotrophic cycles](figures/ex4a.png "Deterministic - Erlang-distributed")
+
+## Genetic structure and inheritance
+
+<p><img src="figures/044-forklift.png" width="200px" alt="Under construction"></img></p>
+We are working on this. Please come back soon for updates.
 
 # Operators for equations
 
