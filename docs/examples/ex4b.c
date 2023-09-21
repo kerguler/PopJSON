@@ -18,6 +18,8 @@ extern gsl_rng *RANDOM;
 double dmin(double a, double b) { return a < b ? a : b; }
 double dmax(double a, double b) { return a > b ? a : b; }
 
+double *model_param;
+
 
 void fun_transfer_gonotrophic_cycle(number *key, number num, void *pop) {
     number q[4] = {
@@ -58,6 +60,7 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
 
     int TIME = 0;
 
+    model_param = pr;
 
     population adult;
 

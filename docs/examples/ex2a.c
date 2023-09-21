@@ -15,6 +15,8 @@
 double dmin(double a, double b) { return a < b ? a : b; }
 double dmax(double a, double b) { return a > b ? a : b; }
 
+double *model_param;
+
 
 void init(int *no, int *np, int *ni) {
     spop2_set_eps(0.01);
@@ -43,6 +45,7 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
 
     int TIME = 0;
 
+    model_param = pr;
 
     population larva;
 

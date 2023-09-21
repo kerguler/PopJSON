@@ -1013,6 +1013,14 @@ class PopJSON {
         this.model += "double dmin(double a, double b) { return a < b ? a : b; }\n";
         this.model += "double dmax(double a, double b) { return a > b ? a : b; }\n";
         this.model += "\n";
+        //
+        that.model += "double *model_param;\n";
+        if ('environ' in this.json) {
+            this.json['environ'].forEach( (elm, i) => {
+                 that.model += "double *envir_" + elm['id'] + ";\n";
+            });
+            this.model += "\n";
+         } 
     }
     write_functions() {
         let that = this;
@@ -1158,9 +1166,10 @@ class PopJSON {
         this.model += "\n";
         this.model += "    int TIME = 0;\n";
         this.model += "\n";
+        this.model += "    model_param = pr;\n";
         if ('environ' in this.json) {
            this.json['environ'].forEach( (elm, i) => {
-                that.model += "    double *" + elm['id'] + " = envir + " + util.format(i) + " * tf;\n";
+                that.model += "    envir_" + elm['id'] + " = envir + " + util.format(i) + " * tf;\n";
            });
            this.model += "\n";
         }
@@ -1260,8 +1269,8 @@ class PopJSON {
                         that.model += "        popdone_" + spc['id'] + "[" + util.format(j) + "] = spop2_init(arbiters, " + det + ");\n";
                     }
                 }
-                that.model += "    }\n";
             });
+            that.model += "    }\n";
             this.model += "\n";
             this.model += "    if (file0 && file0[0]!=' ') {\n";
             this.model += "        fclose(file);\n";
@@ -1480,13 +1489,13 @@ class PopJSON {
         } else { // Parameter
             if (typeof value === 'string' || value instanceof String) { // String
                 if (this.environs.includes(value)) {
-                    return value;
+                    return "envir_"+value;
                 } else if (this.populations.includes(value)) {
                     return value;
                 } else if (this.processes.includes(value)) {
                     return value;
                 } else if (this.parametersv.includes(value)) {
-                    return "pr[" + value + "]";
+                    return "model_param[" + value + "]";
                 } else if (this.parametersc.includes(value)) {
                     return value;
                 } else if (this.functions.includes(value)) {
