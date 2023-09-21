@@ -19,6 +19,10 @@ double dmax(double a, double b) { return a > b ? a : b; }
 
 double *model_param;
 
+unsigned int adult_death;
+unsigned int num_gravid;
+unsigned int egg_laying;
+
 
 void fun_transfer_gonotrophic_cycle(number *key, number num, void *pop) {
     number q[3] = {
@@ -68,9 +72,9 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
     number size_adult;
     number completed_adult[3];
     population popdone_adult[3];
-    unsigned int adult_death = 0;
-    unsigned int num_gravid = 0;
-    unsigned int egg_laying = 0;
+    adult_death = 0;
+    num_gravid = 0;
+    egg_laying = 0;
     double par[4];
 
     FILE *file;

@@ -147,8 +147,8 @@ structured population models</span>
         <li><a href="#declaring-cyclic-development-gonotrophic-cycle"
         id="toc-declaring-cyclic-development-gonotrophic-cycle">Declaring
         cyclic development (gonotrophic cycle)</a></li>
-        <li><a href="#linking-rates-to-pseudo-states"
-        id="toc-linking-rates-to-pseudo-states">Linking rates to
+        <li><a href="#linking-rates-with-pseudo-states"
+        id="toc-linking-rates-with-pseudo-states">Linking rates with
         pseudo-states</a></li>
         </ul></li>
         </ul></li>
@@ -427,8 +427,56 @@ alt="Erlang-distributed adult lifetime and gonotrophic cycle" />
 <figcaption aria-hidden="true">Erlang-distributed adult lifetime and
 gonotrophic cycle</figcaption>
 </figure>
-<h3 id="linking-rates-to-pseudo-states">Linking rates to
+<h3 id="linking-rates-with-pseudo-states">Linking rates with
 pseudo-states</h3>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;populations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_num_dev&quot;</span><span class="fu">,</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Number of gonotrophic cycles in adult females&quot;</span><span class="fu">,</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;arbiter&quot;</span><span class="fu">:</span> <span class="st">&quot;AGE_CUSTOM&quot;</span><span class="fu">,</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;stepper&quot;</span><span class="fu">:</span> <span class="st">&quot;NO_STEPPER&quot;</span><span class="fu">,</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;hazard&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;NOAGE_CONST&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;?&quot;</span><span class="ot">,[</span><span class="st">&quot;&gt;&quot;</span><span class="ot">,</span><span class="st">&quot;total_eggs&quot;</span><span class="ot">,</span><span class="dv">150</span><span class="ot">],</span><span class="dv">1</span><span class="ot">,</span><span class="dv">0</span><span class="ot">],</span> <span class="dv">0</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[]</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;transfers&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;gonotrophic_cycle&quot;</span><span class="fu">,</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Gonotrophic cycle&quot;</span><span class="fu">,</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;from&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_dev&quot;</span><span class="fu">,</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;to&quot;</span><span class="fu">:</span> <span class="st">&quot;adult&quot;</span><span class="fu">,</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[[</span><span class="st">&quot;adult_mort&quot;</span><span class="ot">,</span> <span class="st">&quot;adult&quot;</span><span class="ot">],</span> <span class="dv">0</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;+&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;adult_num_dev&quot;</span><span class="ot">,</span> <span class="st">&quot;adult&quot;</span><span class="ot">],</span> <span class="dv">1</span><span class="ot">]]</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;transformations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;egg_laying&quot;</span><span class="fu">,</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Egg laying at the end of gonotrophic cycle&quot;</span><span class="fu">,</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;*&quot;</span><span class="ot">,</span> <span class="st">&quot;num_gravid&quot;</span><span class="ot">,</span> <span class="dv">1</span><span class="ot">]</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span><span class="fu">{</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;total_eggs&quot;</span><span class="fu">,</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Total number of eggs laid&quot;</span><span class="fu">,</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;+&quot;</span><span class="ot">,</span> <span class="st">&quot;total_eggs&quot;</span><span class="ot">,</span> <span class="st">&quot;egg_laying&quot;</span><span class="ot">]</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>See <a href="./examples/ex4a.json">ex4a.json</a> and <a
+href="./examples/ex4a.c">ex4a.c</a> for the full PopJSON representation
+and the C translation.</p>
+<figure>
+<img src="figures/ex4a.png" title="Deterministic - Erlang-distributed"
+alt="Limited number of gonotrophic cycles" />
+<figcaption aria-hidden="true">Limited number of gonotrophic
+cycles</figcaption>
+</figure>
 <h1 id="sandbox">SandBox</h1>
 <div class="myGroup">
 <textarea id="model" class="myJSON">

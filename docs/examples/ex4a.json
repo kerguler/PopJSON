@@ -31,7 +31,7 @@
                 "name": "Number of gonotrophic cycles in adult females",
                 "arbiter": "AGE_CUSTOM",
                 "stepper": "NO_STEPPER",
-                "hazard": ["AGE_GAMMA", 10, 1],
+                "hazard": ["NOAGE_CONST", ["?",[">","total_eggs",150],1,0], 0],
                 "value": []
             }
         ]
@@ -50,7 +50,7 @@
     {
         "id": "adult_death",
         "name": "Adult females dying today",
-        "value": ["adult_mort", "adult"]
+        "value": ["+", ["adult_mort", "adult"], ["adult_num_dev", "adult"]]
     }, {
         "id": "num_gravid",
         "name": "Number of gravid females",
@@ -58,7 +58,11 @@
     },{
         "id": "egg_laying",
         "name": "Egg laying at the end of gonotrophic cycle",
-        "value": ["*", "num_gravid", 10]
+        "value": ["*", "num_gravid", 1]
+    },{
+        "id": "total_eggs",
+        "name": "Total number of eggs laid",
+        "value": ["+", "total_eggs", "egg_laying"]
     }
 ]
 }

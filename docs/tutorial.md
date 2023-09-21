@@ -236,9 +236,56 @@ See [ex3b.json](./examples/ex3b.json) and [ex3b.c](./examples/ex3b.c) for the fu
 
 ![Erlang-distributed adult lifetime and gonotrophic cycle](figures/ex3b.png "Stochastic - Erlang-distributed")
 
-### Linking rates to pseudo-states
+### Linking rates with pseudo-states
 
+```json
+{
+    "populations": [
+        {
+            "id": "adult_num_dev",
+            "name": "Number of gonotrophic cycles in adult females",
+            "arbiter": "AGE_CUSTOM",
+            "stepper": "NO_STEPPER",
+            "hazard": ["NOAGE_CONST", ["?",[">","total_eggs",150],1,0], 0],
+            "value": []
+        }
+    ]
+}
+```
 
+```json
+{
+    "transfers": [
+        {
+            "id": "gonotrophic_cycle",
+            "name": "Gonotrophic cycle",
+            "from": "adult_dev",
+            "to": "adult",
+            "value": [["adult_mort", "adult"], 0, ["+", ["adult_num_dev", "adult"], 1]]
+        }
+    ]
+}
+```
+
+```json
+{
+    "transformations": [
+        {
+            "id": "egg_laying",
+            "name": "Egg laying at the end of gonotrophic cycle",
+            "value": ["*", "num_gravid", 1]
+        },{
+            "id": "total_eggs",
+            "name": "Total number of eggs laid",
+            "value": ["+", "total_eggs", "egg_laying"]
+        }
+    ]
+}
+```
+
+See [ex4a.json](./examples/ex4a.json) and [ex4a.c](./examples/ex4a.c) for the full PopJSON representation and the C translation.
+
+![Limited number of gonotrophic cycles](figures/ex4a.png "Deterministic - Erlang-distributed")
 
 # SandBox
 

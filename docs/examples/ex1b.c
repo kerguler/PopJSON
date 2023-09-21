@@ -19,6 +19,7 @@ double dmax(double a, double b) { return a > b ? a : b; }
 double *model_param;
 
 
+
 void init(int *no, int *np, int *ni) {
     spop2_random_init();
 

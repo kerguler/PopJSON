@@ -1014,13 +1014,32 @@ class PopJSON {
         this.model += "double dmax(double a, double b) { return a > b ? a : b; }\n";
         this.model += "\n";
         //
-        that.model += "double *model_param;\n";
+        this.model += "double *model_param;\n";
         if ('environ' in this.json) {
             this.json['environ'].forEach( (elm, i) => {
                  that.model += "double *envir_" + elm['id'] + ";\n";
             });
             this.model += "\n";
-         } 
+        }
+        //
+        if ('transformations' in this.json) {
+            if (this.deterministic) {
+                this.json['transformations'].map( (trx) => trx['id'] ).forEach( (id) => {
+                    that.model += "double " + id + ";\n";
+                } );
+            } else {
+                this.json['transformations'].map( (trx) => trx['id'] ).forEach( (id) => {
+                    that.model += "unsigned int " + id + ";\n";
+                } );
+            }
+        }
+        //
+        if ('intermediates' in this.json) {
+            this.json['intermediates'].forEach( (elm, i) => {
+                that.model += "double " + elm['id'] + ";\n";
+            });
+            this.model += "\n";
+        }
     }
     write_functions() {
         let that = this;
@@ -1200,11 +1219,11 @@ class PopJSON {
             if ('transformations' in this.json) {
                 if (this.deterministic) {
                     this.json['transformations'].map( (trx) => trx['id'] ).forEach( (id) => {
-                        that.model += "    double " + id + " = 0.0;\n";
+                        that.model += "    " + id + " = 0.0;\n";
                     } );
                 } else {
                     this.json['transformations'].map( (trx) => trx['id'] ).forEach( (id) => {
-                        that.model += "    unsigned int " + id + " = 0;\n";
+                        that.model += "    " + id + " = 0;\n";
                     } );
                 }
             }
@@ -1279,7 +1298,7 @@ class PopJSON {
         //
         if ('intermediates' in this.json) {
             this.json['intermediates'].forEach( (elm, i) => {
-                that.model += "    double " + elm['id'] + " = 0.0;\n";
+                that.model += "    " + elm['id'] + " = 0.0;\n";
             });
             this.model += "\n";
         }

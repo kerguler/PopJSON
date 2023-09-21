@@ -2,12 +2,14 @@ import numpy
 from matplotlib import pyplot as plt
 import population as pop
 
+print("Processing ex1a...")
 ex1a = pop.model("examples/ex1a.dylib")
 out1a = ex1a.sim(30,[],[],[100.0])
 plt.plot(out1a['ret'][0,:,0],'o-',c="black")
 plt.savefig("figures/ex1a.png",bbox_inches="tight",dpi=300)
 plt.close()
 
+print("Processing ex1a and ex1b...")
 ex1a = pop.model("examples/ex1a.dylib")
 ex1b = pop.model("examples/ex1b.dylib")
 for n in range(3):
@@ -18,6 +20,7 @@ plt.plot(out1a['ret'][0,:,0],'-',c="black")
 plt.savefig("figures/ex1b.png",bbox_inches="tight",dpi=300)
 plt.close()
 
+print("Processing ex2a...")
 ex2a = pop.model("examples/ex2a.dylib")
 out2a = ex2a.sim(30,[],[],[100.0])
 plt.plot(out2a['ret'][0,:,0],'o-',c="black",label="Larva alive")
@@ -27,6 +30,7 @@ plt.legend()
 plt.savefig("figures/ex2a.png",bbox_inches="tight",dpi=300)
 plt.close()
 
+print("Processing ex3a...")
 ex3a = pop.model("examples/ex3a.dylib")
 out3a = ex3a.sim(30,[],[],[100.0])
 plt.plot(out3a['ret'][0,:,0],'o-',c="black",label="Adult alive")
@@ -37,6 +41,7 @@ plt.legend()
 plt.savefig("figures/ex3a.png",bbox_inches="tight",dpi=300)
 plt.close()
 
+print("Processing ex3a and ex3b...")
 ex3a = pop.model("examples/ex3a.dylib")
 ex3b = pop.model("examples/ex3b.dylib")
 out3a = ex3a.sim(30,[],[],[100.0])
@@ -46,4 +51,16 @@ for n in range(3):
     plt.plot(numpy.arange(1,30),out3b['iret'][0,:,2],'o',c="blue")
 plt.legend()
 plt.savefig("figures/ex3b.png",bbox_inches="tight",dpi=300)
+plt.close()
+
+print("Processing ex4a...")
+ex4a = pop.model("examples/ex4a.dylib")
+out4a = ex4a.sim(30,[],[],[100.0])
+plt.plot(out4a['ret'][0,:,0],'o-',c="black",label="Adult alive")
+plt.plot(numpy.arange(1,30),out4a['iret'][0,:,0],'o-',c="red",label="Adult dead")
+plt.plot(numpy.arange(1,30),out4a['iret'][0,:,1],'o-',c="blue",label="Gravid females")
+plt.plot(numpy.arange(1,30),out4a['iret'][0,:,2],'o-',c="green",label="Newly laid eggs")
+plt.plot(numpy.arange(1,30),out4a['iret'][0,:,3],'o-',c="orange",label="Total number of eggs")
+plt.legend()
+plt.savefig("figures/ex4a.png",bbox_inches="tight",dpi=300)
 plt.close()
