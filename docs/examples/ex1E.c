@@ -3,10 +3,14 @@
 
 #define CHECK(x) (isnan(x) || isinf(x))
 
-#define NumPar 0
+#define NumPar 4
 #define NumPop 1
-#define NumInt 0
+#define NumInt 2
 
+#define d2m_a 0
+#define d2m_b 1
+#define d2m_c 2
+#define d2s_c 3
 
 #define larva_dev 0
 
@@ -15,8 +19,12 @@ double dmin(double a, double b) { return a < b ? a : b; }
 double dmax(double a, double b) { return a > b ? a : b; }
 
 double *model_param;
+double *envir_temp;
 
+double d2m;
+double d2s;
 
+#define briere1(T,a,L,R) ((((T) <= (L))) ? (365.0) : ((((T) >= (R))) ? (365.0) : (dmin(365.0, dmax(1.0, (1.0 / exp(((a) + log((T)) + log(((T) - (L))) + (0.5 * log(((R) - (T))))))))))))
 
 void init(int *no, int *np, int *ni) {
     spop2_set_eps(0.01);
@@ -29,12 +37,26 @@ void init(int *no, int *np, int *ni) {
 void parnames(char **names, double *param, double *parmin, double *parmax) {
     char temp[NumPop+NumPar+NumInt][256] = {
         "larva",
+        "d2m_a", "d2m_b", "d2m_c", "d2s_c",
+        "d2m", "d2s",
     };
 
     int i;
     for (i=0; i<(NumPop+NumPar+NumInt); i++)
         names[i] = strdup(temp[i]);
 
+    param[d2m_a] = -12;
+    parmin[d2m_a] = -12;
+    parmax[d2m_a] = -12;
+    param[d2m_b] = 283.15;
+    parmin[d2m_b] = 283.15;
+    parmax[d2m_b] = 283.15;
+    param[d2m_c] = 308.15;
+    parmin[d2m_c] = 308.15;
+    parmax[d2m_c] = 308.15;
+    param[d2s_c] = 0.2;
+    parmin[d2s_c] = 0.2;
+    parmax[d2s_c] = 0.2;
 }
 
 void destroy(void) {
@@ -45,6 +67,7 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
     int TIME = 0;
 
     model_param = pr;
+    envir_temp = envir + 0 * tf;
 
     population larva;
 
@@ -77,7 +100,7 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
         free(buff);
 
     } else {
-        arbiters[0] = AGE_GAMMA;
+        arbiters[0] = ACC_ERLANG;
         key[0] = numZERO;
         arbiters[1] = STOP;
         key[1] = numZERO;
@@ -89,6 +112,8 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
     if (file0 && file0[0]!=' ') {
         fclose(file);
     }
+    d2m = 0.0;
+    d2s = 0.0;
 
     size_larva = spop2_size(larva);
 
@@ -98,10 +123,12 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
     ret += 1;
 
     for (TIME=1; TIME<tf; TIME++) {
+        d2m = briere1(envir_temp[(TIME-1)], model_param[d2m_a], model_param[d2m_b], model_param[d2m_c]);
+        d2s = (model_param[d2s_c] * d2m);
 
         if (rep >= 0) {
-                par[0] = 10;
-                par[1] = 4;
+                par[0] = d2m;
+                par[1] = d2s;
                 spop2_step(larva, par, &size_larva, completed_larva, 0);
 
 
@@ -115,9 +142,13 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
 
         ret += 1;
 
+        iret[0] = d2m;
+        if (CHECK(iret[0])) {goto endall;};
+        iret[1] = d2s;
+        if (CHECK(iret[1])) {goto endall;};
 
 
-        iret += 0;
+        iret += 2;
 
     }
 

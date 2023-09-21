@@ -48,23 +48,25 @@ pre.sourceCode {
 
 # PopJSON
 
-We propose a JSON representation of dynamically-structured matrix population models, which can accommodate multiple processes, such as survival, development, and egg laying. At present, PopJSON deals only with the `sPop` models of Erguler et al. \[<a href="https://f1000research.com/articles/7-1220/v3" target="_blank" rel="noreferrer">sPop</a>, <a href="https://www.nature.com/articles/s41598-022-15806-2" target="_blank" rel="noreferrer">sPop2</a>, <a href="https://github.com/kerguler/Population" target="_blank" rel="noreferrer">Population</a>\], but soon, and with your help, it will expand to cover more.
+We propose a JSON representation for dynamically-structured multi-process matrix population models. PopJSON, as we call it, deals with the `sPop` models of Erguler et al. \[<a href="https://f1000research.com/articles/7-1220/v3" target="_blank" rel="noreferrer">sPop</a>, <a href="https://www.nature.com/articles/s41598-022-15806-2" target="_blank" rel="noreferrer">sPop2</a>, <a href="https://github.com/kerguler/Population" target="_blank" rel="noreferrer">Population</a>\], for the time being, but soon, and with your help, it will cover more.
 
-The parser takes a JSON string, or a file, and converts it to its raw ANSI C equivalent. You'll then need to compile this in your system and run using the <a href="https://github.com/kerguler/Population" target="_blank" rel="noreferrer">Population</a> package. The package includes a wrapper for `Python`, and soon, will have another one for `R`.
+Here, we describe a PopJSON parser, which takes a JSON string, or a file, and converts it to its raw ANSI C equivalent. You'll then need to compile this code in your system and run it using the <a href="https://github.com/kerguler/Population" target="_blank" rel="noreferrer">Population</a> package. In this repository, we included a <a href="../population.py" target="_blank" rel="noreferrer">wrapper</a> to read and simulate the translated models in `Python`. Soon, we will write another one for `R`.
 
-We are working on developing the <a href="https://VEClim.com" target="_blank" rel="noreferrer">VEClim</a> API to take PopJSON requests and run simulations. But this shall be used to preview models. We will not reproduce the functionality of advanced analysis tools.
+In parallel, we are working on developing the <a href="https://VEClim.com" target="_blank" rel="noreferrer">VEClim</a> API to take PopJSON requests and run simulations. But this shall take some time to complete.
 
-# How to use
+# Instructions
+
+PopJSON is a standard JavaScript Object Notation (JSON) ornamented with custom tags to describe the essentials of a model. Overall, we use the curly brackets \{\} to group related tags and square brackets \[\] to define processess with a strict order. We hope all will be clearer as you read along.
+
+Please note that we used <a href="./plot.py" target="_blank" rel="noreferrer">this</a> script to simulate and plot all the examples on this page.
 
 ## Model definition
 
-We first define a model by using the **model** tag. Here, the key tags are **type** and **parameters**. In this version of PopJSON, we covered the **Population** model only, but we are also working on including more canonical **ODE**, **DDE**, etc. models.
+We first define a model by using the **model** tag. Here, the key tags are **type** and **parameters**. In this version of PopJSON, we covered the **Population** model, but we are working on including more canonical ODE, DDE, etc. models.
 
-The model can be either deterministic or stochastic, which is determined using the boolean tag **deterministic**. If needed, we can set the precision of the accumulative process indicator (this is specific to the Population package) with the **istep** tag.  This effectively limits the maximum number of pseudo-stage classes.
+The dynamics can either be deterministic or stochastic, which is determined using the boolean tag **deterministic**. If needed, we can set the precision of the accumulative process indicator (this is specific to the Population package) with the **istep** tag.  This effectively limits the maximum number of pseudo-stage classes.
 
-Before following the steps below, we recommend having a look at the <a href="https://github.com/kerguler/Population" target="_blank" rel="noreferrer">Population</a> package description.
-
-The **deterministic** option will declare the model as either deterministic or stochastic. To set the precision of the accumulative process indicator, **istep** is used. This effectively limits the maximum number of pseudo-stage classes.
+Before following the steps below, we recommend having a look at the <a href="https://kerguler.github.io/Population/" target="_blank" rel="noreferrer">Population</a> package description.
 
 ```json
 {
@@ -83,6 +85,120 @@ The **deterministic** option will declare the model as either deterministic or s
 
 ## Declaring a population (or a development stage)
 
+A population, by definition, is a structured collection of similar individuals. There exists classes in a population that are invisible to the end user, but they distinguish intividuals into sub-groups. For example, an age-structured population of larvae is composed of indivudals all at their larva stage of development, however, some have been there for long but some have just started. The time they turn into pupae depends on how long they have been in the stage. 
+
+```json
+{
+    "populations": [
+        {
+            "id": "larva",
+            "name": "The larva stage",
+            "processes": [
+                {
+                    "id": "larva_dev",
+                    "name": "Larva development time",
+                    "arbiter": "AGE_GAMMA",
+                    "value": [10, 4]
+                }
+            ]
+        }
+    ]
+}
+```
+See [ex1a.json](./examples/ex1a.json) and [ex1a.c](./examples/ex1a.c) for the full PopJSON representation and the C translation.
+
+The above example represents a larva population with a development time of 10 days (with a standard deviation of 4 days). The population is age-structured and the development time is gamma-distributed.
+
+<div class="myFigures">
+
+![Gamma-distributed larva development time](figures/ex1a.png "Deterministic - Gamma-distributed")
+
+![Three realisations of stochastic development in 100 larvae](figures/ex1b.png "Stochastic - Gamma-distributed")
+
+</div>
+
+## Dependence on environmental variables
+
+Development is strongly dependent on temperature in many insect species. We have demonstrated that accumulative processes are suitable representations for development under variable environments (<a href="https://www.nature.com/articles/s41598-022-15806-2" target="_blank" rel="noreferrer">Erguler et al. 2022</a>). So, we will switch to **ACC_ERLANG** as the accumulative equivalent of the gamma-distributed age-structured development.
+
+Next, we define an environmental variable, temperature, to feed into our model.
+```json
+{    
+    "environ": [
+        {
+            "id": "temp",
+            "name": "Temperature of the breeding pool (in °C)",
+            "url": ""
+        }
+    ]
+}
+```
+
+What we need now is a function to transform temperature into the mean and standard deviation of development (to replace the 10 and 4 in the previous example).
+```json
+{
+    "functions": {
+        "briere1": ["define", ["T","B","E","a"], ["?",["<=","T","B"],"365.0", ["?",[">=","T","E"],"365.0", ["min","365.0",["max","1.0", ["/","1.0",["exp", ["+","a",["log","T"],["log",["-","T","B"]],["*","0.5",["log",["-","E","T"]]]]]]]]]]],
+    }
+}
+```
+
+```C
+double dmin(double a, double b) { return a < b ? a : b; }
+double dmax(double a, double b) { return a > b ? a : b; }
+
+#define briere1(T,a,L,R) ((((T) <= (L))) ? (365.0) : ((((T) >= (R))) ? (365.0) : (dmin(365.0, dmax(1.0, (1.0 / exp(((a) + log((T)) + log(((T) - (L))) + (0.5 * log(((R) - (T))))))))))))
+```
+
+<p style="text-align: center; font-size: 1.5rem;"> 
+$$ briere_1(T,a,L,R) = e^{-\left\{a + \ln(T) + \ln(T-L) + 0.5\ln(R-T)\right\}} $$
+</p>
+
+Outside **L** and **R**, the function returns a large value (365 days of development) and stays within 1 and 365 for all **T**. Please note that the accumulative development algorithm in `Population` currently cannot handle mean process time smaller than a unit.
+
+
+```json
+{
+    "intermediates": [
+        {
+            "id": "d2m",
+            "value": ["briere1", ["index","temp","TIME_1"], "d2m_a", "d2m_b", "d2m_c"]
+        }, {
+            "id": "d2s",
+            "value": ["*", "d2s_c", "d2m"]
+        }
+    ]
+}
+```
+
+```json
+{
+    "parameters": [
+        {
+            "id": "d2m_a",
+            "constant": false,
+            "name": "Larva development mean (a)",
+            "value": -15
+        }, {
+            "id": "d2m_b",
+            "constant": false,
+            "name": "Larva development mean (b)",
+            "value": 10
+        }, {
+            "id": "d2m_c",
+            "constant": false,
+            "name": "Larva development mean (c)",
+            "value": 35
+        }, {
+            "id": "d2s_c",
+            "constant": false,
+            "name": "Larva development stdev (c)",
+            "value": 0.2
+        }
+    ]
+}
+```
+
 ```json
 {
     "populations": [
@@ -94,22 +210,23 @@ The **deterministic** option will declare the model as either deterministic or s
                     "id": "larva_dev",
                     "name": "Larva development time",
                     "arbiter": "ACC_ERLANG",
-                    "value": [10, 4]
+                    "value": ["d2m", "d2s"]
                 }
             ]
         }
     ]
 }
 ```
-See [ex1a.json](./examples/ex1a.json) and [ex1a.c](./examples/ex1a.c) for the full PopJSON representation and the C translation.
+See [ex1E.json](./examples/ex1E.json) and [ex1E.c](./examples/ex1E.c) for the full PopJSON representation and the C translation.
 
 <div class="myFigures">
 
-![Erlang-distributed larva development time](figures/ex1a.png "Deterministic - Erlang-distributed")
+![Larva development time](figures/ex1Ebr.png "Briere1 function")
 
-![Three realisations of stochastic development in 100 larvae](figures/ex1b.png "Stochastic - Erlang-distributed")
+![Larva development](figures/ex1E.png "Deterministic - Erlang-distributed - variable temperature")
 
 </div>
+
 
 ## Declaring multiple processes
 

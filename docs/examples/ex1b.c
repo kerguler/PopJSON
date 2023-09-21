@@ -82,7 +82,7 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
         free(buff);
 
     } else {
-        arbiters[0] = ACC_ERLANG;
+        arbiters[0] = AGE_GAMMA;
         key[0] = numZERO;
         arbiters[1] = STOP;
         key[1] = numZERO;

@@ -17,7 +17,7 @@
                 {
                     "id": "larva_dev",
                     "name": "Larva development time",
-                    "arbiter": "ACC_ERLANG",
+                    "arbiter": "AGE_GAMMA",
                     "value": [10, 4]
                 }
             ]

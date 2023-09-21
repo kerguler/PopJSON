@@ -2,6 +2,28 @@ import numpy
 from matplotlib import pyplot as plt
 import population as pop
 
+print("Processing ex1E...")
+ex1E = pop.model("examples/ex1E.dylib")
+t2m = numpy.arange(0,40,0.01)+273.15
+out1Ef = ex1E.sim(len(t2m),t2m, ex1E.param,[0.0])
+plt.plot(t2m[1:],out1Ef['iret'][0,:,0],'-',c="black")
+plt.xlabel("Temperature (°C)")
+plt.ylabel("Development time (days)")
+plt.ylim(0,100)
+plt.savefig("figures/ex1Ebr.png",bbox_inches="tight",dpi=300)
+plt.close()
+
+t2m = 273.15+30.0+numpy.random.randint(-10,10,30)
+out1E = ex1E.sim(len(t2m),t2m,ex1E.param,[100.0])
+plt.plot(numpy.arange(1,len(t2m)),out1E['iret'][0,:,0],'-',c="blue", label="Development time (days)")
+plt.plot(out1E['ret'][0,:,0],'o-',c="black", label="Number of larvae")
+plt.legend()
+plt.xlabel("Time (days)")
+plt.ylabel(" ")
+plt.ylim(0,110)
+plt.savefig("figures/ex1E.png",bbox_inches="tight",dpi=300)
+plt.close()
+
 print("Processing ex1a...")
 ex1a = pop.model("examples/ex1a.dylib")
 out1a = ex1a.sim(30,[],[],[100.0])
@@ -19,6 +41,9 @@ out1a = ex1a.sim(30,[],[],[100.0])
 plt.plot(out1a['ret'][0,:,0],'-',c="black")
 plt.savefig("figures/ex1b.png",bbox_inches="tight",dpi=300)
 plt.close()
+
+print("Processing ex1E...")
+
 
 print("Processing ex2a...")
 ex2a = pop.model("examples/ex2a.dylib")
