@@ -50,15 +50,22 @@ pre.sourceCode {
 
 We propose a JSON representation of dynamically-structured matrix population models, which can accommodate multiple processes, such as survival, development, and egg laying. At present, PopJSON deals only with the `sPop` models of Erguler et al. \[<a href="https://f1000research.com/articles/7-1220/v3" target="_blank" rel="noreferrer">sPop</a>, <a href="https://www.nature.com/articles/s41598-022-15806-2" target="_blank" rel="noreferrer">sPop2</a>, <a href="https://github.com/kerguler/Population" target="_blank" rel="noreferrer">Population</a>\], but soon, and with your help, it will expand to cover more.
 
-## Using the library
-
 The parser takes a JSON string, or a file, and converts it to its raw ANSI C equivalent. You'll then need to compile this in your system and run using the <a href="https://github.com/kerguler/Population" target="_blank" rel="noreferrer">Population</a> package. The package includes a wrapper for `Python`, and soon, will have another one for `R`.
 
-We are working on developing the <a href="https://VEClim.com" target="_blank" rel="noreferrer">VEClim</a> API to take PopJSON requests and run sample simulations. But this shall be used to preview models. We will not reproduce the functionality of advanced analysis tools.
+We are working on developing the <a href="https://VEClim.com" target="_blank" rel="noreferrer">VEClim</a> API to take PopJSON requests and run simulations. But this shall be used to preview models. We will not reproduce the functionality of advanced analysis tools.
+
+# How to use
 
 ## Model definition
 
-We first define the **model** with its **type** and **parameters**. algorithm (`Population` for now) and its parameters for simulation. The **deterministic** option will declare the model as either deterministic or stochastic. To set the precision of the accumulative process indicator, **istep** is used. This effectively limits the maximum number of pseudo-stage classes.
+We first define a model by using the **model** tag. Here, the key tags are **type** and **parameters**. In this version of PopJSON, we covered the **Population** model only, but we are also working on including more canonical **ODE**, **DDE**, etc. models.
+
+The model can be either deterministic or stochastic, which is determined using the boolean tag **deterministic**. If needed, we can set the precision of the accumulative process indicator (this is specific to the Population package) with the **istep** tag.  This effectively limits the maximum number of pseudo-stage classes.
+
+Before following the steps below, we recommend having a look at the <a href="https://github.com/kerguler/Population" target="_blank" rel="noreferrer">Population</a> package description.
+
+The **deterministic** option will declare the model as either deterministic or stochastic. To set the precision of the accumulative process indicator, **istep** is used. This effectively limits the maximum number of pseudo-stage classes.
+
 ```json
 {
     "model": {
@@ -74,7 +81,7 @@ We first define the **model** with its **type** and **parameters**. algorithm (`
 }
 ```
 
-### Declaring a population (or a development stage)
+## Declaring a population (or a development stage)
 
 ```json
 {
@@ -104,7 +111,7 @@ See [ex1a.json](./examples/ex1a.json) and [ex1a.c](./examples/ex1a.c) for the fu
 
 </div>
 
-### Declaring multiple processes
+## Declaring multiple processes
 
 ```json
 {
@@ -163,7 +170,9 @@ The following **transformations** tag is needed to bind **larva_mort** to **larv
 
 ![Erlang-distributed larva lifetime and development time](figures/ex2a.png "Deterministic - Erlang-distributed")
 
-### Declaring cyclic development (gonotrophic cycle)
+# Advanced usage
+
+## Declaring cyclic development (gonotrophic cycle)
 
 ```json
 {
@@ -236,7 +245,7 @@ See [ex3b.json](./examples/ex3b.json) and [ex3b.c](./examples/ex3b.c) for the fu
 
 ![Erlang-distributed adult lifetime and gonotrophic cycle](figures/ex3b.png "Stochastic - Erlang-distributed")
 
-### Linking rates with pseudo-states
+## Linking rates with pseudo-states
 
 ```json
 {
@@ -299,4 +308,3 @@ See [ex4a.json](./examples/ex4a.json) and [ex4a.c](./examples/ex4a.c) for the fu
 </textarea>
 </div>
 
-# Usage examples

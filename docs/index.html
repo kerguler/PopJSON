@@ -131,19 +131,21 @@ structured population models</span>
         <div class="well toc">
 
         <ul>
-        <li><a href="#popjson" id="toc-popjson">PopJSON</a>
+        <li><a href="#popjson" id="toc-popjson">PopJSON</a></li>
+        <li><a href="#how-to-use" id="toc-how-to-use">How to use</a>
         <ul>
-        <li><a href="#using-the-library"
-        id="toc-using-the-library">Using the library</a></li>
         <li><a href="#model-definition" id="toc-model-definition">Model
-        definition</a>
-        <ul>
+        definition</a></li>
         <li><a href="#declaring-a-population-or-a-development-stage"
         id="toc-declaring-a-population-or-a-development-stage">Declaring
         a population (or a development stage)</a></li>
         <li><a href="#declaring-multiple-processes"
         id="toc-declaring-multiple-processes">Declaring multiple
         processes</a></li>
+        </ul></li>
+        <li><a href="#advanced-usage" id="toc-advanced-usage">Advanced
+        usage</a>
+        <ul>
         <li><a href="#declaring-cyclic-development-gonotrophic-cycle"
         id="toc-declaring-cyclic-development-gonotrophic-cycle">Declaring
         cyclic development (gonotrophic cycle)</a></li>
@@ -151,10 +153,7 @@ structured population models</span>
         id="toc-linking-rates-with-pseudo-states">Linking rates with
         pseudo-states</a></li>
         </ul></li>
-        </ul></li>
         <li><a href="#sandbox" id="toc-sandbox">SandBox</a></li>
-        <li><a href="#usage-examples" id="toc-usage-examples">Usage
-        examples</a></li>
         </ul>
 
         </div>
@@ -215,7 +214,6 @@ al. [<a href="https://f1000research.com/articles/7-1220/v3" target="_blank" rel
 <a href="https://www.nature.com/articles/s41598-022-15806-2" target="_blank" rel="noreferrer">sPop2</a>,
 <a href="https://github.com/kerguler/Population" target="_blank" rel="noreferrer">Population</a>],
 but soon, and with your help, it will expand to cover more.</p>
-<h2 id="using-the-library">Using the library</h2>
 <p>The parser takes a JSON string, or a file, and converts it to its raw
 ANSI C equivalent. You’ll then need to compile this in your system and
 run using the
@@ -224,17 +222,30 @@ package. The package includes a wrapper for <code>Python</code>, and
 soon, will have another one for <code>R</code>.</p>
 <p>We are working on developing the
 <a href="https://VEClim.com" target="_blank" rel="noreferrer">VEClim</a>
-API to take PopJSON requests and run sample simulations. But this shall
-be used to preview models. We will not reproduce the functionality of
-advanced analysis tools.</p>
+API to take PopJSON requests and run simulations. But this shall be used
+to preview models. We will not reproduce the functionality of advanced
+analysis tools.</p>
+<h1 id="how-to-use">How to use</h1>
 <h2 id="model-definition">Model definition</h2>
-<p>We first define the <strong>model</strong> with its
-<strong>type</strong> and <strong>parameters</strong>. algorithm
-(<code>Population</code> for now) and its parameters for simulation. The
-<strong>deterministic</strong> option will declare the model as either
-deterministic or stochastic. To set the precision of the accumulative
-process indicator, <strong>istep</strong> is used. This effectively
-limits the maximum number of pseudo-stage classes.</p>
+<p>We first define a model by using the <strong>model</strong> tag.
+Here, the key tags are <strong>type</strong> and
+<strong>parameters</strong>. In this version of PopJSON, we covered the
+<strong>Population</strong> model only, but we are also working on
+including more canonical <strong>ODE</strong>, <strong>DDE</strong>,
+etc. models.</p>
+<p>The model can be either deterministic or stochastic, which is
+determined using the boolean tag <strong>deterministic</strong>. If
+needed, we can set the precision of the accumulative process indicator
+(this is specific to the Population package) with the
+<strong>istep</strong> tag. This effectively limits the maximum number
+of pseudo-stage classes.</p>
+<p>Before following the steps below, we recommend having a look at the
+<a href="https://github.com/kerguler/Population" target="_blank" rel="noreferrer">Population</a>
+package description.</p>
+<p>The <strong>deterministic</strong> option will declare the model as
+either deterministic or stochastic. To set the precision of the
+accumulative process indicator, <strong>istep</strong> is used. This
+effectively limits the maximum number of pseudo-stage classes.</p>
 <div class="sourceCode" id="cb1"><pre
 class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;model&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
@@ -248,8 +259,8 @@ class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>            <span class="fu">}</span></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
-<h3 id="declaring-a-population-or-a-development-stage">Declaring a
-population (or a development stage)</h3>
+<h2 id="declaring-a-population-or-a-development-stage">Declaring a
+population (or a development stage)</h2>
 <div class="sourceCode" id="cb2"><pre
 class="sourceCode json"><code class="sourceCode json"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;populations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
@@ -284,7 +295,7 @@ alt="Three realisations of stochastic development in 100 larvae" />
 development in 100 larvae</figcaption>
 </figure>
 </div>
-<h3 id="declaring-multiple-processes">Declaring multiple processes</h3>
+<h2 id="declaring-multiple-processes">Declaring multiple processes</h2>
 <div class="sourceCode" id="cb3"><pre
 class="sourceCode json"><code class="sourceCode json"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;populations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
@@ -347,8 +358,9 @@ alt="Erlang-distributed larva lifetime and development time" />
 <figcaption aria-hidden="true">Erlang-distributed larva lifetime and
 development time</figcaption>
 </figure>
-<h3 id="declaring-cyclic-development-gonotrophic-cycle">Declaring cyclic
-development (gonotrophic cycle)</h3>
+<h1 id="advanced-usage">Advanced usage</h1>
+<h2 id="declaring-cyclic-development-gonotrophic-cycle">Declaring cyclic
+development (gonotrophic cycle)</h2>
 <div class="sourceCode" id="cb5"><pre
 class="sourceCode json"><code class="sourceCode json"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;populations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
@@ -427,8 +439,8 @@ alt="Erlang-distributed adult lifetime and gonotrophic cycle" />
 <figcaption aria-hidden="true">Erlang-distributed adult lifetime and
 gonotrophic cycle</figcaption>
 </figure>
-<h3 id="linking-rates-with-pseudo-states">Linking rates with
-pseudo-states</h3>
+<h2 id="linking-rates-with-pseudo-states">Linking rates with
+pseudo-states</h2>
 <div class="sourceCode" id="cb7"><pre
 class="sourceCode json"><code class="sourceCode json"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;populations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
@@ -489,7 +501,6 @@ Parse
 <textarea id="error" class="myError">
 </textarea>
 </div>
-<h1 id="usage-examples">Usage examples</h1>
             </div>
     </div>
   </div>
