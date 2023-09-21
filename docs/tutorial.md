@@ -195,9 +195,9 @@ Next, we connect temperature with **d2m** and **d2s** using the **intermediates*
 }
 ```
 
-Here, **index** is a key word to extract the **TIME_1**<sup>th</sup> element in the array of **temp** (temperature). **TIME_1** refers to the previous time point (to estimate today's population, we used yesterday's conditions).
+Here, **index** is an operator extracting the **TIME_1**<sup>th</sup> element in the array of **temp** (temperature). **TIME_1** refers to the previous time point (we used yesterday's conditions to estimate today's population).
 
-
+Lastly, we define the **parameters** of the model to complete the temperature dependency of development time. For each, we declare an **id**, a **value**, and weather the parameter is fixed (**constant:true**) or user-defined (**constant:false**). Minimum an maximum values can also be defined using **min** and **max** tags, which could be useful when performing optimisation.
 
 
 ```json
@@ -229,10 +229,6 @@ Here, **index** is a key word to extract the **TIME_1**<sup>th</sup> element in 
 ```
 See [ex1E.json](./examples/ex1E.json) and [ex1E.c](./examples/ex1E.c) for the full PopJSON representation and the C translation.
 
-**constant**
-
-**min** and **max** for inference
-
 <div class="myFigures">
 
 ![Larva development time](figures/ex1Ebr.png "Briere1 function")
@@ -240,7 +236,6 @@ See [ex1E.json](./examples/ex1E.json) and [ex1E.c](./examples/ex1E.c) for the fu
 ![Larva development](figures/ex1E.png "Deterministic - Erlang-distributed - variable temperature")
 
 </div>
-
 
 ## Declaring multiple processes
 

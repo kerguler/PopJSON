@@ -407,11 +407,18 @@ class="sourceCode json"><code class="sourceCode json"><span id="cb7-1"><a href="
 <span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
-<p>Here, <strong>index</strong> is a key word to extract the
+<p>Here, <strong>index</strong> is an operator extracting the
 <strong>TIME_1</strong><sup>th</sup> element in the array of
 <strong>temp</strong> (temperature). <strong>TIME_1</strong> refers to
-the previous time point (to estimate today’s population, we used
-yesterday’s conditions).</p>
+the previous time point (we used yesterday’s conditions to estimate
+today’s population).</p>
+<p>Lastly, we define the <strong>parameters</strong> of the model to
+complete the temperature dependency of development time. For each, we
+declare an <strong>id</strong>, a <strong>value</strong>, and weather
+the parameter is fixed (<strong>constant:true</strong>) or user-defined
+(<strong>constant:false</strong>). Minimum an maximum values can also be
+defined using <strong>min</strong> and <strong>max</strong> tags, which
+could be useful when performing optimisation.</p>
 <div class="sourceCode" id="cb8"><pre
 class="sourceCode json"><code class="sourceCode json"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;parameters&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
@@ -441,8 +448,6 @@ class="sourceCode json"><code class="sourceCode json"><span id="cb8-1"><a href="
 <p>See <a href="./examples/ex1E.json">ex1E.json</a> and <a
 href="./examples/ex1E.c">ex1E.c</a> for the full PopJSON representation
 and the C translation.</p>
-<p><strong>constant</strong></p>
-<p><strong>min</strong> and <strong>max</strong> for inference</p>
 <div class="myFigures">
 <figure>
 <img src="figures/ex1Ebr.png" title="Briere1 function"
