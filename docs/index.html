@@ -157,6 +157,9 @@ structured population models</span>
         id="toc-linking-rates-with-pseudo-states">Linking rates with
         pseudo-states</a></li>
         </ul></li>
+        <li><a href="#operators-for-equations"
+        id="toc-operators-for-equations">Operators for
+        equations</a></li>
         <li><a href="#sandbox" id="toc-sandbox">SandBox</a></li>
         </ul>
 
@@ -322,98 +325,124 @@ representations for development under variable environments
 et al. 2022</a>). So, we will switch to <strong>ACC_ERLANG</strong> as
 the accumulative equivalent of the gamma-distributed age-structured
 development.</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;populations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;larva&quot;</span><span class="fu">,</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;The larva stage&quot;</span><span class="fu">,</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;processes&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>                <span class="fu">{</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;larva_dev&quot;</span><span class="fu">,</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Larva development time&quot;</span><span class="fu">,</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;arbiter&quot;</span><span class="fu">:</span> <span class="st">&quot;ACC_ERLANG&quot;</span><span class="fu">,</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;d2m&quot;</span><span class="ot">,</span> <span class="st">&quot;d2s&quot;</span><span class="ot">]</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>                <span class="fu">}</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>            <span class="ot">]</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>Please note that we declared the mean and standard deviation of
+development in terms of two variables, <strong>d2m</strong> and
+<strong>d2s</strong>, which we will define shortly.</p>
 <p>Next, we define an environmental variable, temperature, to feed into
 our model.</p>
-<div class="sourceCode" id="cb3"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span>    </span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;environ&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;temp&quot;</span><span class="fu">,</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Temperature of the breeding pool (in °C)&quot;</span><span class="fu">,</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;url&quot;</span><span class="fu">:</span> <span class="st">&quot;&quot;</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
-<p>What we need now is a function to transform temperature into the mean
-and standard deviation of development (to replace the 10 and 4 in the
-previous example).</p>
 <div class="sourceCode" id="cb4"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;functions&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;briere1&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;define&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;T&quot;</span><span class="ot">,</span><span class="st">&quot;B&quot;</span><span class="ot">,</span><span class="st">&quot;E&quot;</span><span class="ot">,</span><span class="st">&quot;a&quot;</span><span class="ot">],</span> <span class="ot">[</span><span class="st">&quot;?&quot;</span><span class="ot">,[</span><span class="st">&quot;&lt;=&quot;</span><span class="ot">,</span><span class="st">&quot;T&quot;</span><span class="ot">,</span><span class="st">&quot;B&quot;</span><span class="ot">],</span><span class="st">&quot;365.0&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;?&quot;</span><span class="ot">,[</span><span class="st">&quot;&gt;=&quot;</span><span class="ot">,</span><span class="st">&quot;T&quot;</span><span class="ot">,</span><span class="st">&quot;E&quot;</span><span class="ot">],</span><span class="st">&quot;365.0&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;min&quot;</span><span class="ot">,</span><span class="st">&quot;365.0&quot;</span><span class="ot">,[</span><span class="st">&quot;max&quot;</span><span class="ot">,</span><span class="st">&quot;1.0&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;/&quot;</span><span class="ot">,</span><span class="st">&quot;1.0&quot;</span><span class="ot">,[</span><span class="st">&quot;exp&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;+&quot;</span><span class="ot">,</span><span class="st">&quot;a&quot;</span><span class="ot">,[</span><span class="st">&quot;log&quot;</span><span class="ot">,</span><span class="st">&quot;T&quot;</span><span class="ot">],[</span><span class="st">&quot;log&quot;</span><span class="ot">,[</span><span class="st">&quot;-&quot;</span><span class="ot">,</span><span class="st">&quot;T&quot;</span><span class="ot">,</span><span class="st">&quot;B&quot;</span><span class="ot">]],[</span><span class="st">&quot;*&quot;</span><span class="ot">,</span><span class="st">&quot;0.5&quot;</span><span class="ot">,[</span><span class="st">&quot;log&quot;</span><span class="ot">,[</span><span class="st">&quot;-&quot;</span><span class="ot">,</span><span class="st">&quot;E&quot;</span><span class="ot">,</span><span class="st">&quot;T&quot;</span><span class="ot">]]]]]]]]]]]</span><span class="fu">,</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> dmin<span class="op">(</span><span class="dt">double</span> a<span class="op">,</span> <span class="dt">double</span> b<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> a <span class="op">&lt;</span> b <span class="op">?</span> a <span class="op">:</span> b<span class="op">;</span> <span class="op">}</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> dmax<span class="op">(</span><span class="dt">double</span> a<span class="op">,</span> <span class="dt">double</span> b<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> a <span class="op">&gt;</span> b <span class="op">?</span> a <span class="op">:</span> b<span class="op">;</span> <span class="op">}</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#define briere1(T,a,L,R) ((((T) &lt;= (L))) ? (365.0) : ((((T) &gt;= (R))) ? (365.0) : (dmin(365.0, dmax(1.0, (1.0 / exp(((a) + log((T)) + log(((T) - (L))) + (0.5 * log(((R) - (T))))))))))))</span></span></code></pre></div>
+class="sourceCode json"><code class="sourceCode json"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span>    </span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;environ&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;temp&quot;</span><span class="fu">,</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Temperature of the breeding pool (in °C)&quot;</span><span class="fu">,</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;url&quot;</span><span class="fu">:</span> <span class="st">&quot;&quot;</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>What we need now is a function to transform temperature into the mean
+and standard deviation of development (to define <strong>d2m</strong>
+and <strong>d2s</strong>).</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;functions&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;briere1&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;define&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;T&quot;</span><span class="ot">,</span><span class="st">&quot;B&quot;</span><span class="ot">,</span><span class="st">&quot;E&quot;</span><span class="ot">,</span><span class="st">&quot;a&quot;</span><span class="ot">],</span> <span class="ot">[</span><span class="st">&quot;?&quot;</span><span class="ot">,[</span><span class="st">&quot;&lt;=&quot;</span><span class="ot">,</span><span class="st">&quot;T&quot;</span><span class="ot">,</span><span class="st">&quot;B&quot;</span><span class="ot">],</span><span class="st">&quot;365.0&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;?&quot;</span><span class="ot">,[</span><span class="st">&quot;&gt;=&quot;</span><span class="ot">,</span><span class="st">&quot;T&quot;</span><span class="ot">,</span><span class="st">&quot;E&quot;</span><span class="ot">],</span><span class="st">&quot;365.0&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;min&quot;</span><span class="ot">,</span><span class="st">&quot;365.0&quot;</span><span class="ot">,[</span><span class="st">&quot;max&quot;</span><span class="ot">,</span><span class="st">&quot;1.0&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;/&quot;</span><span class="ot">,</span><span class="st">&quot;1.0&quot;</span><span class="ot">,[</span><span class="st">&quot;exp&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;+&quot;</span><span class="ot">,</span><span class="st">&quot;a&quot;</span><span class="ot">,[</span><span class="st">&quot;log&quot;</span><span class="ot">,</span><span class="st">&quot;T&quot;</span><span class="ot">],[</span><span class="st">&quot;log&quot;</span><span class="ot">,[</span><span class="st">&quot;-&quot;</span><span class="ot">,</span><span class="st">&quot;T&quot;</span><span class="ot">,</span><span class="st">&quot;B&quot;</span><span class="ot">]],[</span><span class="st">&quot;*&quot;</span><span class="ot">,</span><span class="st">&quot;0.5&quot;</span><span class="ot">,[</span><span class="st">&quot;log&quot;</span><span class="ot">,[</span><span class="st">&quot;-&quot;</span><span class="ot">,</span><span class="st">&quot;E&quot;</span><span class="ot">,</span><span class="st">&quot;T&quot;</span><span class="ot">]]]]]]]]]]]</span><span class="fu">,</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>Please note that the function definition begins with
+<strong>define</strong>, which is a key word (an operator). The second
+in the list is the list of parameters (only a single letter for each),
+and the last is the equation. The mathematical equation notation were
+inspired from the
+<a href="https://cortexjs.io/math-json/" target="_blank" rel="noreferrer">MathJSON</a>
+representation of CortexJS. The list of all operators can be found
+<a href="#operators-for-equations">here</a>.</p>
+This is the reciprocal of the
+<a href="https://doi.org/10.1093/ee/28.1.22" target="_blank" rel="noreferrer">Briere-1</a>
+function commonly used in ecological modelling.
 <p style="text-align: center; font-size: 1.5rem;">
 <span
 class="math display"><em>b</em><em>r</em><em>i</em><em>e</em><em>r</em><em>e</em><sub>1</sub>(<em>T</em>,<em>a</em>,<em>L</em>,<em>R</em>) = <em>e</em><sup>−{<em>a</em>+ln(<em>T</em>)+ln(<em>T</em>−<em>L</em>)+0.5ln(<em>R</em>−<em>T</em>)}</sup></span>
 </p>
-<p>Outside <strong>L</strong> and <strong>R</strong>, the function
-returns a large value (365 days of development) and stays within 1 and
-365 for all <strong>T</strong>. Please note that the accumulative
+<p>The function returns a large value (365 days of development) outside
+of <strong>L</strong> and <strong>R</strong> and stays within 1 and 365
+for all <strong>T</strong>. Please note that the accumulative
 development algorithm in <code>Population</code> currently cannot handle
 mean process time smaller than a unit.</p>
-<div class="sourceCode" id="cb6"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;intermediates&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;d2m&quot;</span><span class="fu">,</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;briere1&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;index&quot;</span><span class="ot">,</span><span class="st">&quot;temp&quot;</span><span class="ot">,</span><span class="st">&quot;TIME_1&quot;</span><span class="ot">],</span> <span class="st">&quot;d2m_a&quot;</span><span class="ot">,</span> <span class="st">&quot;d2m_b&quot;</span><span class="ot">,</span> <span class="st">&quot;d2m_c&quot;</span><span class="ot">]</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span> <span class="fu">{</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;d2s&quot;</span><span class="fu">,</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;*&quot;</span><span class="ot">,</span> <span class="st">&quot;d2s_c&quot;</span><span class="ot">,</span> <span class="st">&quot;d2m&quot;</span><span class="ot">]</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>The Briere-1 function translates into the following C code:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> dmin<span class="op">(</span><span class="dt">double</span> a<span class="op">,</span> <span class="dt">double</span> b<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> a <span class="op">&lt;</span> b <span class="op">?</span> a <span class="op">:</span> b<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> dmax<span class="op">(</span><span class="dt">double</span> a<span class="op">,</span> <span class="dt">double</span> b<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> a <span class="op">&gt;</span> b <span class="op">?</span> a <span class="op">:</span> b<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#define briere1(T,a,L,R) ((((T) &lt;= (L))) ? (365.0) : ((((T) &gt;= (R))) ? (365.0) : (dmin(365.0, dmax(1.0, (1.0 / exp(((a) + log((T)) + log(((T) - (L))) + (0.5 * log(((R) - (T))))))))))))</span></span></code></pre></div>
+<p>Next, we connect temperature with <strong>d2m</strong> and
+<strong>d2s</strong> using the <strong>intermediates</strong> tag. A key
+feature of this tag is that it computes first at the beginning of each
+iteration.</p>
 <div class="sourceCode" id="cb7"><pre
 class="sourceCode json"><code class="sourceCode json"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;parameters&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;intermediates&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;d2m_a&quot;</span><span class="fu">,</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;constant&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Larva development mean (a)&quot;</span><span class="fu">,</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="dv">-15</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span> <span class="fu">{</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;d2m_b&quot;</span><span class="fu">,</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;constant&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Larva development mean (b)&quot;</span><span class="fu">,</span></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="dv">10</span></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span> <span class="fu">{</span></span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;d2m_c&quot;</span><span class="fu">,</span></span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;constant&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Larva development mean (c)&quot;</span><span class="fu">,</span></span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="dv">35</span></span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span> <span class="fu">{</span></span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;d2s_c&quot;</span><span class="fu">,</span></span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;constant&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Larva development stdev (c)&quot;</span><span class="fu">,</span></span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="fl">0.2</span></span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;d2m&quot;</span><span class="fu">,</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;briere1&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;index&quot;</span><span class="ot">,</span><span class="st">&quot;temp&quot;</span><span class="ot">,</span><span class="st">&quot;TIME_1&quot;</span><span class="ot">],</span> <span class="st">&quot;d2m_a&quot;</span><span class="ot">,</span> <span class="st">&quot;d2m_b&quot;</span><span class="ot">,</span> <span class="st">&quot;d2m_c&quot;</span><span class="ot">]</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span> <span class="fu">{</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;d2s&quot;</span><span class="fu">,</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;*&quot;</span><span class="ot">,</span> <span class="st">&quot;d2s_c&quot;</span><span class="ot">,</span> <span class="st">&quot;d2m&quot;</span><span class="ot">]</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>Here, <strong>index</strong> is a key word to extract the
+<strong>TIME_1</strong><sup>th</sup> element in the array of
+<strong>temp</strong> (temperature). <strong>TIME_1</strong> refers to
+the previous time point (to estimate today’s population, we used
+yesterday’s conditions).</p>
 <div class="sourceCode" id="cb8"><pre
 class="sourceCode json"><code class="sourceCode json"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;populations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;parameters&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;larva&quot;</span><span class="fu">,</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;The larva stage&quot;</span><span class="fu">,</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;processes&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>                <span class="fu">{</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;larva_dev&quot;</span><span class="fu">,</span></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Larva development time&quot;</span><span class="fu">,</span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;arbiter&quot;</span><span class="fu">:</span> <span class="st">&quot;ACC_ERLANG&quot;</span><span class="fu">,</span></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;d2m&quot;</span><span class="ot">,</span> <span class="st">&quot;d2s&quot;</span><span class="ot">]</span></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>                <span class="fu">}</span></span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>            <span class="ot">]</span></span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;d2m_a&quot;</span><span class="fu">,</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;constant&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Larva development mean (a)&quot;</span><span class="fu">,</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="dv">-15</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span> <span class="fu">{</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;d2m_b&quot;</span><span class="fu">,</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;constant&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Larva development mean (b)&quot;</span><span class="fu">,</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="dv">10</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span> <span class="fu">{</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;d2m_c&quot;</span><span class="fu">,</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;constant&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Larva development mean (c)&quot;</span><span class="fu">,</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="dv">35</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span> <span class="fu">{</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;d2s_c&quot;</span><span class="fu">,</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;constant&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Larva development stdev (c)&quot;</span><span class="fu">,</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="fl">0.2</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <p>See <a href="./examples/ex1E.json">ex1E.json</a> and <a
 href="./examples/ex1E.c">ex1E.c</a> for the full PopJSON representation
 and the C translation.</p>
+<p><strong>constant</strong></p>
+<p><strong>min</strong> and <strong>max</strong> for inference</p>
 <div class="myFigures">
 <figure>
 <img src="figures/ex1Ebr.png" title="Briere1 function"
@@ -621,6 +650,164 @@ alt="Limited number of gonotrophic cycles" />
 <figcaption aria-hidden="true">Limited number of gonotrophic
 cycles</figcaption>
 </figure>
+<h1 id="operators-for-equations">Operators for equations</h1>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Operator</th>
+<th style="text-align: left;">Parameters</th>
+<th style="text-align: left;">Definition</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">min</td>
+<td style="text-align: left;">a,b</td>
+<td style="text-align: left;">Minimum of two numbers</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">min</td>
+<td style="text-align: left;">a,b</td>
+<td style="text-align: left;">Maximum of two numbers</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">round</td>
+<td style="text-align: left;">a</td>
+<td style="text-align: left;">Rounds to the nearest integer</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">sqrt</td>
+<td style="text-align: left;">a</td>
+<td style="text-align: left;">Square root</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">pow</td>
+<td style="text-align: left;">a,b</td>
+<td style="text-align: left;">Power of a to b</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">exp</td>
+<td style="text-align: left;">a</td>
+<td style="text-align: left;">Exponential function</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">log</td>
+<td style="text-align: left;">a</td>
+<td style="text-align: left;">Natural logarithm</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">log2</td>
+<td style="text-align: left;">a</td>
+<td style="text-align: left;">Logarithm of a to base 2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">log10</td>
+<td style="text-align: left;">a</td>
+<td style="text-align: left;">Logarithm of a to base 10</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">indicator</td>
+<td style="text-align: left;">a</td>
+<td style="text-align: left;">Indicator function (boolean to
+integer)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">index</td>
+<td style="text-align: left;">a,b</td>
+<td style="text-align: left;">Value of an array at position b (counts
+from 0)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">*</td>
+<td style="text-align: left;">…</td>
+<td style="text-align: left;">Multiplication</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">+</td>
+<td style="text-align: left;">…</td>
+<td style="text-align: left;">Addition</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">-</td>
+<td style="text-align: left;">…</td>
+<td style="text-align: left;">Subtraction (in the given order)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">/</td>
+<td style="text-align: left;">…</td>
+<td style="text-align: left;">Division (in the given order)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">size</td>
+<td style="text-align: left;">a</td>
+<td style="text-align: left;">Total size of a population</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">poisson</td>
+<td style="text-align: left;">a</td>
+<td style="text-align: left;">Generates a Poisson random number with
+lambda=a (works only when <strong>deterministic:false</strong>)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">binomial</td>
+<td style="text-align: left;">a,b</td>
+<td style="text-align: left;">Generates a Binomial random number with
+n=a and p=b (works only when <strong>deterministic:false</strong>)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">define</td>
+<td style="text-align: left;">a,b</td>
+<td style="text-align: left;">Function definition with parameters a and
+equation b</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">?</td>
+<td style="text-align: left;">a,b,c</td>
+<td style="text-align: left;">Condition expression (if a is true, return
+b, else, return c)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">&amp;&amp;</td>
+<td style="text-align: left;">…</td>
+<td style="text-align: left;">Logical AND</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">||</td>
+<td style="text-align: left;">…</td>
+<td style="text-align: left;">Logical OR</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">&gt;</td>
+<td style="text-align: left;">a,b</td>
+<td style="text-align: left;">Logical greater than</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">&lt;</td>
+<td style="text-align: left;">a,b</td>
+<td style="text-align: left;">Logical smaller than</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">&gt;=</td>
+<td style="text-align: left;">a,b</td>
+<td style="text-align: left;">Logical greater than or equal</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">&lt;=</td>
+<td style="text-align: left;">a,b</td>
+<td style="text-align: left;">Logical smaller than or equal</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">==</td>
+<td style="text-align: left;">a,b</td>
+<td style="text-align: left;">Logical equal to</td>
+</tr>
+</tbody>
+</table>
 <h1 id="sandbox">SandBox</h1>
 <div class="myGroup">
 <textarea id="model" class="myJSON">

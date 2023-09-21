@@ -121,6 +121,26 @@ The above example represents a larva population with a development time of 10 da
 
 Development is strongly dependent on temperature in many insect species. We have demonstrated that accumulative processes are suitable representations for development under variable environments (<a href="https://www.nature.com/articles/s41598-022-15806-2" target="_blank" rel="noreferrer">Erguler et al. 2022</a>). So, we will switch to **ACC_ERLANG** as the accumulative equivalent of the gamma-distributed age-structured development.
 
+```json
+{
+    "populations": [
+        {
+            "id": "larva",
+            "name": "The larva stage",
+            "processes": [
+                {
+                    "id": "larva_dev",
+                    "name": "Larva development time",
+                    "arbiter": "ACC_ERLANG",
+                    "value": ["d2m", "d2s"]
+                }
+            ]
+        }
+    ]
+}
+```
+Please note that we declared the mean and standard deviation of development in terms of two variables, **d2m** and **d2s**, which we will define shortly.
+
 Next, we define an environmental variable, temperature, to feed into our model.
 ```json
 {    
@@ -134,7 +154,7 @@ Next, we define an environmental variable, temperature, to feed into our model.
 }
 ```
 
-What we need now is a function to transform temperature into the mean and standard deviation of development (to replace the 10 and 4 in the previous example).
+What we need now is a function to transform temperature into the mean and standard deviation of development (to define **d2m** and **d2s**).
 ```json
 {
     "functions": {
@@ -143,6 +163,15 @@ What we need now is a function to transform temperature into the mean and standa
 }
 ```
 
+Please note that the function definition begins with **define**, which is a key word (an operator). The second in the list is the list of parameters (only a single letter for each), and the last is the equation. The mathematical equation notation were inspired from the <a href="https://cortexjs.io/math-json/" target="_blank" rel="noreferrer">MathJSON</a> representation of CortexJS. The list of all operators can be found <a href="#operators-for-equations">here</a>.
+
+This is the reciprocal of the <a href="https://doi.org/10.1093/ee/28.1.22" target="_blank" rel="noreferrer">Briere-1</a> function commonly used in ecological modelling.
+<p style="text-align: center; font-size: 1.5rem;"> 
+$$ briere_1(T,a,L,R) = e^{-\left\{a + \ln(T) + \ln(T-L) + 0.5\ln(R-T)\right\}} $$
+</p>
+The function returns a large value (365 days of development) outside of **L** and **R** and stays within 1 and 365 for all **T**. Please note that the accumulative development algorithm in `Population` currently cannot handle mean process time smaller than a unit.
+
+The Briere-1 function translates into the following C code:
 ```C
 double dmin(double a, double b) { return a < b ? a : b; }
 double dmax(double a, double b) { return a > b ? a : b; }
@@ -150,12 +179,7 @@ double dmax(double a, double b) { return a > b ? a : b; }
 #define briere1(T,a,L,R) ((((T) <= (L))) ? (365.0) : ((((T) >= (R))) ? (365.0) : (dmin(365.0, dmax(1.0, (1.0 / exp(((a) + log((T)) + log(((T) - (L))) + (0.5 * log(((R) - (T))))))))))))
 ```
 
-<p style="text-align: center; font-size: 1.5rem;"> 
-$$ briere_1(T,a,L,R) = e^{-\left\{a + \ln(T) + \ln(T-L) + 0.5\ln(R-T)\right\}} $$
-</p>
-
-Outside **L** and **R**, the function returns a large value (365 days of development) and stays within 1 and 365 for all **T**. Please note that the accumulative development algorithm in `Population` currently cannot handle mean process time smaller than a unit.
-
+Next, we connect temperature with **d2m** and **d2s** using the **intermediates** tag. A key feature of this tag is that it computes first at the beginning of each iteration.
 
 ```json
 {
@@ -170,6 +194,11 @@ Outside **L** and **R**, the function returns a large value (365 days of develop
     ]
 }
 ```
+
+Here, **index** is a key word to extract the **TIME_1**<sup>th</sup> element in the array of **temp** (temperature). **TIME_1** refers to the previous time point (to estimate today's population, we used yesterday's conditions).
+
+
+
 
 ```json
 {
@@ -198,26 +227,11 @@ Outside **L** and **R**, the function returns a large value (365 days of develop
     ]
 }
 ```
-
-```json
-{
-    "populations": [
-        {
-            "id": "larva",
-            "name": "The larva stage",
-            "processes": [
-                {
-                    "id": "larva_dev",
-                    "name": "Larva development time",
-                    "arbiter": "ACC_ERLANG",
-                    "value": ["d2m", "d2s"]
-                }
-            ]
-        }
-    ]
-}
-```
 See [ex1E.json](./examples/ex1E.json) and [ex1E.c](./examples/ex1E.c) for the full PopJSON representation and the C translation.
+
+**constant**
+
+**min** and **max** for inference
 
 <div class="myFigures">
 
@@ -412,6 +426,38 @@ See [ex3b.json](./examples/ex3b.json) and [ex3b.c](./examples/ex3b.c) for the fu
 See [ex4a.json](./examples/ex4a.json) and [ex4a.c](./examples/ex4a.c) for the full PopJSON representation and the C translation.
 
 ![Limited number of gonotrophic cycles](figures/ex4a.png "Deterministic - Erlang-distributed")
+
+# Operators for equations
+
+| Operator    | Parameters    | Definition   |
+| :---        | :---          | :---         |
+| min         | a,b           | Minimum of two numbers |
+| min         | a,b           | Maximum of two numbers |
+| round       | a             | Rounds to the nearest integer |
+| sqrt        | a             | Square root |
+| pow         | a,b           | Power of a to b |
+| exp         | a             | Exponential function |
+| log         | a             | Natural logarithm |
+| log2        | a             | Logarithm of a to base 2 |
+| log10       | a             | Logarithm of a to base 10 |
+| indicator   | a             | Indicator function (boolean to integer) |
+| index       | a,b           | Value of an array at position b (counts from 0) |
+| *           | ...           | Multiplication |
+| +           | ...           | Addition |
+| -           | ...           | Subtraction (in the given order) |
+| /           | ...           | Division (in the given order) |
+| size        | a             | Total size of a population |
+| poisson     | a             | Generates a Poisson random number with lambda=a (works only when **deterministic:false**) |
+| binomial    | a,b           | Generates a Binomial random number with n=a and p=b (works only when **deterministic:false**) |
+| define      | a,b           | Function definition with parameters a and equation b |
+| ?           | a,b,c         | Condition expression (if a is true, return b, else, return c) |
+| &&          | ...           | Logical AND |
+| \|\|        | ...           | Logical OR |
+| >           | a,b           | Logical greater than |
+| <           | a,b           | Logical smaller than |
+| >=          | a,b           | Logical greater than or equal |
+| <=          | a,b           | Logical smaller than or equal |
+| ==          | a,b           | Logical equal to |
 
 # SandBox
 
