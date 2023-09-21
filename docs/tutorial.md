@@ -239,6 +239,10 @@ See [ex1E.json](./examples/ex1E.json) and [ex1E.c](./examples/ex1E.c) for the fu
 
 ## Declaring multiple processes
 
+The `Population` algorithm enables declaring multiple processes on a population. For instance, we could define lifetime and development time together having independent Erlang-distributed durations. Strinctly, they would not be completely independent as the processes take place in the order they are defined. This means that if we define development before larva mortality, pupa could be produced under conditions not suitable for larva survival. We do not what that I guess.
+
+Here, we define the two processes for larva (in the plausible order) and follow the dynamics.
+
 ```json
 {
     "populations": [
@@ -276,7 +280,7 @@ See [ex1E.json](./examples/ex1E.json) and [ex1E.c](./examples/ex1E.c) for the fu
 ```
 See [ex2a.json](./examples/ex2a.json) and [ex2a.c](./examples/ex2a.c) for the full PopJSON representation and the C translation.
 
-The following **transformations** tag is needed to bind **larva_mort** to **larva_death** and **larva_dev** to **larva_to_pupa** to make them visible. Otherwise, only the size of the **larva** population is monitored.
+The following **transformations** tag is needed to bind **larva_mort** to **larva_death** and **larva_dev** to **larva_to_pupa** to make them visible (remember that internal population structure is hidden by default). Otherwise, only the size of the **larva** population is monitored.
 
 ```json
 {
@@ -293,6 +297,8 @@ The following **transformations** tag is needed to bind **larva_mort** to **larv
     ]
 }
 ```
+
+The resulting larva population size and the number of larvae completing each process (mortality or pupa production) is given below.
 
 ![Erlang-distributed larva lifetime and development time](figures/ex2a.png "Deterministic - Erlang-distributed")
 
