@@ -58,7 +58,7 @@ In parallel, we are working on developing the <a href="https://VEClim.com" targe
 
 PopJSON is a standard JavaScript Object Notation (JSON) ornamented with custom tags to describe the essentials of a model. Overall, we use the curly brackets \{\} to group related tags and square brackets \[\] to define processess with a strict order. We hope all will be clearer as you read along.
 
-Please note that we used <a href="./plot.py" target="_blank" rel="noreferrer">this</a> script to simulate and plot all the examples on this page.
+Please note that we used <a href="https://github.com/kerguler/PopJSON/blob/main/docs/plot.py" target="_blank" rel="noreferrer">this</a> script to simulate and plot all the examples on this page.
 
 ## Model definition
 
