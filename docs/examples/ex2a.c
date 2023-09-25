@@ -92,6 +92,7 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
         larva = spop2_init(arbiters, DETERMINISTIC);
         if (y0[0]) { num.d = y0[0]; spop2_add(larva, key, num); }
 
+
     }
 
     if (file0 && file0[0]!=' ') {

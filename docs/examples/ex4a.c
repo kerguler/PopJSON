@@ -33,7 +33,7 @@ void fun_transfer_gonotrophic_cycle(number *key, number num, void *pop) {
     spop2_add(*(population *)pop, q, num);
 }
 
-double fun_custom_adult_num_dev_adult(hazard hfun, unsigned int d, number q, number k, double theta, const number *key) {
+double fun_hazard_adult_num_dev_adult(hazard hfun, unsigned int d, number q, number k, double theta, const number *key) {
     double devmn = ((total_eggs > 150)) ? (1) : (0);
     double devsd = 0;
     hazpar hz = age_const_pars(devmn, devsd);
@@ -120,13 +120,14 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
         key[3] = numZERO;
         adult = spop2_init(arbiters, DETERMINISTIC);
         adult->arbiters[2]->fun_step = 0;
-        adult->arbiters[2]->fun_calc = fun_custom_adult_num_dev_adult;
+        adult->arbiters[2]->fun_calc = fun_hazard_adult_num_dev_adult;
         if (y0[0]) { num.d = y0[0]; spop2_add(adult, key, num); }
 
         popdone_adult[0] = spop2_init(arbiters, DETERMINISTIC);
         popdone_adult[1] = spop2_init(arbiters, DETERMINISTIC);
         popdone_adult[2] = spop2_init(arbiters, DETERMINISTIC);
         popdone_adult[3] = spop2_init(arbiters, DETERMINISTIC);
+
     }
 
     if (file0 && file0[0]!=' ') {

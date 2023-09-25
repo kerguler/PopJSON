@@ -156,6 +156,9 @@ structured population models</span>
         <li><a href="#linking-rates-with-pseudo-states"
         id="toc-linking-rates-with-pseudo-states">Linking rates with
         pseudo-states</a></li>
+        <li><a href="#declaring-class-dependent-rates"
+        id="toc-declaring-class-dependent-rates">Declaring
+        class-dependent rates</a></li>
         <li><a href="#genetic-structure-and-inheritance"
         id="toc-genetic-structure-and-inheritance">Genetic structure and
         inheritance</a></li>
@@ -713,6 +716,128 @@ alt="Limited number of gonotrophic cycles" />
 <figcaption aria-hidden="true">Limited number of gonotrophic
 cycles</figcaption>
 </figure>
+<h2 id="declaring-class-dependent-rates">Declaring class-dependent
+rates</h2>
+<p>The prevailing assumption of the <code>Population</code> algorithm is
+that the variability in a population is random. This essentially
+justifies the use of probability density functions (Erlang, Pascal,
+etc.) to determine exit times (process completion events).</p>
+<p>It is possible, however, to treat certain groups of individuals
+separately, and assign them different rates. By using this feature, for
+instance, we can project the impact of larval development onto the
+adults produced. Let’s consider a scenario where larvae taking longer to
+develop emerge as adults with longer life expectancies.</p>
+<p>To represent this stage inheritance (as we call this in this
+context), we declare two populations, immatures and adults.</p>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;populations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;immat&quot;</span><span class="fu">,</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;The immature stages&quot;</span><span class="fu">,</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;processes&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>                <span class="fu">{</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;immat_mort&quot;</span><span class="fu">,</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Lifetime&quot;</span><span class="fu">,</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;arbiter&quot;</span><span class="fu">:</span> <span class="st">&quot;ACC_ERLANG&quot;</span><span class="fu">,</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="dv">40</span><span class="ot">,</span> <span class="dv">5</span><span class="ot">]</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>                <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>                <span class="fu">{</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;immat_dev&quot;</span><span class="fu">,</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Immature development time&quot;</span><span class="fu">,</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;arbiter&quot;</span><span class="fu">:</span> <span class="st">&quot;ACC_ERLANG&quot;</span><span class="fu">,</span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;d2m&quot;</span><span class="ot">,</span> <span class="st">&quot;d2s&quot;</span><span class="ot">]</span></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>                <span class="fu">}</span></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>            <span class="ot">]</span></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult&quot;</span><span class="fu">,</span></span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;The adult stage&quot;</span><span class="fu">,</span></span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;processes&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>                <span class="fu">{</span></span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_mort&quot;</span><span class="fu">,</span></span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Lifetime&quot;</span><span class="fu">,</span></span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;arbiter&quot;</span><span class="fu">:</span> <span class="st">&quot;ACC_ERLANG&quot;</span><span class="fu">,</span></span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[[</span><span class="st">&quot;?&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;&gt;&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;history&quot;</span><span class="ot">,</span> <span class="st">&quot;adult&quot;</span><span class="ot">],</span> <span class="dv">50</span><span class="ot">],</span> <span class="dv">80</span><span class="ot">,</span> <span class="dv">40</span><span class="ot">],</span> <span class="dv">5</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;hazpar&quot;</span><span class="fu">:</span> <span class="kw">true</span></span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a>                <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a>                <span class="fu">{</span></span>
+<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;history&quot;</span><span class="fu">,</span></span>
+<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Life as an immature&quot;</span><span class="fu">,</span></span>
+<span id="cb16-35"><a href="#cb16-35" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;arbiter&quot;</span><span class="fu">:</span> <span class="st">&quot;NOAGE_CONST&quot;</span><span class="fu">,</span></span>
+<span id="cb16-36"><a href="#cb16-36" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="dv">0</span></span>
+<span id="cb16-37"><a href="#cb16-37" aria-hidden="true" tabindex="-1"></a>                <span class="fu">}</span></span>
+<span id="cb16-38"><a href="#cb16-38" aria-hidden="true" tabindex="-1"></a>            <span class="ot">]</span></span>
+<span id="cb16-39"><a href="#cb16-39" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb16-40"><a href="#cb16-40" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb16-41"><a href="#cb16-41" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>Please note that we used the <strong>d2m</strong> and
+<strong>d2s</strong> parameters from the previous example to define
+immature development time as a function of temperature. To contain
+complexity, we define 40 days (plus or minus 5) of lifetime, which is
+independent of temperature. This means that the larvae are allowed to
+develop for 40 days max, then, they will start dying.</p>
+<p>For the adult stage, we define mortality and a dummy process called
+<strong>history</strong>. We assign the <strong>NOAGE_CONST</strong>
+arbiter for this, which has no internal stepper (it won’t interfere),
+and an integer counter, which we will describe shortly.</p>
+<p>Please note the following two lines.</p>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[[</span><span class="st">&quot;?&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;&gt;&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;history&quot;</span><span class="ot">,</span> <span class="st">&quot;adult&quot;</span><span class="ot">],</span> <span class="dv">50</span><span class="ot">],</span> <span class="dv">80</span><span class="ot">,</span> <span class="dv">40</span><span class="ot">],</span> <span class="dv">5</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;hazpar&quot;</span><span class="fu">:</span> <span class="kw">true</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>We set <strong>hazpar:true</strong> to indicate that
+<strong>value</strong> applies to the sub-classes but not to the entire
+adult population. For each sub-class, distinguished with the counters of
+<strong>adult_mort</strong> and <strong>history</strong>, we define the
+mean lifetime as 80 (if <strong>history</strong> is larger than 50) or
+40 (otherwise). In either case, the standard deviation of the
+Erlang-distributed lifetime is 5 days.</p>
+<p>Where does <strong>history</strong> come from? Please have a look at
+the <strong>transfers</strong> declaration below.</p>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;transfers&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;maturation&quot;</span><span class="fu">,</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Adult emergence&quot;</span><span class="fu">,</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;from&quot;</span><span class="fu">:</span> <span class="st">&quot;immat_dev&quot;</span><span class="fu">,</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;to&quot;</span><span class="fu">:</span> <span class="st">&quot;adult&quot;</span><span class="fu">,</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="dv">0</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;round&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;*&quot;</span><span class="ot">,</span> <span class="st">&quot;100.0&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;immat_mort&quot;</span><span class="ot">,</span><span class="st">&quot;immat&quot;</span><span class="ot">]]]]</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>When immature stage development is complete, we take all those
+completing development (<strong>immat_dev</strong>) and add them to the
+<strong>adult</strong> stage by setting the <strong>adult_mort</strong>
+counter 0 (adult life has just started) and <strong>history</strong> a
+scaled version of <strong>immat_mort</strong>. For instance, if a group
+of individuals have spent 50% of their lifetime in the immature stage,
+<strong>history</strong> of the adults will become 50. If development is
+faster, <strong>history</strong> will be smaller. Please note that the
+scaling is necessary as the <strong>NOAGE_CONST</strong> arbiter of
+<strong>history</strong> accepts an integer counter.</p>
+<p>See <a href="./examples/ex5a.json">ex5a.json</a> and <a
+href="./examples/ex5a.c">ex5a.c</a> for the full PopJSON representation
+and the C translation.</p>
+<p>Here is the output under two constant temperatures (15<sup>o</sup>C
+and 30<sup>o</sup>C)</p>
+<figure>
+<img src="figures/ex5a.png" title="Deterministic - Erlang-distributed"
+alt="Development conditions affecting the adult stage" />
+<figcaption aria-hidden="true">Development conditions affecting the
+adult stage</figcaption>
+</figure>
+<p>The plot demonstrates that the majority of larva population complete
+development in less than 20 days when it is 30<sup>o</sup>C (black
+lines). This results in the production of adults with short lifetimes
+(most of them die in 40 days). On the other hand, when it is
+15<sup>o</sup>C, the majority of larvae develop in more than 20 days,
+resulting in <strong>history</strong> becoming more than 50 (blue
+lines). Please note that, above, we defined average immature lifetime as
+40, and, therefore, 50% of lifetime as 20. Consequently, we see most of
+the emerging adults surviving for 80 days on average.</p>
 <h2 id="genetic-structure-and-inheritance">Genetic structure and
 inheritance</h2>
 <p>

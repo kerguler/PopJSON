@@ -114,6 +114,7 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
         popdone_adult[0] = spop2_init(arbiters, STOCHASTIC);
         popdone_adult[1] = spop2_init(arbiters, STOCHASTIC);
         popdone_adult[2] = spop2_init(arbiters, STOCHASTIC);
+
     }
 
     if (file0 && file0[0]!=' ') {

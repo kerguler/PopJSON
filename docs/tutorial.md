@@ -440,6 +440,97 @@ See [ex4a.json](./examples/ex4a.json) and [ex4a.c](./examples/ex4a.c) for the fu
 
 ![Limited number of gonotrophic cycles](figures/ex4a.png "Deterministic - Erlang-distributed")
 
+## Declaring class-dependent rates
+
+The prevailing assumption of the `Population` algorithm is that the variability in a population is random. This essentially justifies the use of probability density functions (Erlang, Pascal, etc.) to determine exit times (process completion events).
+
+It is possible, however, to treat certain groups of individuals separately, and assign them different rates. By using this feature, for instance, we can project the impact of larval development onto the adults produced. Let's consider a scenario where larvae taking longer to develop emerge as adults with longer life expectancies.
+
+To represent this stage inheritance (as we call this in this context), we declare two populations, immatures and adults.
+```json
+{
+    "populations": [
+        {
+            "id": "immat",
+            "name": "The immature stages",
+            "processes": [
+                {
+                    "id": "immat_mort",
+                    "name": "Lifetime",
+                    "arbiter": "ACC_ERLANG",
+                    "value": [40, 5]
+                },
+                {
+                    "id": "immat_dev",
+                    "name": "Immature development time",
+                    "arbiter": "ACC_ERLANG",
+                    "value": ["d2m", "d2s"]
+                }
+            ]
+        },
+        {
+            "id": "adult",
+            "name": "The adult stage",
+            "processes": [
+                {
+                    "id": "adult_mort",
+                    "name": "Lifetime",
+                    "arbiter": "ACC_ERLANG",
+                    "value": [["?", [">", ["history", "adult"], 50], 80, 40], 5],
+                    "hazpar": true
+                },
+                {
+                    "id": "history",
+                    "name": "Life as an immature",
+                    "arbiter": "NOAGE_CONST",
+                    "value": 0
+                }
+            ]
+        }
+    ]
+}
+```
+
+Please note that we used the **d2m** and **d2s** parameters from the previous example to define immature development time as a function of temperature. To contain complexity, we define 40 days (plus or minus 5) of lifetime, which is independent of temperature. This means that the larvae are allowed to develop for 40 days max, then, they will start dying.
+
+For the adult stage, we define mortality and a dummy process called **history**. We assign the **NOAGE_CONST** arbiter for this, which has no internal stepper (it won't interfere), and an integer counter, which we will describe shortly.
+
+Please note the following two lines.
+```json
+{
+                    "value": [["?", [">", ["history", "adult"], 50], 80, 40], 5],
+                    "hazpar": true
+}
+```
+
+We set **hazpar:true** to indicate that **value** applies to the sub-classes but not to the entire adult population. For each sub-class, distinguished with the counters of **adult_mort** and **history**, we define the mean lifetime as 80 (if **history** is larger than 50) or 40 (otherwise). In either case, the standard deviation of the Erlang-distributed lifetime is 5 days.
+
+Where does **history** come from? Please have a look at the **transfers** declaration below.
+```json
+{
+    "transfers": [
+        {
+            "id": "maturation",
+            "name": "Adult emergence",
+            "from": "immat_dev",
+            "to": "adult",
+            "value": [0, ["round", ["*", "100.0", ["immat_mort","immat"]]]]
+        }
+    ]
+}
+```
+
+When immature stage development is complete, we take all those completing development (**immat_dev**) and add them to the **adult** stage by setting the **adult_mort** counter 0 (adult life has just started) and **history** a scaled version of **immat_mort**. For instance, if a group of individuals have spent 50\% of their lifetime in the immature stage, **history** of the adults will become 50. If development is faster, **history** will be smaller. Please note that the scaling is necessary as the **NOAGE_CONST** arbiter of **history** accepts an integer counter.
+
+See [ex5a.json](./examples/ex5a.json) and [ex5a.c](./examples/ex5a.c) for the full PopJSON representation and the C translation.
+
+Here is the output under two constant temperatures (15<sup>o</sup>C and 30<sup>o</sup>C)
+
+![Development conditions affecting the adult stage](figures/ex5a.png "Deterministic - Erlang-distributed")
+
+The plot demonstrates that the majority of larva population complete development in less than 20 days when it is 30<sup>o</sup>C (black lines). This results in the production of adults with short lifetimes (most of them die in 40 days). On the other hand, when it is 15<sup>o</sup>C, the majority of larvae develop in more than 20 days, resulting in **history** becoming more than 50 (blue lines). Please note that, above, we defined average immature lifetime as 40, and, therefore, 50\% of lifetime as 20. Consequently, we see most of the emerging adults surviving for 80 days on average.
+
+
 ## Genetic structure and inheritance
 
 <p><img src="figures/044-forklift.png" width="200px" alt="Under construction"></img></p>

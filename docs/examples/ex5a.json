@@ -1,0 +1,113 @@
+{
+    "model": {
+            "title": "Climate-sensitive population dynamics of Aedes albopictus",
+            "type": "Population",
+            "url": "https://github.com/kerguler/Population",
+            "deterministic": true,
+            "parameters": {
+                "algorithm": "Population",
+                "istep": 0.01
+            }
+        },
+    "environ": [
+        {
+            "id": "temp",
+            "name": "Temperature of the breeding pool (in °C)",
+            "url": ""
+        }
+    ],
+    "functions": {
+        "briere1": ["define", ["T","a","L","R"], ["?",["<=","T","L"],"365.0", ["?",[">=","T","R"],"365.0", ["min","365.0",["max","1.0", ["/","1.0",["exp", ["+","a",["log","T"],["log",["-","T","L"]],["*","0.5",["log",["-","R","T"]]]]]]]]]]]
+    },
+    "intermediates": [
+        {
+            "id": "d2m",
+            "value": ["briere1", ["index","temp","TIME_1"], "d2m_a", "d2m_b", "d2m_c"]
+        }, {
+            "id": "d2s",
+            "value": ["*", "d2s_c", "d2m"]
+        }
+    ],
+    "parameters": [
+        {
+            "id": "d2m_a",
+            "constant": false,
+            "name": "Development mean (a)",
+            "value": -12
+        }, {
+            "id": "d2m_b",
+            "constant": false,
+            "name": "Development mean (b)",
+            "value": 283.15
+        }, {
+            "id": "d2m_c",
+            "constant": false,
+            "name": "Development mean (c)",
+            "value": 308.15
+        }, {
+            "id": "d2s_c",
+            "constant": false,
+            "name": "Development stdev (c)",
+            "value": 0.2
+        }
+    ],
+    "populations": [
+        {
+            "id": "immat",
+            "name": "The immature stages",
+            "processes": [
+                {
+                    "id": "immat_mort",
+                    "name": "Lifetime",
+                    "arbiter": "ACC_ERLANG",
+                    "value": [40, 5]
+                },
+                {
+                    "id": "immat_dev",
+                    "name": "Immature development time",
+                    "arbiter": "ACC_ERLANG",
+                    "value": ["d2m", "d2s"]
+                }
+            ]
+        },
+        {
+            "id": "adult",
+            "name": "The adult stage",
+            "processes": [
+                {
+                    "id": "adult_mort",
+                    "name": "Lifetime",
+                    "arbiter": "ACC_ERLANG",
+                    "value": [["?", [">", ["history", "adult"], 50], 80, 40], 5],
+                    "hazpar": true
+                },
+                {
+                    "id": "history",
+                    "name": "Life as an immature",
+                    "arbiter": "NOAGE_CONST",
+                    "value": 0
+                }
+            ]
+        }
+    ],
+    "transformations": [
+        {
+            "id": "immat_death",
+            "name": "Immature insects dying today",
+            "value": ["immat_mort", "immat"]
+        }, {
+            "id": "immat_to_adult",
+            "name": "Emerging adults",
+            "value": ["immat_dev", "immat"]
+        }
+    ],
+    "transfers": [
+        {
+            "id": "maturation",
+            "name": "Adult emergence",
+            "from": "immat_dev",
+            "to": "adult",
+            "value": [0, ["round", ["*", "100.0", ["immat_mort","immat"]]]]
+        }
+    ]
+}
