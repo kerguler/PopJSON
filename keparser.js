@@ -38,7 +38,7 @@ class PopJSON {
     }
     check_ids(id) {
         if (!/^[a-zA-Z][a-zA-Z0-9\_]+$/.test(id))
-            this.error += "Only numeric and alphanumeric characters and \"_\" are allowed in IDs. Also, IDs should not start with a number.\n";
+            this.error += "Only numeric and alphanumeric characters and \"_\" are allowed in IDs. Also, IDs should be more than one character and start with an alphanumeric.\nViolating ID is " + id + "\n";
         return id;
     }
     results() {
