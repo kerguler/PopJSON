@@ -710,7 +710,7 @@ class PopJSON {
                 } else if (fun == "/") {
                     return "(" + prm.join(" / ") + ")";
                 } else if (fun == "?") {
-                    return "(" + prm[0] + ") ? (" + prm[1] + ") : (" + prm[2] + ")";
+                    return "((" + prm[0] + ") ? (" + prm[1] + ") : (" + prm[2] + "))";
                 } else if (fun == "&&") {
                     return "(" + prm.join(" && ") + ")";
                 } else if (fun == "||") {
