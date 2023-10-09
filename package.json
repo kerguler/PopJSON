@@ -1,7 +1,7 @@
 {
   "name": "popjson",
   "version": "1.0.0",
-  "description": "",
+  "description": "PopJSON: JSON representation for dynamically-structured multi-process matrix population models",
   "main": "index.js",
   "dependencies": {
     "@cortex-js/compute-engine": "0.12.2",
@@ -12,6 +12,6 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Kamil Erguler (kerguler@gmail.com)",
-  "license": "CC-BY-4.0"
+  "author": "Kamil Erguler <kerguler@gmail.com>",
+  "license": "GPL-3.0-or-later"
 }

@@ -5,3 +5,6 @@ examples:
 		gcc -L/usr/local/lib -I/usr/local/include -Wall -lm -lpopulation -lgsl -lgslcblas -shared -fPIC -single_module -o $$MNAME.dylib $$MNAME.c ; \
 		rm model.json ; \
 	done
+
+clean:
+	rm *.dylib
