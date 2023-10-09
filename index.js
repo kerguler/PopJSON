@@ -95,6 +95,12 @@ class PopJSON {
         this.parse();
         return(this.results());
     }
+    process_json(json) {
+        this.json = json;
+        //
+        this.parse();
+        return(this.results());
+    }
     parse() {
         let that = this;
         this.deterministic = this.json['model']['deterministic'];
