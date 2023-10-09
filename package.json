@@ -1,6 +1,6 @@
 {
   "name": "popjson",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "PopJSON: JSON representation for dynamically-structured multi-process matrix population models",
   "main": "index.js",
   "dependencies": {
