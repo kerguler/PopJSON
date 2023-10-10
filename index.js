@@ -175,6 +175,7 @@ class PopJSON {
         this.numint_int = this.json['intermediates'].length;
         this.numint_trans = this.json['transformations'].length;
         this.numint = this.numint_int + this.numint_trans;
+        this.numenv = this.environs.length;
         //
         if (this.json['model']['type'] == "Population") {
             if (this.json['populations'].length == 0) {
@@ -210,6 +211,7 @@ class PopJSON {
         this.header += "#define NumPar " + util.format(this.numpar) + "\n";
         this.header += "#define NumPop " + util.format(this.numpop) + "\n";
         this.header += "#define NumInt " + util.format(this.numint) + "\n";
+        this.header += "#define NumEnv " + util.format(this.numenv) + "\n";
         this.header += "\n";
         //
         this.json['parameters'].filter( (p) => !p['constant'] ).forEach( (pr, i) => {
@@ -318,7 +320,7 @@ class PopJSON {
         } );        
     }
     write_init() {
-        this.model += "void init(int *no, int *np, int *ni) {\n";
+        this.model += "void init(int *no, int *np, int *ni, int *ne, int *st) {\n";
         if (this.json['model']['type'] == "Population") {
             if (!this.deterministic) {
                 this.model += "    spop2_random_init();\n";
@@ -332,13 +334,15 @@ class PopJSON {
         this.model += "    *no = NumPop;\n";
         this.model += "    *np = NumPar;\n";
         this.model += "    *ni = NumInt;\n";
+        this.model += "    *ne = NumEnv;\n";
+        this.model += "    *st = " + (this.deterministic ? "0" : "1") + ";\n";
         this.model += "}\n";
         this.model += "\n";
     }
     write_parnames() {
         let that = this;
         this.model += "void parnames(char **names, double *param, double *parmin, double *parmax) {\n";
-        this.model += "    char temp[NumPop+NumPar+NumInt][256] = {\n";
+        this.model += "    char temp[NumPop+NumPar+NumInt+NumEnv][256] = {\n";
         if (this.numpop > 0) {
             this.model += "        \"" + this.json['populations'].map( (s) => s['id'] ).join("\", \"") + "\",\n";
         }
@@ -351,10 +355,13 @@ class PopJSON {
         if (this.numint_trans > 0) {
             this.model += "        \"" + this.json['transformations'].map( (pr) => pr['id'] ).join("\", \"") + "\",\n";
         }
+        if (this.numenv > 0) {
+            this.model += "        \"" + this.environs.join("\", \"") + "\",\n";
+        }
         this.model += "    };\n";
         this.model += "\n";
         this.model += "    int i;\n";
-        this.model += "    for (i=0; i<(NumPop+NumPar+NumInt); i++)\n";
+        this.model += "    for (i=0; i<(NumPop+NumPar+NumInt+NumEnv); i++)\n";
         this.model += "        names[i] = strdup(temp[i]);\n";
         this.model += "\n";
         this.json['parameters'].filter( (p) => !p['constant'] ).forEach( (pr, i) => {

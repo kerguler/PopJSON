@@ -24,14 +24,26 @@ class model:
         #
         self.init = self.dylib.init
         self.init.restype = None
-        self.init.argtypes = [array_1d_int, array_1d_int, array_1d_int]
+        self.init.argtypes = [array_1d_int, 
+                              array_1d_int, 
+                              array_1d_int, 
+                              array_1d_int, 
+                              array_1d_int]
         self.numpop = numpy.arange(1,dtype=numpy.int32)
         self.numpar = numpy.arange(1,dtype=numpy.int32)
         self.numint = numpy.arange(1,dtype=numpy.int32)
-        ret = self.init(self.numpop,self.numpar,self.numint)
+        self.numenv = numpy.arange(1,dtype=numpy.int32)
+        self.stoch = numpy.arange(1,dtype=numpy.int32)
+        ret = self.init(self.numpop,
+                        self.numpar,
+                        self.numint,
+                        self.numenv,
+                        self.stoch)
         self.numpop = self.numpop[0]
         self.numpar = self.numpar[0]
         self.numint = self.numint[0]
+        self.numenv = self.numenv[0]
+        self.stoch = self.stoch[0]
         #
         atexit.register(self.dylib.destroy)
         #
@@ -42,7 +54,7 @@ class model:
                                        array_1d_double,
                                        array_1d_double,
                                        array_1d_double]
-            temp = (c_char_p * (self.numpop+self.numpar+self.numint))(256)
+            temp = (c_char_p * (self.numpop+self.numpar+self.numint+self.numenv))(256)
             param = numpy.ndarray(self.numpar, dtype=numpy.float64)
             parmin = numpy.ndarray(self.numpar, dtype=numpy.float64)
             parmax = numpy.ndarray(self.numpar, dtype=numpy.float64)
@@ -50,7 +62,8 @@ class model:
             temp = numpy.array([str(elm,'utf-8') for elm in temp])
             self.popnames = numpy.copy(temp[:self.numpop])
             self.parnames = numpy.copy(temp[self.numpop:(self.numpop+self.numpar)])
-            self.intnames = numpy.copy(temp[(self.numpop+self.numpar):])
+            self.intnames = numpy.copy(temp[(self.numpop+self.numpar):(self.numpop+self.numpar+self.numint)])
+            self.envnames = numpy.copy(temp[(self.numpop+self.numpar+self.numint):])
             self.param = numpy.copy(param)
             self.parmin = numpy.copy(parmin)
             self.parmax = numpy.copy(parmax)
@@ -59,6 +72,7 @@ class model:
             self.popnames = numpy.array(["coln%d" %(n) for n in range(self.numpop)])
             self.parnames = numpy.array(["par%d" %(n) for n in range(self.numpar)])
             self.intnames = numpy.array(["inter%d" %(n) for n in range(self.numint)])
+            self.envnames = numpy.array(["envir%d" %(n) for n in range(self.numenv)])
             self.param = numpy.repeat(0.0, self.numpar)
             self.parmin = numpy.repeat(0.0, self.numpar)
             self.parmax = numpy.repeat(0.0, self.numpar)
@@ -74,6 +88,10 @@ class model:
         self.intids = {}
         for elm in self.intnames:
             self.intids[elm] = numpy.where(elm==self.intnames)[0][0]
+        #
+        self.envids = {}
+        for elm in self.envnames:
+            self.envids[elm] = numpy.where(elm==self.envnames)[0][0]
         #
         self.csim = self.dylib.sim
         self.csim.restype = None
@@ -93,7 +111,10 @@ class model:
             Note: Final time point is ftime - 1
         """
         ftime = numpy.int32(ftime)
-        envir = numpy.array(envir)
+        if self.numenv > 0:
+            envir = numpy.hstack([numpy.array(envir[key],dtype=numpy.float64) for key in self.envnames])
+        else:
+            envir = numpy.array([])
         pr = numpy.array(pr)
         y0 = numpy.array(y0)
         file0 = bytes(file0,'utf-8') if file0 else bytes(" ",'utf-8')
