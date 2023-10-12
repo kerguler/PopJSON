@@ -5,6 +5,7 @@ import numpy.ctypeslib as npct
 array_1d_double = npct.ndpointer(dtype=numpy.float64, ndim=1, flags='CONTIGUOUS')
 array_1d_int = npct.ndpointer(dtype=numpy.int32, ndim=1, flags='CONTIGUOUS')
 
+# https://stackoverflow.com/questions/50964033/forcing-ctypes-cdll-loadlibrary-to-reload-library-from-file
 dlclose_func = CDLL(None).dlclose
 dlclose_func.argtypes = (c_void_p,)
 dlclose_func.restype = c_int
