@@ -5,6 +5,10 @@ import numpy.ctypeslib as npct
 array_1d_double = npct.ndpointer(dtype=numpy.float64, ndim=1, flags='CONTIGUOUS')
 array_1d_int = npct.ndpointer(dtype=numpy.int32, ndim=1, flags='CONTIGUOUS')
 
+dlclose_func = CDLL(None).dlclose
+dlclose_func.argtypes = (c_void_p,)
+dlclose_func.restype = c_int
+
 def calcEnsemble(sim):
     if len(sim)==0:
         return None
@@ -45,7 +49,7 @@ class model:
         self.numenv = self.numenv[0]
         self.stoch = self.stoch[0]
         #
-        atexit.register(self.dylib.destroy)
+        atexit.register(self.destroy)
         #
         try:
             self.get_names = self.dylib.parnames
@@ -106,7 +110,11 @@ class model:
                               array_1d_double,
                               array_1d_int]
         #
-    def sim(self,ftime,envir,pr,y0,rep=1,file0="",file1=""):
+    def destroy(self):
+        self.dylib.destroy
+        dlclose_func(self.dylib._handle)
+        #
+    def _sim(self,ftime,envir,pr,y0,rep=1,file0="",file1=""):
         """
             Note: Final time point is ftime - 1
         """
@@ -142,11 +150,11 @@ class model:
             "iret": iret 
         }
         #
-    def sims(self,ftime,envir,prs,y0,rep=1,file0="",file1=""):
+    def sim(self,ftime,envir,prs,y0,rep=1,file0="",file1="",boil=False):
         rets = []
         irets = []
         for pr in prs:
-            sim = self.sim(ftime,envir,pr,y0,rep=rep,file0=file0,file1=file1)
+            sim = self._sim(ftime,envir,pr,y0,rep=rep,file0=file0,file1=file1)
             if sim['success'] == ftime:
                 if len(rets) == 0:
                     rets = sim['ret']
@@ -157,8 +165,9 @@ class model:
                 else:
                     irets = numpy.vstack([irets,sim['iret']])
         return { 
-            "rets": calcEnsemble(rets),
-            "irets": calcEnsemble(irets)
+            "success": len(rets),
+            "ret": calcEnsemble(rets) if boil else rets,
+            "iret": calcEnsemble(irets) if boil else rets
         }
         
 """
