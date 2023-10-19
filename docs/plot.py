@@ -1,6 +1,6 @@
 import numpy
 from matplotlib import pyplot as plt
-import population as pop
+import wrappers.population as pop
 
 print("Processing ex1E...")
 ex1E = pop.model("examples/ex1E.dylib")
