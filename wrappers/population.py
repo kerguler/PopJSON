@@ -168,7 +168,7 @@ class model:
         return { 
             "success": len(rets),
             "ret": calcEnsemble(rets) if boil else rets,
-            "iret": calcEnsemble(irets) if boil else rets
+            "iret": calcEnsemble(irets) if boil else irets
         }
         
 """
