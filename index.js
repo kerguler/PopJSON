@@ -590,23 +590,19 @@ class PopJSON {
             if ('transformations' in this.json) {
                 this.json['transformations'].forEach( (trx) => {
                     that.model += "                " + trx['id'] + " = " + that.parse_value(trx['value']) + ";\n";
-                } );
-                that.model += "\n";
-                //
-                this.json['transformations'].filter( (trx) => 'to' in trx ).forEach( (trx) => {
-                    for (j=0; j<that.numproc; j++) {
-                        that.model += "                key[" + util.format(j) + "] = numZERO;\n";
-                    }
-                    that.model += "                num" + (that.deterministic ? ".d" : ".i") + " = " + trx['id'] + ";\n";
-                    that.model += "                spop2_add(" + trx['to'] + ", key, num);\n";
                     that.model += "\n";
-                } );
-                //
-                this.json['transformations'].filter( (trx) => 'to' in trx ).forEach( (trx) => {
-                    if (that.deterministic) {
-                        that.model += "                size_" + trx['to'] + ".d += " + trx['id'] + ";\n";
-                    } else {
-                        that.model += "                size_" + trx['to'] + ".i += " + trx['id'] + ";\n";
+                    if ('to' in trx) {
+                        for (j=0; j<that.numproc; j++) {
+                            that.model += "                key[" + util.format(j) + "] = numZERO;\n";
+                        }
+                        that.model += "                num" + (that.deterministic ? ".d" : ".i") + " = " + trx['id'] + ";\n";
+                        that.model += "                spop2_add(" + trx['to'] + ", key, num);\n";
+                        that.model += "\n";
+                        if (that.deterministic) {
+                            that.model += "                size_" + trx['to'] + ".d += " + trx['id'] + ";\n";
+                        } else {
+                            that.model += "                size_" + trx['to'] + ".i += " + trx['id'] + ";\n";
+                        }
                     }
                 } );
                 that.model += "\n";
