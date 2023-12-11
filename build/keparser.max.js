@@ -809,10 +809,29 @@ function hasOwnProperty(obj, prop) {
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./support/isBuffer":4,"_process":3,"inherits":2}],"PopJSON":[function(require,module,exports){
+/* 
+ *  PopJSON: JSON representation for dynamically-structured 
+ *           multi-process matrix population models.
+ * 
+ *  Copyright (C) 2023  Kamil Erguler <kerguler@gmail.com>
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 'use strict';
 
 const fs = require('fs');
-// const { emitWarning } = require('process');
 const util = require('util');
 
 const arbiter = {
@@ -883,6 +902,12 @@ class PopJSON {
             this.error += "JSON parse error!\n";
             return(this.results());
         }
+        //
+        this.parse();
+        return(this.results());
+    }
+    process_json(json) {
+        this.json = json;
         //
         this.parse();
         return(this.results());
@@ -961,6 +986,7 @@ class PopJSON {
         this.numint_int = this.json['intermediates'].length;
         this.numint_trans = this.json['transformations'].length;
         this.numint = this.numint_int + this.numint_trans;
+        this.numenv = this.environs.length;
         //
         if (this.json['model']['type'] == "Population") {
             if (this.json['populations'].length == 0) {
@@ -996,6 +1022,7 @@ class PopJSON {
         this.header += "#define NumPar " + util.format(this.numpar) + "\n";
         this.header += "#define NumPop " + util.format(this.numpop) + "\n";
         this.header += "#define NumInt " + util.format(this.numint) + "\n";
+        this.header += "#define NumEnv " + util.format(this.numenv) + "\n";
         this.header += "\n";
         //
         this.json['parameters'].filter( (p) => !p['constant'] ).forEach( (pr, i) => {
@@ -1104,7 +1131,7 @@ class PopJSON {
         } );        
     }
     write_init() {
-        this.model += "void init(int *no, int *np, int *ni) {\n";
+        this.model += "void init(int *no, int *np, int *ni, int *ne, int *st) {\n";
         if (this.json['model']['type'] == "Population") {
             if (!this.deterministic) {
                 this.model += "    spop2_random_init();\n";
@@ -1118,13 +1145,15 @@ class PopJSON {
         this.model += "    *no = NumPop;\n";
         this.model += "    *np = NumPar;\n";
         this.model += "    *ni = NumInt;\n";
+        this.model += "    *ne = NumEnv;\n";
+        this.model += "    *st = " + (this.deterministic ? "0" : "1") + ";\n";
         this.model += "}\n";
         this.model += "\n";
     }
     write_parnames() {
         let that = this;
         this.model += "void parnames(char **names, double *param, double *parmin, double *parmax) {\n";
-        this.model += "    char temp[NumPop+NumPar+NumInt][256] = {\n";
+        this.model += "    char temp[NumPop+NumPar+NumInt+NumEnv][256] = {\n";
         if (this.numpop > 0) {
             this.model += "        \"" + this.json['populations'].map( (s) => s['id'] ).join("\", \"") + "\",\n";
         }
@@ -1137,10 +1166,13 @@ class PopJSON {
         if (this.numint_trans > 0) {
             this.model += "        \"" + this.json['transformations'].map( (pr) => pr['id'] ).join("\", \"") + "\",\n";
         }
+        if (this.numenv > 0) {
+            this.model += "        \"" + this.environs.join("\", \"") + "\",\n";
+        }
         this.model += "    };\n";
         this.model += "\n";
         this.model += "    int i;\n";
-        this.model += "    for (i=0; i<(NumPop+NumPar+NumInt); i++)\n";
+        this.model += "    for (i=0; i<(NumPop+NumPar+NumInt+NumEnv); i++)\n";
         this.model += "        names[i] = strdup(temp[i]);\n";
         this.model += "\n";
         this.json['parameters'].filter( (p) => !p['constant'] ).forEach( (pr, i) => {
@@ -1369,23 +1401,19 @@ class PopJSON {
             if ('transformations' in this.json) {
                 this.json['transformations'].forEach( (trx) => {
                     that.model += "                " + trx['id'] + " = " + that.parse_value(trx['value']) + ";\n";
-                } );
-                that.model += "\n";
-                //
-                this.json['transformations'].filter( (trx) => 'to' in trx ).forEach( (trx) => {
-                    for (j=0; j<that.numproc; j++) {
-                        that.model += "                key[" + util.format(j) + "] = numZERO;\n";
-                    }
-                    that.model += "                num" + (that.deterministic ? ".d" : ".i") + " = " + trx['id'] + ";\n";
-                    that.model += "                spop2_add(" + trx['to'] + ", key, num);\n";
                     that.model += "\n";
-                } );
-                //
-                this.json['transformations'].filter( (trx) => 'to' in trx ).forEach( (trx) => {
-                    if (that.deterministic) {
-                        that.model += "                size_" + trx['to'] + ".d += " + trx['id'] + ";\n";
-                    } else {
-                        that.model += "                size_" + trx['to'] + ".i += " + trx['id'] + ";\n";
+                    if ('to' in trx) {
+                        for (j=0; j<that.numproc; j++) {
+                            that.model += "                key[" + util.format(j) + "] = numZERO;\n";
+                        }
+                        that.model += "                num" + (that.deterministic ? ".d" : ".i") + " = " + trx['id'] + ";\n";
+                        that.model += "                spop2_add(" + trx['to'] + ", key, num);\n";
+                        that.model += "\n";
+                        if (that.deterministic) {
+                            that.model += "                size_" + trx['to'] + ".d += " + trx['id'] + ";\n";
+                        } else {
+                            that.model += "                size_" + trx['to'] + ".i += " + trx['id'] + ";\n";
+                        }
                     }
                 } );
                 that.model += "\n";

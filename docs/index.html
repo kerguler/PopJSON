@@ -48,7 +48,7 @@
   <style type="text/css">code{white-space: pre;}</style>
   <style type="text/css">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -166,6 +166,7 @@ structured population models</span>
         <li><a href="#operators-for-equations"
         id="toc-operators-for-equations">Operators for
         equations</a></li>
+        <li><a href="#examples" id="toc-examples">Examples</a></li>
         <li><a href="#sandbox" id="toc-sandbox">SandBox</a></li>
         </ul>
 
@@ -207,7 +208,7 @@ pre.sourceCode {
     overflow: auto;
 }
 </style>
-<script src="keparser.max.js"></script>
+<script src="keparser.min.js"></script>
 <script>
         function process(ids=["model","output","error"]) {
             var PopJSON = require('PopJSON');
@@ -396,7 +397,7 @@ mean process time smaller than a unit.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> dmin<span class="op">(</span><span class="dt">double</span> a<span class="op">,</span> <span class="dt">double</span> b<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> a <span class="op">&lt;</span> b <span class="op">?</span> a <span class="op">:</span> b<span class="op">;</span> <span class="op">}</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> dmax<span class="op">(</span><span class="dt">double</span> a<span class="op">,</span> <span class="dt">double</span> b<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> a <span class="op">&gt;</span> b <span class="op">?</span> a <span class="op">:</span> b<span class="op">;</span> <span class="op">}</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#define briere1(T,a,L,R) ((((T) &lt;= (L))) ? (365.0) : ((((T) &gt;= (R))) ? (365.0) : (dmin(365.0, dmax(1.0, (1.0 / exp(((a) + log((T)) + log(((T) - (L))) + (0.5 * log(((R) - (T))))))))))))</span></span></code></pre></div>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#define briere1</span><span class="op">(</span><span class="pp">T</span><span class="op">,</span><span class="pp">a</span><span class="op">,</span>L<span class="op">,</span>R<span class="op">)</span><span class="pp"> </span><span class="op">((((</span><span class="pp">T</span><span class="op">)</span><span class="pp"> </span><span class="op">&lt;=</span><span class="pp"> </span><span class="op">(</span>L<span class="op">)))</span><span class="pp"> </span><span class="op">?</span><span class="pp"> </span><span class="op">(</span><span class="fl">365.0</span><span class="op">)</span><span class="pp"> </span><span class="op">:</span><span class="pp"> </span><span class="op">((((</span><span class="pp">T</span><span class="op">)</span><span class="pp"> </span><span class="op">&gt;=</span><span class="pp"> </span><span class="op">(</span>R<span class="op">)))</span><span class="pp"> </span><span class="op">?</span><span class="pp"> </span><span class="op">(</span><span class="fl">365.0</span><span class="op">)</span><span class="pp"> </span><span class="op">:</span><span class="pp"> </span><span class="op">(</span><span class="pp">dmin</span><span class="op">(</span><span class="fl">365.0</span><span class="op">,</span><span class="pp"> dmax</span><span class="op">(</span><span class="fl">1.0</span><span class="op">,</span><span class="pp"> </span><span class="op">(</span><span class="fl">1.0</span><span class="pp"> </span><span class="op">/</span><span class="pp"> exp</span><span class="op">(((</span><span class="pp">a</span><span class="op">)</span><span class="pp"> </span><span class="op">+</span><span class="pp"> log</span><span class="op">((</span><span class="pp">T</span><span class="op">))</span><span class="pp"> </span><span class="op">+</span><span class="pp"> log</span><span class="op">(((</span><span class="pp">T</span><span class="op">)</span><span class="pp"> </span><span class="op">-</span><span class="pp"> </span><span class="op">(</span>L<span class="op">)))</span><span class="pp"> </span><span class="op">+</span><span class="pp"> </span><span class="op">(</span><span class="fl">0.5</span><span class="pp"> </span><span class="op">*</span><span class="pp"> log</span><span class="op">(((</span>R<span class="op">)</span><span class="pp"> </span><span class="op">-</span><span class="pp"> </span><span class="op">(</span><span class="pp">T</span><span class="op">))))))))))))</span></span></code></pre></div>
 <p>Next, we connect temperature with <strong>d2m</strong> and
 <strong>d2s</strong> using the <strong>intermediates</strong> tag. A key
 feature of this tag is that it computes first at the beginning of each
@@ -1002,6 +1003,10 @@ b, else, return c)</td>
 </tr>
 </tbody>
 </table>
+<h1 id="examples">Examples</h1>
+<ul>
+<li><a href="./examples/ex1a.json" target="_blank" rel="noreferrer">ex1a.json</a></li>
+</ul>
 <h1 id="sandbox">SandBox</h1>
 <div class="myGroup">
 <textarea id="model" class="myJSON">

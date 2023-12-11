@@ -34,7 +34,7 @@ pre.sourceCode {
 }
 </style>
 
-<script src="keparser.max.js"></script>
+<script src="keparser.min.js"></script>
 <script>
         function process(ids=["model","output","error"]) {
             var PopJSON = require('PopJSON');
@@ -567,6 +567,10 @@ We are working on this. Please come back soon for updates.
 | >=          | a,b           | Logical greater than or equal |
 | <=          | a,b           | Logical smaller than or equal |
 | ==          | a,b           | Logical equal to |
+
+# Examples
+
+ - <a href="./examples/ex1a.json" target="_blank" rel="noreferrer">ex1a.json</a>
 
 # SandBox
 
