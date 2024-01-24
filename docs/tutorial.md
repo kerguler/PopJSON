@@ -48,17 +48,18 @@ pre.sourceCode {
 
 # PopJSON
 
-We propose a JSON representation for dynamically-structured multi-process matrix population models. PopJSON, as we call it, deals with the `sPop` models of Erguler et al. \[<a href="https://f1000research.com/articles/7-1220/v3" target="_blank" rel="noreferrer">sPop</a>, <a href="https://www.nature.com/articles/s41598-022-15806-2" target="_blank" rel="noreferrer">sPop2</a>, <a href="https://github.com/kerguler/Population" target="_blank" rel="noreferrer">Population</a>\], for the time being, but soon, and with your help, it will cover more.
+We propose a JavaScript Object Notation (JSON) representation, named PopJSON, for communicating and storing population dynamics models. Ornamented with custom tags and operations, PopJSON describes the essentials of a dynamically-structured multi-process matrix population model. In its current implementation, PopJSON deals with the `sPop` models of Erguler et al. \[<a href="https://f1000research.com/articles/7-1220/v3" target="_blank" rel="noreferrer">sPop</a>, <a href="https://www.nature.com/articles/s41598-022-15806-2" target="_blank" rel="noreferrer">sPop2</a>, <a href="https://github.com/kerguler/Population" target="_blank" rel="noreferrer">Population</a>\], but soon will cover the canonical ODE and DDE models and more.
+ 
+By definition, the representation cannot be directly executed, but requires a parser to translate it into code that can either be directly executed or compiled. For the <a href="https://github.com/kerguler/Population" target="_blank" rel="noreferrer">Population</a> package, the output should be raw ANSI C, however, many other canonical models can be parsed into R, Python, or any other scientific programming language.
 
-Here, we describe a PopJSON parser, which takes a JSON string, or a file, and converts it to its raw ANSI C equivalent. You'll then need to compile this code in your system and run it using the <a href="https://github.com/kerguler/Population" target="_blank" rel="noreferrer">Population</a> package. In this repository, we included a <a href="https://github.com/kerguler/PopJSON/blob/main/population.py" target="_blank" rel="noreferrer">wrapper</a> to read and simulate the translated models in `Python`. Soon, we will write another one for `R`.
+In this repository, we included a <a href="https://github.com/kerguler/PopJSON/blob/main/wrappers/population.py" target="_blank" rel="noreferrer">wrapper</a> to read and simulate the translated models in `Python`. Soon, we will write another one for `R`.
 
-In parallel, we are working on developing the <a href="https://VEClim.com" target="_blank" rel="noreferrer">VEClim</a> API to take PopJSON requests and run simulations. But this shall take some time to complete.
+model definition
+population declaration
+process declaration
+environmental variables
 
-# Instructions
-
-PopJSON is a standard JavaScript Object Notation (JSON) ornamented with custom tags to describe the essentials of a model. Overall, we use the curly brackets \{\} to group related tags and square brackets \[\] to define processess with a strict order. We hope all will be clearer as you read along.
-
-Please note that we used <a href="https://github.com/kerguler/PopJSON/blob/main/docs/plot.py" target="_blank" rel="noreferrer">this</a> script to simulate and plot all the examples on this page.
+We use the curly brackets \{\} to group related tags and square brackets \[\] to define processess with a strict order. We hope all will be clearer as you read along.
 
 ## Model definition
 
@@ -571,6 +572,11 @@ We are working on this. Please come back soon for updates.
 # Examples
 
  - <a href="./examples/ex1a.json" target="_blank" rel="noreferrer">ex1a.json</a>
+ - <a href="./examples/ex1E.json" target="_blank" rel="noreferrer">ex1E.json</a>
+ - <a href="./examples/ex2a.json" target="_blank" rel="noreferrer">ex2a.json</a>
+ - <a href="./examples/ex3a.json" target="_blank" rel="noreferrer">ex3a.json</a>
+ - <a href="./examples/ex4a.json" target="_blank" rel="noreferrer">ex4a.json</a>
+ - <a href="./examples/ex5a.json" target="_blank" rel="noreferrer">ex5a.json</a>
 
 # SandBox
 

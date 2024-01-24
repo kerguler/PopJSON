@@ -124,8 +124,8 @@ class model:
             envir = numpy.hstack([numpy.array(envir[key],dtype=numpy.float64) for key in self.envnames])
         else:
             envir = numpy.array([])
+        y0 = numpy.hstack([numpy.array(y0[key] if key in y0 else 0.0,dtype=numpy.float64) for key in self.popnames])
         pr = numpy.array(pr)
-        y0 = numpy.array(y0)
         file0 = bytes(file0,'utf-8') if file0 else bytes(" ",'utf-8')
         file1 = bytes(file1,'utf-8') if file1 else bytes(" ",'utf-8')
         rep = numpy.int32(rep)
