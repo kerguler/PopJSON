@@ -1048,6 +1048,8 @@ class PopJSON {
         this.header += "double dmax(double a, double b) { return a > b ? a : b; }\n";
         this.header += "\n";
         //
+        this.header += "int TIME;\n";
+        this.header += "\n";
         this.header += "double *model_param;\n";
         if ('environ' in this.json) {
             this.json['environ'].forEach( (elm, i) => {
@@ -1230,7 +1232,7 @@ class PopJSON {
         let det = this.deterministic ? 'DETERMINISTIC' : 'STOCHASTIC';
         this.model += "void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *file0, const char *file1, double *ret, double *iret, int *success) {\n";
         this.model += "\n";
-        this.model += "    int TIME = 0;\n";
+        this.model += "    TIME = 0;\n";
         this.model += "\n";
         this.model += "    model_param = pr;\n";
         if ('environ' in this.json) {
