@@ -954,7 +954,7 @@ class PopJSON {
         this.model = "";
         this.write_header();
         this.write_functions();
-        this.write_transfer();
+        this.write_harvest();
         this.write_custom();
         this.write_init();
         this.write_parnames();
@@ -1102,6 +1102,23 @@ class PopJSON {
             } );
             that.header += "    };\n";
             that.header += "    spop2_add(*(population *)pop, q, num);\n";
+            that.header += "}\n";
+            that.header += "\n";
+        } );
+    }
+    write_harvest() {
+        if (!('transfers' in this.json)) return;
+        //
+        let that = this;
+        var di, pop;
+        this.json['transfers'].forEach( (trn) => {
+            that.header += "void fun_harvest_" + trn['id'] + "(number *key, number num, number *newkey, double *frac) {\n";
+            pop = that.json['populations'].filter( (tmp) => tmp['id'] == trn['to'] )[0];
+            pop['processes'].forEach( (proc, j) => {
+                di = that.popart[pop['id']][proc['arbiter']];
+                that.header += "    newkey[" + util.format(j) + "]." + di + "=" + that.parse_value(trn['value'][1][j], true) + ";\n";
+            } );
+            that.header += "    *frac = " + that.parse_value(trn['value'][0], true) + ";\n";
             that.header += "}\n";
             that.header += "\n";
         } );
@@ -1423,7 +1440,7 @@ class PopJSON {
             //
             if ('transfers' in this.json) {
                 this.json['transfers'].forEach( (trn) => {
-                    that.model += "                spop2_foreach(popdone_" + that.processobj[trn['from']]['parent_id'] + "[" + trn['from'] + "], fun_transfer_" + trn['id'] + ", (void *)(&" + trn['to'] + "));\n";
+                    that.model += "                spop2_harvest(popdone_" + that.processobj[trn['from']]['parent_id'] + "[" + trn['from'] + "], " + trn['to'] + ", fun_harvest_" + trn['id'] + ");\n";
                 } );
                 that.model += "\n";
                 this.transfers.forEach( (trn) => {

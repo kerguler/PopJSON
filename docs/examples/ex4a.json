@@ -43,7 +43,7 @@
         "name": "Gonotrophic cycle",
         "from": "adult_dev",
         "to": "adult",
-        "value": [["adult_mort", "adult"], 0, ["+", ["adult_num_dev", "adult"], 1]]
+        "value": ["1.0", [["adult_mort", "adult"], 0, ["+", ["adult_num_dev", "adult"], 1]]]
     }
 ],
 "transformations": [

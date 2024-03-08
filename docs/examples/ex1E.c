@@ -6,6 +6,7 @@
 #define NumPar 4
 #define NumPop 1
 #define NumInt 2
+#define NumEnv 1
 
 #define d2m_a 0
 #define d2m_b 1
@@ -18,31 +19,36 @@
 double dmin(double a, double b) { return a < b ? a : b; }
 double dmax(double a, double b) { return a > b ? a : b; }
 
+int TIME;
+
 double *model_param;
 double *envir_temp;
 
 double d2m;
 double d2s;
 
-#define briere1(T,a,L,R) ((((T) <= (L))) ? (365.0) : ((((T) >= (R))) ? (365.0) : (dmin(365.0, dmax(1.0, (1.0 / exp(((a) + log((T)) + log(((T) - (L))) + (0.5 * log(((R) - (T))))))))))))
+#define briere1(T,a,L,R) (((((T) <= (L))) ? (365.0) : (((((T) >= (R))) ? (365.0) : (dmin(365.0, dmax(1.0, (1.0 / exp(((a) + log((T)) + log(((T) - (L))) + (0.5 * log(((R) - (T))))))))))))))
 
-void init(int *no, int *np, int *ni) {
+void init(int *no, int *np, int *ni, int *ne, int *st) {
     spop2_set_eps(0.01);
 
     *no = NumPop;
     *np = NumPar;
     *ni = NumInt;
+    *ne = NumEnv;
+    *st = 0;
 }
 
 void parnames(char **names, double *param, double *parmin, double *parmax) {
-    char temp[NumPop+NumPar+NumInt][256] = {
+    char temp[NumPop+NumPar+NumInt+NumEnv][256] = {
         "larva",
         "d2m_a", "d2m_b", "d2m_c", "d2s_c",
         "d2m", "d2s",
+        "temp",
     };
 
     int i;
-    for (i=0; i<(NumPop+NumPar+NumInt); i++)
+    for (i=0; i<(NumPop+NumPar+NumInt+NumEnv); i++)
         names[i] = strdup(temp[i]);
 
     param[d2m_a] = -12;
@@ -64,7 +70,7 @@ void destroy(void) {
 
 void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *file0, const char *file1, double *ret, double *iret, int *success) {
 
-    int TIME = 0;
+    TIME = 0;
 
     model_param = pr;
     envir_temp = envir + 0 * tf;
@@ -135,7 +141,6 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
 
 
 
-
         }
 
         ret[0] = size_larva.d;
@@ -181,4 +186,5 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
 int main(int argc, char *argv[]) {
     return 0;
 }
+
 

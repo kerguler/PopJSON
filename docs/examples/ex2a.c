@@ -6,6 +6,7 @@
 #define NumPar 0
 #define NumPop 1
 #define NumInt 2
+#define NumEnv 0
 
 
 #define larva_mort 0
@@ -15,28 +16,32 @@
 double dmin(double a, double b) { return a < b ? a : b; }
 double dmax(double a, double b) { return a > b ? a : b; }
 
+int TIME;
+
 double *model_param;
 
 double larva_death;
 double larva_to_pupa;
 
 
-void init(int *no, int *np, int *ni) {
+void init(int *no, int *np, int *ni, int *ne, int *st) {
     spop2_set_eps(0.01);
 
     *no = NumPop;
     *np = NumPar;
     *ni = NumInt;
+    *ne = NumEnv;
+    *st = 0;
 }
 
 void parnames(char **names, double *param, double *parmin, double *parmax) {
-    char temp[NumPop+NumPar+NumInt][256] = {
+    char temp[NumPop+NumPar+NumInt+NumEnv][256] = {
         "larva",
         "larva_death", "larva_to_pupa",
     };
 
     int i;
-    for (i=0; i<(NumPop+NumPar+NumInt); i++)
+    for (i=0; i<(NumPop+NumPar+NumInt+NumEnv); i++)
         names[i] = strdup(temp[i]);
 
 }
@@ -46,7 +51,7 @@ void destroy(void) {
 
 void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *file0, const char *file1, double *ret, double *iret, int *success) {
 
-    int TIME = 0;
+    TIME = 0;
 
     model_param = pr;
 
@@ -116,6 +121,7 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
                 spop2_step(larva, par, &size_larva, completed_larva, 0);
 
                 larva_death = completed_larva[larva_mort].d;
+
                 larva_to_pupa = completed_larva[larva_dev].d;
 
 
@@ -166,4 +172,5 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
 int main(int argc, char *argv[]) {
     return 0;
 }
+
 

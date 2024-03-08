@@ -115,7 +115,7 @@ class model:
         self.dylib.destroy
         dlclose_func(self.dylib._handle)
         #
-    def _sim(self,ftime,envir,pr,y0,rep=1,file0="",file1=""):
+    def _sim(self,ftime,envir,pr,y0={},rep=1,file0="",file1=""):
         """
             Note: Final time point is ftime - 1
         """
@@ -151,9 +151,22 @@ class model:
             "iret": iret 
         }
         #
-    def sim(self,ftime,envir,prs,y0,rep=1,file0="",file1="",boil=False):
+    def sim(self,ftime,envir={},pr=[],prs=[],y0={},rep=1,file0="",file1="",boil=False):
         rets = []
         irets = []
+        #
+        if len(pr) > 0 and len(prs) == 0:
+            prs = [pr]
+        elif len(pr) > 0 and len(prs) > 0:
+            print("Please supply 'pr' for a single parameter set or 'prs' for a list of parameter sets.")
+            return { 
+                "success": 0,
+                "ret": [],
+                "iret": []
+            }
+        elif len(pr) == 0 and len(prs) == 0:
+            prs = [[]]
+        #
         for pr in prs:
             sim = self._sim(ftime,envir,pr,y0,rep=rep,file0=file0,file1=file1)
             if sim['success'] == ftime:

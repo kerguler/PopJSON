@@ -50,20 +50,15 @@ pre.sourceCode {
 
 We propose a JavaScript Object Notation (JSON) representation, named PopJSON, for communicating and storing population dynamics models. Ornamented with custom tags and operations, PopJSON describes the essentials of a dynamically-structured multi-process matrix population model. In its current implementation, PopJSON deals with the `sPop` models of Erguler et al. \[<a href="https://f1000research.com/articles/7-1220/v3" target="_blank" rel="noreferrer">sPop</a>, <a href="https://www.nature.com/articles/s41598-022-15806-2" target="_blank" rel="noreferrer">sPop2</a>, <a href="https://github.com/kerguler/Population" target="_blank" rel="noreferrer">Population</a>\], but soon will cover the canonical ODE and DDE models and more.
  
-By definition, the representation cannot be directly executed, but requires a parser to translate it into code that can either be directly executed or compiled. For the <a href="https://github.com/kerguler/Population" target="_blank" rel="noreferrer">Population</a> package, the output should be raw ANSI C, however, many other canonical models can be parsed into R, Python, or any other scientific programming language.
+PopJSON requires a parser to translate it into code that can either be directly interpreted or compiled into an executable. For the <a href="https://github.com/kerguler/Population" target="_blank" rel="noreferrer">Population</a> package, the output should be raw ANSI C, however, many other canonical models can be parsed into R, Python, or any other scientific programming language.
 
-In this repository, we included a <a href="https://github.com/kerguler/PopJSON/blob/main/wrappers/population.py" target="_blank" rel="noreferrer">wrapper</a> to read and simulate the translated models in `Python`. Soon, we will write another one for `R`.
+In this repository, we included a <a href="https://github.com/kerguler/PopJSON/blob/main/wrappers/population.py" target="_blank" rel="noreferrer">wrapper</a> to read and simulate the translated models into `Python`. Soon, we will write another one for `R`.
 
-model definition
-population declaration
-process declaration
-environmental variables
-
-We use the curly brackets \{\} to group related tags and square brackets \[\] to define processess with a strict order. We hope all will be clearer as you read along.
+We use the curly brackets \{\} throughout the text to group related tags and square brackets \[\] to define processess with a strict order. We hope all will be clearer as you read along.
 
 ## Model definition
 
-We first define a model by using the **model** tag. Here, the key tags are **type** and **parameters**. In this version of PopJSON, we covered the **Population** model, but we are working on including more canonical ODE, DDE, etc. models.
+We define a model sstarting with the **model** tag. Here, the key tags are **type** and **parameters**. In this version of PopJSON, we covered the **Population** model, but we are working on including more canonical ODE, DDE, etc. models.
 
 The dynamics can either be deterministic or stochastic, which is determined using the boolean tag **deterministic**. If needed, we can set the precision of the accumulative process indicator (this is specific to the Population package) with the **istep** tag.  This effectively limits the maximum number of pseudo-stage classes.
 
@@ -109,6 +104,8 @@ A population, by definition, is a structured collection of similar individuals. 
 See [ex1a.json](./examples/ex1a.json) and [ex1a.c](./examples/ex1a.c) for the full PopJSON representation and the C translation.
 
 The above example represents a larva population with a development time of 10 days (with a standard deviation of 4 days). The population is age-structured and the development time is gamma-distributed.
+
+Here, **AGE_GAMMA** refers to a specific population structure and development time distribution listed in <a href="https://kerguler.github.io/Population/#distributions-and-assumptions" target="_blank" rel="noreferrer">this</a> table. Accordingly, **AGE_GAMMA** takes two parameters, the mean and standard deviation of development. In the above PopJSON representation, these are given as the first and second elements of the list **value**.
 
 <div class="myFigures">
 
@@ -353,7 +350,7 @@ Gonotrophic cycle is a complex process. After blood feeding, females develop egg
 
 When **adult_dev** is completed (in 5 days plus or minus 1), we will have the females ready for egg laying. Then, the number of eggs laid can be estimated by employing an average, for instance, 10 eggs per gravid female (as in **egg_laying**).
 
-The problem, however, is the need to add the females back into the population. For this, we define a **transfer**, which transfers each sub-class from one population to another (here, from **adult_dev** back to **adult**).
+The problem, however, is the need to add the females back into the population. For this, we define a **transfer** tag, which transfers each sub-class from one population to another (here, from **adult_dev** back to **adult**).
 
 ```json
 {
@@ -363,13 +360,13 @@ The problem, however, is the need to add the females back into the population. F
             "name": "Gonotrophic cycle",
             "from": "adult_dev",
             "to": "adult",
-            "value": [["adult_mort", "adult"], 0]
+            "value": [1, [["adult_mort", "adult"], 0]]
         }
     ],
 }
 ```
 
-Before making the transfer, the algorithm allows us to apply a transformation on the sub-class structure. This is defined in the **value** tag above. Namely, the value of the process **adult_mort** (of **adult**) should stay as is, but the **adult_dev** (the second one in the list) should be reset to 0.
+Before making the transfer, the algorithm allows us to declare the fraction of each sub-class to be transferred and to apply a transformation on the sub-class structure. This is defined in the **value** tag above as the first and second elements, respectively. Namely, all individuals should be transferred, the value of the process **adult_mort** (of **adult**) should stay as is, and **adult_dev** (the second one in the - second - list) should be reset to 0.
 
 See [ex3a.json](./examples/ex3a.json) and [ex3a.c](./examples/ex3a.c) for the full PopJSON representation and the C translation ([ex3b.json](./examples/ex3b.json) and [ex3b.c](./examples/ex3b.c) for the stochastic version).
 
@@ -412,7 +409,7 @@ Please note that **value: []** is required in order not to interfere with the pa
             "name": "Gonotrophic cycle",
             "from": "adult_dev",
             "to": "adult",
-            "value": [["adult_mort", "adult"], 0, ["+", ["adult_num_dev", "adult"], 1]]
+            "value": [1, [["adult_mort", "adult"], 0, ["+", ["adult_num_dev", "adult"], 1]]]
         }
     ]
 }
@@ -515,7 +512,7 @@ Where does **history** come from? Please have a look at the **transfers** declar
             "name": "Adult emergence",
             "from": "immat_dev",
             "to": "adult",
-            "value": [0, ["round", ["*", "100.0", ["immat_mort","immat"]]]]
+            "value": [1, [0, ["round", ["*", "100.0", ["immat_mort","immat"]]]]]
         }
     ]
 }
@@ -530,6 +527,23 @@ Here is the output under two constant temperatures (15<sup>o</sup>C and 30<sup>o
 ![Development conditions affecting the adult stage](figures/ex5a.png "Deterministic - Erlang-distributed")
 
 The plot demonstrates that the majority of larva population complete development in less than 20 days when it is 30<sup>o</sup>C (black lines). This results in the production of adults with short lifetimes (most of them die in 40 days). On the other hand, when it is 15<sup>o</sup>C, the majority of larvae develop in more than 20 days, resulting in **history** becoming more than 50 (blue lines). Please note that, above, we defined average immature lifetime as 40, and, therefore, 50\% of lifetime as 20. Consequently, we see most of the emerging adults surviving for 80 days on average.
+
+## Transfering only a fraction of a class
+
+
+```json
+{
+    "transfers": [
+        {
+            "id": "gonotrophic_cycle",
+            "name": "Gonotrophic cycle",
+            "from": "adult_dev",
+            "to": "adult",
+            "value": [1, [["adult_mort", "adult"], 0]]
+        }
+    ],
+}
+```
 
 
 ## Genetic structure and inheritance
@@ -557,6 +571,7 @@ We are working on this. Please come back soon for updates.
 | -           | ...           | Subtraction (in the given order) |
 | /           | ...           | Division (in the given order) |
 | size        | a             | Total size of a population |
+| count       | a,b           | Sub-group counts of population **a** based on a logical check **b** of sub-group keys |
 | poisson     | a             | Generates a Poisson random number with lambda=a (works only when **deterministic:false**) |
 | binomial    | a,b           | Generates a Binomial random number with n=a and p=b (works only when **deterministic:false**) |
 | define      | a,b           | Function definition with parameters a and equation b |
@@ -572,9 +587,11 @@ We are working on this. Please come back soon for updates.
 # Examples
 
  - <a href="./examples/ex1a.json" target="_blank" rel="noreferrer">ex1a.json</a>
+ - <a href="./examples/ex1b.json" target="_blank" rel="noreferrer">ex1b.json</a>
  - <a href="./examples/ex1E.json" target="_blank" rel="noreferrer">ex1E.json</a>
  - <a href="./examples/ex2a.json" target="_blank" rel="noreferrer">ex2a.json</a>
  - <a href="./examples/ex3a.json" target="_blank" rel="noreferrer">ex3a.json</a>
+ - <a href="./examples/ex3b.json" target="_blank" rel="noreferrer">ex3b.json</a>
  - <a href="./examples/ex4a.json" target="_blank" rel="noreferrer">ex4a.json</a>
  - <a href="./examples/ex5a.json" target="_blank" rel="noreferrer">ex5a.json</a>
 

@@ -6,6 +6,7 @@
 #define NumPar 4
 #define NumPop 2
 #define NumInt 4
+#define NumEnv 1
 
 #define d2m_a 0
 #define d2m_b 1
@@ -21,6 +22,8 @@
 double dmin(double a, double b) { return a < b ? a : b; }
 double dmax(double a, double b) { return a > b ? a : b; }
 
+int TIME;
+
 double *model_param;
 double *envir_temp;
 
@@ -29,39 +32,40 @@ double immat_to_adult;
 double d2m;
 double d2s;
 
-#define briere1(T,a,L,R) ((((T) <= (L))) ? (365.0) : ((((T) >= (R))) ? (365.0) : (dmin(365.0, dmax(1.0, (1.0 / exp(((a) + log((T)) + log(((T) - (L))) + (0.5 * log(((R) - (T))))))))))))
+#define briere1(T,a,L,R) (((((T) <= (L))) ? (365.0) : (((((T) >= (R))) ? (365.0) : (dmin(365.0, dmax(1.0, (1.0 / exp(((a) + log((T)) + log(((T) - (L))) + (0.5 * log(((R) - (T))))))))))))))
 
-void fun_transfer_maturation(number *key, number num, void *pop) {
-    number q[3] = {
-        {.d=0},
-        {.i=round((100.0 * key[immat_mort].d))},
-    };
-    spop2_add(*(population *)pop, q, num);
+void fun_harvest_maturation(number *key, number num, number *newkey, double *frac) {
+    newkey[0].d=0;
+    newkey[1].i=round((100.0 * key[immat_mort].d));
+    *frac = 1.0;
 }
 
 void fun_hazpar_adult_mort_adult(const number *key, const number num, double *par) {
-    par[0] = ((key[history].i > 50)) ? (80) : (40);
+    par[0] = (((key[history].i > 50)) ? (80) : (40));
     par[1] = 5;
 }
 
-void init(int *no, int *np, int *ni) {
+void init(int *no, int *np, int *ni, int *ne, int *st) {
     spop2_set_eps(0.01);
 
     *no = NumPop;
     *np = NumPar;
     *ni = NumInt;
+    *ne = NumEnv;
+    *st = 0;
 }
 
 void parnames(char **names, double *param, double *parmin, double *parmax) {
-    char temp[NumPop+NumPar+NumInt][256] = {
+    char temp[NumPop+NumPar+NumInt+NumEnv][256] = {
         "immat", "adult",
         "d2m_a", "d2m_b", "d2m_c", "d2s_c",
         "d2m", "d2s",
         "immat_death", "immat_to_adult",
+        "temp",
     };
 
     int i;
-    for (i=0; i<(NumPop+NumPar+NumInt); i++)
+    for (i=0; i<(NumPop+NumPar+NumInt+NumEnv); i++)
         names[i] = strdup(temp[i]);
 
     param[d2m_a] = -12;
@@ -83,7 +87,7 @@ void destroy(void) {
 
 void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *file0, const char *file1, double *ret, double *iret, int *success) {
 
-    int TIME = 0;
+    TIME = 0;
 
     model_param = pr;
     envir_temp = envir + 0 * tf;
@@ -196,10 +200,11 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
                 spop2_step(adult, par, &size_adult, completed_adult, 0);
 
                 immat_death = completed_immat[immat_mort].d;
+
                 immat_to_adult = completed_immat[immat_dev].d;
 
 
-                spop2_foreach(popdone_immat[immat_dev], fun_transfer_maturation, (void *)(&adult));
+                spop2_harvest(popdone_immat[immat_dev], adult, fun_harvest_maturation);
 
                 spop2_empty(&popdone_immat[0]);
                 spop2_empty(&popdone_immat[1]);
@@ -268,4 +273,5 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
 int main(int argc, char *argv[]) {
     return 0;
 }
+
 

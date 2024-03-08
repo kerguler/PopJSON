@@ -6,6 +6,7 @@
 #define NumPar 0
 #define NumPop 1
 #define NumInt 4
+#define NumEnv 0
 
 
 #define adult_mort 0
@@ -16,6 +17,8 @@
 double dmin(double a, double b) { return a < b ? a : b; }
 double dmax(double a, double b) { return a > b ? a : b; }
 
+int TIME;
+
 double *model_param;
 
 double adult_death;
@@ -24,39 +27,39 @@ double egg_laying;
 double total_eggs;
 
 
-void fun_transfer_gonotrophic_cycle(number *key, number num, void *pop) {
-    number q[4] = {
-        {.d=key[adult_mort].d},
-        {.d=0},
-        {.i=(key[adult_num_dev].i + 1)},
-    };
-    spop2_add(*(population *)pop, q, num);
+void fun_harvest_gonotrophic_cycle(number *key, number num, number *newkey, double *frac) {
+    newkey[0].d=key[adult_mort].d;
+    newkey[1].d=0;
+    newkey[2].i=(key[adult_num_dev].i + 1);
+    *frac = 1.0;
 }
 
 double fun_hazard_adult_num_dev_adult(hazard hfun, unsigned int d, number q, number k, double theta, const number *key) {
-    double devmn = ((total_eggs > 150)) ? (1) : (0);
+    double devmn = (((total_eggs > 150)) ? (1) : (0));
     double devsd = 0;
     hazpar hz = age_const_pars(devmn, devsd);
     double a = age_const_calc(age_const_haz, 0, key[adult_num_dev], hz.k, hz.theta, key);
     return a;
 }
 
-void init(int *no, int *np, int *ni) {
+void init(int *no, int *np, int *ni, int *ne, int *st) {
     spop2_set_eps(0.01);
 
     *no = NumPop;
     *np = NumPar;
     *ni = NumInt;
+    *ne = NumEnv;
+    *st = 0;
 }
 
 void parnames(char **names, double *param, double *parmin, double *parmax) {
-    char temp[NumPop+NumPar+NumInt][256] = {
+    char temp[NumPop+NumPar+NumInt+NumEnv][256] = {
         "adult",
         "adult_death", "num_gravid", "egg_laying", "total_eggs",
     };
 
     int i;
-    for (i=0; i<(NumPop+NumPar+NumInt); i++)
+    for (i=0; i<(NumPop+NumPar+NumInt+NumEnv); i++)
         names[i] = strdup(temp[i]);
 
 }
@@ -66,7 +69,7 @@ void destroy(void) {
 
 void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *file0, const char *file1, double *ret, double *iret, int *success) {
 
-    int TIME = 0;
+    TIME = 0;
 
     model_param = pr;
 
@@ -151,12 +154,15 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
                 spop2_step(adult, par, &size_adult, completed_adult, popdone_adult);
 
                 adult_death = (completed_adult[adult_mort].d + completed_adult[adult_num_dev].d);
+
                 num_gravid = completed_adult[adult_dev].d;
+
                 egg_laying = (num_gravid * 1);
+
                 total_eggs = (total_eggs + egg_laying);
 
 
-                spop2_foreach(popdone_adult[adult_dev], fun_transfer_gonotrophic_cycle, (void *)(&adult));
+                spop2_harvest(popdone_adult[adult_dev], adult, fun_harvest_gonotrophic_cycle);
 
                 spop2_empty(&popdone_adult[0]);
                 spop2_empty(&popdone_adult[1]);
@@ -218,4 +224,5 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
 int main(int argc, char *argv[]) {
     return 0;
 }
+
 

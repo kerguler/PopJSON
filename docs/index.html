@@ -157,6 +157,9 @@ structured population models</span>
         <li><a href="#declaring-class-dependent-rates"
         id="toc-declaring-class-dependent-rates">Declaring
         class-dependent rates</a></li>
+        <li><a href="#transfering-only-a-fraction-of-a-class"
+        id="toc-transfering-only-a-fraction-of-a-class">Transfering only
+        a fraction of a class</a></li>
         <li><a href="#genetic-structure-and-inheritance"
         id="toc-genetic-structure-and-inheritance">Genetic structure and
         inheritance</a></li>
@@ -228,24 +231,21 @@ al. [<a href="https://f1000research.com/articles/7-1220/v3" target="_blank" rel
 <a href="https://www.nature.com/articles/s41598-022-15806-2" target="_blank" rel="noreferrer">sPop2</a>,
 <a href="https://github.com/kerguler/Population" target="_blank" rel="noreferrer">Population</a>],
 but soon will cover the canonical ODE and DDE models and more.</p>
-<p>By definition, the representation cannot be directly executed, but
-requires a parser to translate it into code that can either be directly
-executed or compiled. For the
+<p>PopJSON requires a parser to translate it into code that can either
+be directly interpreted or compiled into an executable. For the
 <a href="https://github.com/kerguler/Population" target="_blank" rel="noreferrer">Population</a>
 package, the output should be raw ANSI C, however, many other canonical
 models can be parsed into R, Python, or any other scientific programming
 language.</p>
 <p>In this repository, we included a
 <a href="https://github.com/kerguler/PopJSON/blob/main/wrappers/population.py" target="_blank" rel="noreferrer">wrapper</a>
-to read and simulate the translated models in <code>Python</code>. Soon,
-we will write another one for <code>R</code>.</p>
-<p>model definition population declaration process declaration
-environmental variables</p>
-<p>We use the curly brackets {} to group related tags and square
-brackets [] to define processess with a strict order. We hope all will
-be clearer as you read along.</p>
+to read and simulate the translated models into <code>Python</code>.
+Soon, we will write another one for <code>R</code>.</p>
+<p>We use the curly brackets {} throughout the text to group related
+tags and square brackets [] to define processess with a strict order. We
+hope all will be clearer as you read along.</p>
 <h2 id="model-definition">Model definition</h2>
-<p>We first define a model by using the <strong>model</strong> tag.
+<p>We define a model sstarting with the <strong>model</strong> tag.
 Here, the key tags are <strong>type</strong> and
 <strong>parameters</strong>. In this version of PopJSON, we covered the
 <strong>Population</strong> model, but we are working on including more
@@ -304,6 +304,13 @@ and the C translation.</p>
 <p>The above example represents a larva population with a development
 time of 10 days (with a standard deviation of 4 days). The population is
 age-structured and the development time is gamma-distributed.</p>
+<p>Here, <strong>AGE_GAMMA</strong> refers to a specific population
+structure and development time distribution listed in
+<a href="https://kerguler.github.io/Population/#distributions-and-assumptions" target="_blank" rel="noreferrer">this</a>
+table. Accordingly, <strong>AGE_GAMMA</strong> takes two parameters, the
+mean and standard deviation of development. In the above PopJSON
+representation, these are given as the first and second elements of the
+list <strong>value</strong>.</p>
 <div class="myFigures">
 <figure>
 <img src="figures/ex1a.png" title="Deterministic - Gamma-distributed"
@@ -596,7 +603,7 @@ class="sourceCode json"><code class="sourceCode json"><span id="cb11-1"><a href=
 eggs laid can be estimated by employing an average, for instance, 10
 eggs per gravid female (as in <strong>egg_laying</strong>).</p>
 <p>The problem, however, is the need to add the females back into the
-population. For this, we define a <strong>transfer</strong>, which
+population. For this, we define a <strong>transfer</strong> tag, which
 transfers each sub-class from one population to another (here, from
 <strong>adult_dev</strong> back to <strong>adult</strong>).</p>
 <div class="sourceCode" id="cb12"><pre
@@ -607,16 +614,18 @@ class="sourceCode json"><code class="sourceCode json"><span id="cb12-1"><a href=
 <span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Gonotrophic cycle&quot;</span><span class="fu">,</span></span>
 <span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;from&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_dev&quot;</span><span class="fu">,</span></span>
 <span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;to&quot;</span><span class="fu">:</span> <span class="st">&quot;adult&quot;</span><span class="fu">,</span></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[[</span><span class="st">&quot;adult_mort&quot;</span><span class="ot">,</span> <span class="st">&quot;adult&quot;</span><span class="ot">],</span> <span class="dv">0</span><span class="ot">]</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="dv">1</span><span class="ot">,</span> <span class="ot">[[</span><span class="st">&quot;adult_mort&quot;</span><span class="ot">,</span> <span class="st">&quot;adult&quot;</span><span class="ot">],</span> <span class="dv">0</span><span class="ot">]]</span></span>
 <span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
 <span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span><span class="fu">,</span></span>
 <span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
-<p>Before making the transfer, the algorithm allows us to apply a
+<p>Before making the transfer, the algorithm allows us to declare the
+fraction of each sub-class to be transferred and to apply a
 transformation on the sub-class structure. This is defined in the
-<strong>value</strong> tag above. Namely, the value of the process
-<strong>adult_mort</strong> (of <strong>adult</strong>) should stay as
-is, but the <strong>adult_dev</strong> (the second one in the list)
-should be reset to 0.</p>
+<strong>value</strong> tag above as the first and second elements,
+respectively. Namely, all individuals should be transferred, the value
+of the process <strong>adult_mort</strong> (of <strong>adult</strong>)
+should stay as is, and <strong>adult_dev</strong> (the second one in the
+- second - list) should be reset to 0.</p>
 <p>See <a href="./examples/ex3a.json">ex3a.json</a> and <a
 href="./examples/ex3a.c">ex3a.c</a> for the full PopJSON representation
 and the C translation (<a href="./examples/ex3b.json">ex3b.json</a> and
@@ -680,7 +689,7 @@ class="sourceCode json"><code class="sourceCode json"><span id="cb14-1"><a href=
 <span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Gonotrophic cycle&quot;</span><span class="fu">,</span></span>
 <span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;from&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_dev&quot;</span><span class="fu">,</span></span>
 <span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;to&quot;</span><span class="fu">:</span> <span class="st">&quot;adult&quot;</span><span class="fu">,</span></span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[[</span><span class="st">&quot;adult_mort&quot;</span><span class="ot">,</span> <span class="st">&quot;adult&quot;</span><span class="ot">],</span> <span class="dv">0</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;+&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;adult_num_dev&quot;</span><span class="ot">,</span> <span class="st">&quot;adult&quot;</span><span class="ot">],</span> <span class="dv">1</span><span class="ot">]]</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="dv">1</span><span class="ot">,</span> <span class="ot">[[</span><span class="st">&quot;adult_mort&quot;</span><span class="ot">,</span> <span class="st">&quot;adult&quot;</span><span class="ot">],</span> <span class="dv">0</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;+&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;adult_num_dev&quot;</span><span class="ot">,</span> <span class="st">&quot;adult&quot;</span><span class="ot">],</span> <span class="dv">1</span><span class="ot">]]]</span></span>
 <span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
 <span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
 <span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
@@ -800,7 +809,7 @@ class="sourceCode json"><code class="sourceCode json"><span id="cb18-1"><a href=
 <span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Adult emergence&quot;</span><span class="fu">,</span></span>
 <span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;from&quot;</span><span class="fu">:</span> <span class="st">&quot;immat_dev&quot;</span><span class="fu">,</span></span>
 <span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;to&quot;</span><span class="fu">:</span> <span class="st">&quot;adult&quot;</span><span class="fu">,</span></span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="dv">0</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;round&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;*&quot;</span><span class="ot">,</span> <span class="st">&quot;100.0&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;immat_mort&quot;</span><span class="ot">,</span><span class="st">&quot;immat&quot;</span><span class="ot">]]]]</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="dv">1</span><span class="ot">,</span> <span class="ot">[</span><span class="dv">0</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;round&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;*&quot;</span><span class="ot">,</span> <span class="st">&quot;100.0&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;immat_mort&quot;</span><span class="ot">,</span><span class="st">&quot;immat&quot;</span><span class="ot">]]]]]</span></span>
 <span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
 <span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
 <span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
@@ -834,6 +843,20 @@ resulting in <strong>history</strong> becoming more than 50 (blue
 lines). Please note that, above, we defined average immature lifetime as
 40, and, therefore, 50% of lifetime as 20. Consequently, we see most of
 the emerging adults surviving for 80 days on average.</p>
+<h2 id="transfering-only-a-fraction-of-a-class">Transfering only a
+fraction of a class</h2>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;transfers&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;gonotrophic_cycle&quot;</span><span class="fu">,</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Gonotrophic cycle&quot;</span><span class="fu">,</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;from&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_dev&quot;</span><span class="fu">,</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;to&quot;</span><span class="fu">:</span> <span class="st">&quot;adult&quot;</span><span class="fu">,</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="dv">1</span><span class="ot">,</span> <span class="ot">[[</span><span class="st">&quot;adult_mort&quot;</span><span class="ot">,</span> <span class="st">&quot;adult&quot;</span><span class="ot">],</span> <span class="dv">0</span><span class="ot">]]</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <h2 id="genetic-structure-and-inheritance">Genetic structure and
 inheritance</h2>
 <p>
@@ -938,60 +961,67 @@ from 0)</td>
 <td style="text-align: left;">Total size of a population</td>
 </tr>
 <tr class="odd">
+<td style="text-align: left;">count</td>
+<td style="text-align: left;">a,b</td>
+<td style="text-align: left;">Sub-group counts of population
+<strong>a</strong> based on a logical check <strong>b</strong> of
+sub-group keys</td>
+</tr>
+<tr class="even">
 <td style="text-align: left;">poisson</td>
 <td style="text-align: left;">a</td>
 <td style="text-align: left;">Generates a Poisson random number with
 lambda=a (works only when <strong>deterministic:false</strong>)</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">binomial</td>
 <td style="text-align: left;">a,b</td>
 <td style="text-align: left;">Generates a Binomial random number with
 n=a and p=b (works only when <strong>deterministic:false</strong>)</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">define</td>
 <td style="text-align: left;">a,b</td>
 <td style="text-align: left;">Function definition with parameters a and
 equation b</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">?</td>
 <td style="text-align: left;">a,b,c</td>
 <td style="text-align: left;">Condition expression (if a is true, return
 b, else, return c)</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">&amp;&amp;</td>
 <td style="text-align: left;">…</td>
 <td style="text-align: left;">Logical AND</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">||</td>
 <td style="text-align: left;">…</td>
 <td style="text-align: left;">Logical OR</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">&gt;</td>
 <td style="text-align: left;">a,b</td>
 <td style="text-align: left;">Logical greater than</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">&lt;</td>
 <td style="text-align: left;">a,b</td>
 <td style="text-align: left;">Logical smaller than</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">&gt;=</td>
 <td style="text-align: left;">a,b</td>
 <td style="text-align: left;">Logical greater than or equal</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">&lt;=</td>
 <td style="text-align: left;">a,b</td>
 <td style="text-align: left;">Logical smaller than or equal</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">==</td>
 <td style="text-align: left;">a,b</td>
 <td style="text-align: left;">Logical equal to</td>
@@ -1001,9 +1031,11 @@ b, else, return c)</td>
 <h1 id="examples">Examples</h1>
 <ul>
 <li><a href="./examples/ex1a.json" target="_blank" rel="noreferrer">ex1a.json</a></li>
+<li><a href="./examples/ex1b.json" target="_blank" rel="noreferrer">ex1b.json</a></li>
 <li><a href="./examples/ex1E.json" target="_blank" rel="noreferrer">ex1E.json</a></li>
 <li><a href="./examples/ex2a.json" target="_blank" rel="noreferrer">ex2a.json</a></li>
 <li><a href="./examples/ex3a.json" target="_blank" rel="noreferrer">ex3a.json</a></li>
+<li><a href="./examples/ex3b.json" target="_blank" rel="noreferrer">ex3b.json</a></li>
 <li><a href="./examples/ex4a.json" target="_blank" rel="noreferrer">ex4a.json</a></li>
 <li><a href="./examples/ex5a.json" target="_blank" rel="noreferrer">ex5a.json</a></li>
 </ul>

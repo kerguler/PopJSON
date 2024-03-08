@@ -1,4 +1,4 @@
-var kp = require('../../keparser.js');
+var kp = require('../../index.js');
 var parser = new kp.PopJSON();
 var out = parser.parse_file("./model.json");
 if (out["error"]) {
