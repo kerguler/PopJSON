@@ -33,11 +33,11 @@
         {
             "id": "larva_death",
             "name": "Larva dying today",
-            "value": ["larva_mort", "larva"]
+            "value": "larva_mort"
         }, {
             "id": "larva_to_pupa",
             "name": "Larva developing into pupa",
-            "value": ["larva_dev", "larva"]
+            "value": "larva_dev"
         }
     ]
 }

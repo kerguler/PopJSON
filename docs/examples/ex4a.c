@@ -164,11 +164,6 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
 
                 spop2_harvest(popdone_adult[adult_dev], adult, fun_harvest_gonotrophic_cycle);
 
-                spop2_empty(&popdone_adult[0]);
-                spop2_empty(&popdone_adult[1]);
-                spop2_empty(&popdone_adult[2]);
-                spop2_empty(&popdone_adult[3]);
-
                 size_adult = spop2_size(adult);
 
         }

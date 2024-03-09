@@ -1,0 +1,67 @@
+{
+    "model": {
+        "title": "Climate-sensitive population dynamics of Aedes albopictus",
+        "type": "Population",
+        "url": "https://github.com/kerguler/Population",
+        "deterministic": false,
+        "parameters": {
+            "algorithm": "Population",
+            "istep": 0.01
+        }
+    },
+"populations": [
+    {
+        "id": "adult",
+        "name": "Adult females",
+        "processes": [
+            {
+                "id": "adult_dev",
+                "name": "Egg development in adult females",
+                "arbiter": "ACC_ERLANG",
+                "value": [5, 1]
+            }
+        ]
+    },{
+        "id": "adult_developed",
+        "name": "Adult females (developed)",
+        "processes": []
+    },{
+        "id": "adult_dead",
+        "name": "Adult females (dead)",
+        "processes": []
+    },{
+        "id": "adult_harvested",
+        "name": "Adult females (harvested)",
+        "processes": [
+            {
+                "id": "harvest",
+                "arbiter": "NOAGE_CONST",
+                "value": 0
+            }
+        ]
+    }
+],
+"transformations": [
+    {
+        "id": "adult_developing",
+        "from": "adult_dev",
+        "to": "adult",
+        "value": ["*","0.5","adult_dev"]
+    }
+],
+"transfers": [
+    {
+        "id": "adult_mortality",
+        "name": "Fixed rate mortality",
+        "from": "adult",
+        "to": "adult_dead",
+        "value": ["0.1"]
+    },{
+        "id": "adult_harvest",
+        "name": "Fixed rate harvest (remaining)",
+        "from": "adult",
+        "to": "adult_harvested",
+        "value": ["0.1", ["adult_dev"]]
+    }
+]
+}

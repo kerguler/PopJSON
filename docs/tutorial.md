@@ -267,11 +267,11 @@ Here, we define the two processes for larva (in the plausible order) and follow 
         {
             "id": "larva_death",
             "name": "Larva dying today",
-            "value": ["larva_mort", "larva"]
+            "value": "larva_mort"
         }, {
             "id": "larva_to_pupa",
             "name": "Larva developing into pupa",
-            "value": ["larva_dev", "larva"]
+            "value": "larva_dev"
         }
     ]
 }
@@ -286,11 +286,11 @@ The following **transformations** tag is needed to bind **larva_mort** to **larv
         {
             "id": "larva_death",
             "name": "Larva dying today",
-            "value": ["larva_mort", "larva"]
+            "value": "larva_mort"
         }, {
             "id": "larva_to_pupa",
             "name": "Larva developing into pupa",
-            "value": ["larva_dev", "larva"]
+            "value": "larva_dev"
         }
     ]
 }
@@ -334,11 +334,11 @@ Gonotrophic cycle is a complex process. After blood feeding, females develop egg
         {
             "id": "adult_death",
             "name": "Adult females dying today",
-            "value": ["adult_mort", "adult"]
+            "value": "adult_mort"
         }, {
             "id": "num_gravid",
             "name": "Number of gravid females",
-            "value": ["adult_dev", "adult"]
+            "value": "adult_dev"
         },{
             "id": "egg_laying",
             "name": "Egg laying at the end of gonotrophic cycle",
@@ -360,7 +360,7 @@ The problem, however, is the need to add the females back into the population. F
             "name": "Gonotrophic cycle",
             "from": "adult_dev",
             "to": "adult",
-            "value": [1, [["adult_mort", "adult"], 0]]
+            "value": [1, ["adult_mort", 0]]
         }
     ],
 }
@@ -409,7 +409,7 @@ Please note that **value: []** is required in order not to interfere with the pa
             "name": "Gonotrophic cycle",
             "from": "adult_dev",
             "to": "adult",
-            "value": [1, [["adult_mort", "adult"], 0, ["+", ["adult_num_dev", "adult"], 1]]]
+            "value": [1, ["adult_mort", 0, ["+", "adult_num_dev", 1]]]
         }
     ]
 }
@@ -474,7 +474,7 @@ To represent this stage inheritance (as we call this in this context), we declar
                     "id": "adult_mort",
                     "name": "Lifetime",
                     "arbiter": "ACC_ERLANG",
-                    "value": [["?", [">", ["history", "adult"], 50], 80, 40], 5],
+                    "value": [["?", [">", "history", 50], 80, 40], 5],
                     "hazpar": true
                 },
                 {
@@ -496,7 +496,7 @@ For the adult stage, we define mortality and a dummy process called **history**.
 Please note the following two lines.
 ```json
 {
-                    "value": [["?", [">", ["history", "adult"], 50], 80, 40], 5],
+                    "value": [["?", [">", "history", 50], 80, 40], 5],
                     "hazpar": true
 }
 ```
@@ -512,7 +512,7 @@ Where does **history** come from? Please have a look at the **transfers** declar
             "name": "Adult emergence",
             "from": "immat_dev",
             "to": "adult",
-            "value": [1, [0, ["round", ["*", "100.0", ["immat_mort","immat"]]]]]
+            "value": [1, [0, ["round", ["*", "100.0", "immat_mort"]]]]
         }
     ]
 }
@@ -527,24 +527,6 @@ Here is the output under two constant temperatures (15<sup>o</sup>C and 30<sup>o
 ![Development conditions affecting the adult stage](figures/ex5a.png "Deterministic - Erlang-distributed")
 
 The plot demonstrates that the majority of larva population complete development in less than 20 days when it is 30<sup>o</sup>C (black lines). This results in the production of adults with short lifetimes (most of them die in 40 days). On the other hand, when it is 15<sup>o</sup>C, the majority of larvae develop in more than 20 days, resulting in **history** becoming more than 50 (blue lines). Please note that, above, we defined average immature lifetime as 40, and, therefore, 50\% of lifetime as 20. Consequently, we see most of the emerging adults surviving for 80 days on average.
-
-## Transfering only a fraction of a class
-
-
-```json
-{
-    "transfers": [
-        {
-            "id": "gonotrophic_cycle",
-            "name": "Gonotrophic cycle",
-            "from": "adult_dev",
-            "to": "adult",
-            "value": [1, [["adult_mort", "adult"], 0]]
-        }
-    ],
-}
-```
-
 
 ## Genetic structure and inheritance
 
@@ -570,7 +552,7 @@ We are working on this. Please come back soon for updates.
 | +           | ...           | Addition |
 | -           | ...           | Subtraction (in the given order) |
 | /           | ...           | Division (in the given order) |
-| size        | a             | Total size of a population |
+| size        | a             | Total size of a population (deprecated) |
 | count       | a,b           | Sub-group counts of population **a** based on a logical check **b** of sub-group keys |
 | poisson     | a             | Generates a Poisson random number with lambda=a (works only when **deterministic:false**) |
 | binomial    | a,b           | Generates a Binomial random number with n=a and p=b (works only when **deterministic:false**) |

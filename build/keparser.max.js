@@ -868,8 +868,15 @@ class PopJSON {
         this.json = {};
     }
     check_ids(id) {
-        if (!/^[a-zA-Z][a-zA-Z0-9\_]+$/.test(id))
+        if (!/^[a-zA-Z][a-zA-Z0-9\_]+$/.test(id)) {
             this.error += "Only numeric and alphanumeric characters and \"_\" are allowed in IDs. Also, IDs should be more than one character and start with an alphanumeric.\nViolating ID is " + id + "\n";
+            return "";
+        }
+        if (this.ids.includes(id)) {
+            this.error += "IDs should be unique! Please check " + id + "\n";
+            return "";
+        }
+        this.ids.push(id);
         return id;
     }
     results() {
@@ -914,6 +921,7 @@ class PopJSON {
     }
     parse() {
         let that = this;
+        this.ids = [];
         this.deterministic = this.json['model']['deterministic'];
         if (!('environ' in this.json)) this.json['environ'] = [];
         this.environs = this.json['environ'].map( (pr) => that.check_ids(pr['id']) );
@@ -924,10 +932,10 @@ class PopJSON {
         }
         this.populations = this.json['populations'].map( (pr) => that.check_ids(pr['id']) );
         this.processes = []; this.json['populations'].forEach( (pop) => 'processes' in pop ? pop['processes'].forEach( (pr) => { that.processes.push(that.check_ids(pr['id'])); } ) : [] );
-        this.processobj = {}; this.json['populations'].forEach( (pop) => 'processes' in pop ? pop['processes'].forEach( (pr) => { that.processobj[that.check_ids(pr['id'])] = pr; that.processobj[that.check_ids(pr['id'])]['parent_id'] = that.check_ids(pop['id']); } ) : {} );
+        this.processobj = {}; this.json['populations'].forEach( (pop) => 'processes' in pop ? pop['processes'].forEach( (pr) => { that.processobj[pr['id']] = pr; that.processobj[pr['id']]['parent_id'] = pop['id']; } ) : {} );
         if (!('parameters' in this.json)) this.json['parameters'] = [];
         this.parametersv = this.json['parameters'].filter( (p) => !p['constant'] ).map( (pr) => that.check_ids(pr['id']) );
-        this.parametersc = this.json['parameters'].filter( (p) => p['constant'] ).map( (pr) => that.check_ids(pr['id']) );
+        this.parametersc = this.json['parameters'].filter( (p) => p['constant'] ).map( (pr) => pr['id'] );
         if (!('functions' in this.json)) this.json['functions'] = [];
         this.functions = Object.keys(this.json['functions']);
         if (!('intermediates' in this.json)) this.json['intermediates'] = [];
@@ -935,7 +943,8 @@ class PopJSON {
         if (!('transformations' in this.json)) this.json['transformations'] = [];
         this.transformations = this.json['transformations'].map( (pr) => that.check_ids(pr['id']) );
         if (!('transfers' in this.json)) this.json['transfers'] = [];
-        this.transfers = Array.from(new Set(this.json['transfers'].map( (pr) => that.processobj[pr['from']]['parent_id'] )));
+        this.transfers = Array.from(new Set(this.json['transfers'].map( (pr) => pr['from'] in that.processobj ? that.processobj[pr['from']]['parent_id'] : pr['from'] )));
+        //
         this.operations = ["min","max","round","poisson","binomial","define","?","&&","||",">=","<=",">","<","==","sqrt","pow","exp","log","log2","log10","indicator","index","size","count","*","+","-","/"];
         this.funparnames = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z",
                             "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
@@ -1278,7 +1287,7 @@ class PopJSON {
                 that.model += "    number completed_" + spc['id'] + "[" + util.format(that.numproc) + "];\n";
             } );
             this.json['populations'].forEach( (spc, i) => {
-                if (that.transfers && that.transfers.includes(spc['id'])) {
+                if (that.transfers && that.transfers.includes(spc['id']) && that.populations.includes(spc['id'])) {
                     that.model += "    population popdone_" + spc['id'] + "[" + util.format(that.numproc) + "];\n";
                 }
             } );
@@ -1315,8 +1324,8 @@ class PopJSON {
                 that.model += "        fread(buff, buffsz, 1, file);\n";
                 that.model += "        " + spc['id'] + " = spop2_loadstate(buff);\n";
                 that.model += "\n";
-                if (that.transfers && that.transfers.includes(spc['id'])) {
-                    for (j=0; j<that.numproc; j++) {
+                if (that.transfers && that.transfers.includes(spc['id']) && that.populations.includes(spc['id'])) {
+                        for (j=0; j<that.numproc; j++) {
                         that.model += "        popdone_" + spc['id'] + "[" + util.format(j) + "] = spop2_loadstate_empty(buff);\n";
                     }
                 }
@@ -1354,8 +1363,8 @@ class PopJSON {
                 }
                 that.model += "        if (y0[" + util.format(i) + "]) { num." + ("i",that.deterministic ? "d" : "i") + " = y0[" + util.format(i) + "]; spop2_add(" + spc['id'] + ", key, num); }\n";
                 that.model += "\n";
-                if (that.transfers && that.transfers.includes(spc['id'])) {
-                    for (j=0; j<that.numproc; j++) {
+                if (that.transfers && that.transfers.includes(spc['id']) && that.populations.includes(spc['id'])) {
+                        for (j=0; j<that.numproc; j++) {
                         that.model += "        popdone_" + spc['id'] + "[" + util.format(j) + "] = spop2_init(arbiters, " + det + ");\n";
                     }
                 }
@@ -1406,7 +1415,7 @@ class PopJSON {
                 for (j = 0; j < that.numprocpar; j++) {
                     that.model += "                par[" + util.format(j) + "] = " + (pars.length ? that.parse_value(pars.shift()) : "0.0") + ";\n";
                 }
-                that.model += "                spop2_step(" + spc['id'] + ", par, &size_" + spc['id'] + ", completed_" + spc['id'] + ", " + (that.transfers.includes(spc['id']) ? "popdone_" + spc['id'] : "0") + ");\n";
+                that.model += "                spop2_step(" + spc['id'] + ", par, &size_" + spc['id'] + ", completed_" + spc['id'] + ", " + (that.transfers.includes(spc['id']) && that.populations.includes(spc['id']) ? "popdone_" + spc['id'] : "0") + ");\n";
                 that.model += "\n";
             } );
             //
@@ -1440,15 +1449,29 @@ class PopJSON {
             //
             if ('transfers' in this.json) {
                 this.json['transfers'].forEach( (trn) => {
-                    that.model += "                spop2_harvest(popdone_" + that.processobj[trn['from']]['parent_id'] + "[" + trn['from'] + "], " + trn['to'] + ", fun_harvest_" + trn['id'] + ");\n";
+                    if (trn['from'] in that.processobj) {
+                        that.model += "                spop2_harvest(popdone_" + that.processobj[trn['from']]['parent_id'] + "[" + trn['from'] + "], " + trn['to'] + ", fun_harvest_" + trn['id'] + ");\n";
+                    } else if (that.populations.includes(trn['from'])) {
+                        that.model += "                spop2_harvest(" + trn['from'] + ", " + trn['to'] + ", fun_harvest_" + trn['id'] + ");\n";
+                    } else {
+                        that.error += "Error in defining the source population for transfer: " + trn['from'] + "\n";
+                        return "";
+                    }
                 } );
                 that.model += "\n";
+                /*
+                //
+                // This is not necessary anymore, 
+                // since spop2_harvest removes the
+                // individuals from the source population.
+                //
                 this.transfers.forEach( (trn) => {
                     for (j=0; j<that.numproc; j++) {
                         that.model += "                spop2_empty(&popdone_" + trn + "[" + util.format(j) + "]);\n"
                     }
                     that.model += "\n";
                 } );
+                */
                 Array.from(new Set(this.json['transfers'].map( (trn) => trn['to'] ))).forEach( (trn) => {
                     that.model += "                size_" + trn + " = spop2_size(" + trn + ");\n";
                 } );
@@ -1491,7 +1514,7 @@ class PopJSON {
         if (this.json['model']['type'] == "Population") {
             this.json['populations'].forEach( (spc) => {
                 that.model += "    spop2_free(&" + spc['id'] + ");\n";
-                if (that.transfers && that.transfers.includes(spc['id'])) {
+                if (that.transfers && that.transfers.includes(spc['id']) && that.populations.includes(spc['id'])) {
                     for (j=0; j<that.numproc; j++) {
                         that.model += "    spop2_free(&(popdone_" + spc['id'] + "[" + util.format(j) + "]));\n";
                     }
@@ -1536,14 +1559,12 @@ class PopJSON {
                 let context = this.parse_value(value[2], transfers=true);
                 this.write_funcount(funname,context)
                 return "spop2_count(" + pop + ", " + funname + ")" + (this.deterministic ? ".d" : ".i");
+            } else if (this.environs.includes(fun)) {
+                let prm = value[1].map( (v) => that.parse_value(v, transfers=transfers) );
+                return fun + "[" + prm[0] + "]";
             } else {
                 let prm = value.slice(1).map( (v) => that.parse_value(v, transfers=transfers) );
-                if (this.processes.includes(fun)) {
-                    if (transfers) {
-                        return "key[" + fun + "]." + this.popart[prm[0]][this.processobj[fun]['arbiter']];
-                    }
-                    return "completed_" + prm[0] + "[" + fun + "]" + (this.deterministic ? ".d" : ".i");
-                } else if (fun == "size") {
+                if (fun == "size") {
                     return "size_" + prm[0] + (this.deterministic ? ".d" : ".i");
                 } else if (fun == "index") {
                     return prm[0] + "[" + prm[1] + "]";
@@ -1592,12 +1613,19 @@ class PopJSON {
             }
         } else { // Parameter
             if (typeof value === 'string' || value instanceof String) { // String
-                if (this.environs.includes(value)) {
-                    return "envir_"+value;
+                if (value in this.processobj) {
+                    let parent = this.processobj[value]['parent_id'];
+                    if (transfers) {
+                        return "key[" + value + "]." + this.popart[parent][this.processobj[value]['arbiter']];
+                    }
+                    return "completed_" + parent + "[" + value + "]" + (this.deterministic ? ".d" : ".i");
                 } else if (this.populations.includes(value)) {
-                    return value;
-                } else if (this.processes.includes(value)) {
-                    return value;
+                    if (transfers) {
+                        return value;
+                    }
+                    return "size_" + value + (this.deterministic ? ".d" : ".i");
+                } else if (this.environs.includes(value)) {
+                    return "envir_"+value;
                 } else if (this.parametersv.includes(value)) {
                     return "model_param[" + value + "]";
                 } else if (this.parametersc.includes(value)) {

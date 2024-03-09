@@ -35,18 +35,18 @@
         "name": "Gonotrophic cycle",
         "from": "adult_dev",
         "to": "adult",
-        "value": ["1.0", [["adult_mort", "adult"], 0]]
+        "value": ["1.0", ["adult_mort", 0]]
     }
 ],
 "transformations": [
     {
         "id": "adult_death",
         "name": "Adult females dying today",
-        "value": ["adult_mort", "adult"]
+        "value": "adult_mort"
     }, {
         "id": "num_gravid",
         "name": "Number of gravid females",
-        "value": ["adult_dev", "adult"]
+        "value": "adult_dev"
     },{
         "id": "egg_laying",
         "name": "Egg laying at the end of gonotrophic cycle",

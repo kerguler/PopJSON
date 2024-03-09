@@ -78,7 +78,7 @@
                     "id": "adult_mort",
                     "name": "Lifetime",
                     "arbiter": "ACC_ERLANG",
-                    "value": [["?", [">", ["history", "adult"], 50], 80, 40], 5],
+                    "value": [["?", [">", "history", 50], 80, 40], 5],
                     "hazpar": true
                 },
                 {
@@ -94,11 +94,11 @@
         {
             "id": "immat_death",
             "name": "Immature insects dying today",
-            "value": ["immat_mort", "immat"]
+            "value": "immat_mort"
         }, {
             "id": "immat_to_adult",
             "name": "Emerging adults",
-            "value": ["immat_dev", "immat"]
+            "value": "immat_dev"
         }
     ],
     "transfers": [
@@ -107,7 +107,7 @@
             "name": "Adult emergence",
             "from": "immat_dev",
             "to": "adult",
-            "value": ["1.0", [0, ["round", ["*", "100.0", ["immat_mort","immat"]]]]]
+            "value": ["1.0", [0, ["round", ["*", "100.0", "immat_mort"]]]]
         }
     ]
 }
