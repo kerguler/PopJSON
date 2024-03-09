@@ -42,9 +42,6 @@ plt.plot(out1a['ret'][0,:,0],'-',c="black")
 plt.savefig("figures/ex1b.png",bbox_inches="tight",dpi=300)
 plt.close()
 
-print("Processing ex1E...")
-
-
 print("Processing ex2a...")
 ex2a = pop.model("examples/ex2a.dylib")
 out2a = ex2a.sim(30,y0={"larva":100.0})

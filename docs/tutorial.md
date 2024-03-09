@@ -184,7 +184,7 @@ Next, we connect temperature with **d2m** and **d2s** using the **intermediates*
     "intermediates": [
         {
             "id": "d2m",
-            "value": ["briere1", ["index","temp","TIME_1"], "d2m_a", "d2m_b", "d2m_c"]
+            "value": ["briere1", ["temp","TIME_1"], "d2m_a", "d2m_b", "d2m_c"]
         }, {
             "id": "d2s",
             "value": ["*", "d2s_c", "d2m"]
@@ -193,7 +193,7 @@ Next, we connect temperature with **d2m** and **d2s** using the **intermediates*
 }
 ```
 
-Here, **index** is an operator extracting the **TIME_1**<sup>th</sup> element in the array of **temp** (temperature). **TIME_1** refers to the previous time point (we used yesterday's conditions to estimate today's population).
+Here, **temp** (temperature) is used as an operator to extract its **TIME_1**<sup>th</sup> element. **TIME_1** refers to the previous time point (we used yesterday's conditions to estimate today's population).
 
 Lastly, we define the **parameters** of the model to complete the temperature dependency of development time. For each, we declare an **id**, a **value**, and weather the parameter is fixed (**constant:true**) or user-defined (**constant:false**). Minimum an maximum values can also be defined using **min** and **max** tags, which could be useful when performing optimisation.
 
@@ -547,7 +547,7 @@ We are working on this. Please come back soon for updates.
 | log2        | a             | Logarithm of a to base 2 |
 | log10       | a             | Logarithm of a to base 10 |
 | indicator   | a             | Indicator function (boolean to integer) |
-| index       | a,b           | Value of an array at position b (counts from 0) |
+| index       | a,b           | Value of an array at position b (counts from 0) (deprecated) |
 | *           | ...           | Multiplication |
 | +           | ...           | Addition |
 | -           | ...           | Subtraction (in the given order) |

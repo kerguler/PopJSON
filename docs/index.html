@@ -406,18 +406,17 @@ class="sourceCode json"><code class="sourceCode json"><span id="cb7-1"><a href="
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;intermediates&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;d2m&quot;</span><span class="fu">,</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;briere1&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;index&quot;</span><span class="ot">,</span><span class="st">&quot;temp&quot;</span><span class="ot">,</span><span class="st">&quot;TIME_1&quot;</span><span class="ot">],</span> <span class="st">&quot;d2m_a&quot;</span><span class="ot">,</span> <span class="st">&quot;d2m_b&quot;</span><span class="ot">,</span> <span class="st">&quot;d2m_c&quot;</span><span class="ot">]</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;briere1&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;temp&quot;</span><span class="ot">,</span><span class="st">&quot;TIME_1&quot;</span><span class="ot">],</span> <span class="st">&quot;d2m_a&quot;</span><span class="ot">,</span> <span class="st">&quot;d2m_b&quot;</span><span class="ot">,</span> <span class="st">&quot;d2m_c&quot;</span><span class="ot">]</span></span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span> <span class="fu">{</span></span>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;d2s&quot;</span><span class="fu">,</span></span>
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;*&quot;</span><span class="ot">,</span> <span class="st">&quot;d2s_c&quot;</span><span class="ot">,</span> <span class="st">&quot;d2m&quot;</span><span class="ot">]</span></span>
 <span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
-<p>Here, <strong>index</strong> is an operator extracting the
-<strong>TIME_1</strong><sup>th</sup> element in the array of
-<strong>temp</strong> (temperature). <strong>TIME_1</strong> refers to
-the previous time point (we used yesterday’s conditions to estimate
-today’s population).</p>
+<p>Here, <strong>temp</strong> (temperature) is used as an operator to
+extract its <strong>TIME_1</strong><sup>th</sup> element.
+<strong>TIME_1</strong> refers to the previous time point (we used
+yesterday’s conditions to estimate today’s population).</p>
 <p>Lastly, we define the <strong>parameters</strong> of the model to
 complete the temperature dependency of development time. For each, we
 declare an <strong>id</strong>, a <strong>value</strong>, and weather
@@ -916,7 +915,7 @@ integer)</td>
 <td style="text-align: left;">index</td>
 <td style="text-align: left;">a,b</td>
 <td style="text-align: left;">Value of an array at position b (counts
-from 0)</td>
+from 0) (deprecated)</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">*</td>

@@ -22,7 +22,7 @@
     "intermediates": [
         {
             "id": "d2m",
-            "value": ["briere1", ["index","temp","TIME_1"], "d2m_a", "d2m_b", "d2m_c"]
+            "value": ["briere1", ["temp","TIME_1"], "d2m_a", "d2m_b", "d2m_c"]
         }, {
             "id": "d2s",
             "value": ["*", "d2s_c", "d2m"]

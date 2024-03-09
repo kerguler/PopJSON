@@ -1560,8 +1560,8 @@ class PopJSON {
                 this.write_funcount(funname,context)
                 return "spop2_count(" + pop + ", " + funname + ")" + (this.deterministic ? ".d" : ".i");
             } else if (this.environs.includes(fun)) {
-                let prm = value[1].map( (v) => that.parse_value(v, transfers=transfers) );
-                return fun + "[" + prm[0] + "]";
+                let prm = this.parse_value(value[1], transfers=transfers);
+                return "envir_" + fun + "[" + prm + "]";
             } else {
                 let prm = value.slice(1).map( (v) => that.parse_value(v, transfers=transfers) );
                 if (fun == "size") {
@@ -1625,7 +1625,7 @@ class PopJSON {
                     }
                     return "size_" + value + (this.deterministic ? ".d" : ".i");
                 } else if (this.environs.includes(value)) {
-                    return "envir_"+value;
+                    return value;
                 } else if (this.parametersv.includes(value)) {
                     return "model_param[" + value + "]";
                 } else if (this.parametersc.includes(value)) {
