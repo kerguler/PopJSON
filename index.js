@@ -134,7 +134,7 @@ class PopJSON {
         if (!('transfers' in this.json)) this.json['transfers'] = [];
         this.transfers = Array.from(new Set(this.json['transfers'].map( (pr) => pr['from'] in that.processobj ? that.processobj[pr['from']]['parent_id'] : pr['from'] )));
         //
-        this.operations = ["min","max","round","poisson","binomial","define","?","&&","||",">=","<=",">","<","==","sqrt","pow","exp","log","log2","log10","indicator","index","size","count","*","+","-","/"];
+        this.operations = ["abs","min","max","round","poisson","binomial","define","?","&&","||",">=","<=",">","<","==","sqrt","pow","exp","log","log2","log10","indicator","index","size","count","*","+","-","/"];
         this.funparnames = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z",
                             "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
         //
@@ -758,6 +758,8 @@ class PopJSON {
                     return "dmin(" + prm.join(", ") + ")";
                 } else if (fun == "max") {
                     return "dmax(" + prm.join(", ") + ")";
+                } else if (fun == "abs") {
+                    return "fabs(" + prm.join(", ") + ")";
                 } else if (this.functions.includes(fun) || fun == "exp" || fun == "log" || fun == "log2" || fun == "log10" || fun == "pow" || fun == "sqrt") {
                     return fun + "(" + prm.join(", ") + ")";
                 } else if (fun == "binomial") {

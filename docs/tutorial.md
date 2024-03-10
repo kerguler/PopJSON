@@ -538,7 +538,8 @@ We are working on this. Please come back soon for updates.
 | Operator    | Parameters    | Definition   |
 | :---        | :---          | :---         |
 | min         | a,b           | Minimum of two numbers |
-| min         | a,b           | Maximum of two numbers |
+| max         | a,b           | Maximum of two numbers |
+| abs         | a             | Absolute value |
 | round       | a             | Rounds to the nearest integer |
 | sqrt        | a             | Square root |
 | pow         | a,b           | Power of a to b |
