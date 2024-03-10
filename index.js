@@ -648,11 +648,6 @@ class PopJSON {
                     }
                 } );
                 that.model += "\n";
-                /*
-                //
-                // This is not necessary anymore, 
-                // since spop2_harvest removes the
-                // individuals from the source population.
                 //
                 this.transfers.forEach( (trn) => {
                     for (j=0; j<that.numproc; j++) {
@@ -660,7 +655,7 @@ class PopJSON {
                     }
                     that.model += "\n";
                 } );
-                */
+                //
                 Array.from(new Set(this.json['transfers'].map( (trn) => trn['to'] ))).forEach( (trn) => {
                     that.model += "                size_" + trn + " = spop2_size(" + trn + ");\n";
                 } );

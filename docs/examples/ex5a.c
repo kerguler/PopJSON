@@ -206,6 +206,10 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
 
                 spop2_harvest(popdone_immat[immat_dev], adult, fun_harvest_maturation);
 
+                spop2_empty(&popdone_immat[0]);
+                spop2_empty(&popdone_immat[1]);
+                spop2_empty(&popdone_immat[2]);
+
                 size_adult = spop2_size(adult);
 
         }
