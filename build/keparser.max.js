@@ -1544,8 +1544,8 @@ class PopJSON {
                 let def = this.parse_value(value[2], transfers=transfers);
                 return "(" + value[1].join(",") + ") (" + def + ")";
             } else if (fun == "count") {
-                let pop = this.parse_value(value[1], transfers=transfers);
-                if (!that.json['populations'].filter( (tmp) => tmp['id'] == value[1] )[0]) {
+                let pop = value[1];
+                if (!that.json['populations'].filter( (tmp) => tmp['id'] == pop )[0]) {
                     this.error += "Error in count request\nHere is the correct usage:\n[\"count\", \"population name\", [condition]]\n";
                     return "";
                 }
