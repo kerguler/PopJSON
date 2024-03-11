@@ -1652,7 +1652,7 @@ class PopJSON {
             } else if (typeof value === 'number') { // Number
                 return value.toString();
             } else { // NaN
-                this.error += "ERROR: Invalid value encountered" + fun + " : " + value + "\n";
+                this.error += "ERROR: Invalid value encountered: " + value + "\n";
                 return "";
         }
         }
