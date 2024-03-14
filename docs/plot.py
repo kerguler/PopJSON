@@ -2,6 +2,13 @@ import numpy
 from matplotlib import pyplot as plt
 import population as pop
 
+print("Processing ex6a...")
+ex6a = pop.model("examples/ex6a.dylib")
+t2m = 30.0+numpy.random.random(30)*20-10
+t2m = numpy.repeat(t2m,25)
+out6a = ex6a.sim(len(t2m),envir={"temp":t2m},pr=ex6a.param,y0={"adult_0_0":100.0})
+
+
 print("Processing ex1E...")
 ex1E = pop.model("examples/ex1E.dylib")
 t2m = numpy.arange(0,40,0.01)+273.15

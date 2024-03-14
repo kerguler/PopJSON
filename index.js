@@ -189,7 +189,7 @@ class PopJSON {
         if (!('transfers' in this.json)) this.json['transfers'] = [];
         this.transfers = Array.from(new Set(this.json['transfers'].map( (pr) => pr['from'] in that.processobj ? that.processobj[pr['from']]['parent_id'] : pr['from'] )));
         //
-        this.operations = ["abs","min","max","round","poisson","binomial","define","?","&&","||",">=","<=",">","<","==","sqrt","pow","exp","log","log2","log10","indicator","index","size","count","*","+","-","/"];
+        this.operations = ["abs","min","max","round","poisson","binomial","define","?","&&","||",">=","<=",">","<","==","sqrt","pow","exp","log","log2","log10","indicator","index","size","count","*","+","-","/","%"];
         this.funparnames = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z",
                             "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
         //
@@ -302,6 +302,7 @@ class PopJSON {
         this.header += "\n";
         //
         this.header += "int TIME;\n";
+        this.header += "int TIMEF;\n";
         this.header += "\n";
         this.header += "double *model_param;\n";
         if ('environ' in this.json) {
@@ -503,6 +504,7 @@ class PopJSON {
         this.model += "void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *file0, const char *file1, double *ret, double *iret, int *success) {\n";
         this.model += "\n";
         this.model += "    TIME = 0;\n";
+        this.model += "    TIMEF = tf;\n";
         this.model += "\n";
         this.model += "    model_param = pr;\n";
         if ('environ' in this.json) {
@@ -830,6 +832,8 @@ class PopJSON {
                     return "(" + prm.join(" - ") + ")";
                 } else if (fun == "/") {
                     return "(" + prm.join(" / ") + ")";
+                } else if (fun == "%") {
+                    return "((" + prm[0] + ") % (" + prm[1] + "))";
                 } else if (fun == "?") {
                     return "((" + prm[0] + ") ? (" + prm[1] + ") : (" + prm[2] + "))";
                 } else if (fun == "&&") {
@@ -886,6 +890,8 @@ class PopJSON {
                     return "TIME";
                 } else if (value == "TIME_1") {
                     return "(TIME-1)";
+                } else if (value == "TIMEF") {
+                    return "TIMEF";
                 } else if (!isNaN(parseFloat(value))) {
                     return value;
                 } else if (!isNaN(parseInt(value))) {

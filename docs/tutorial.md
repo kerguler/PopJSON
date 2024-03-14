@@ -553,6 +553,7 @@ We are working on this. Please come back soon for updates.
 | +           | ...           | Addition |
 | -           | ...           | Subtraction (in the given order) |
 | /           | ...           | Division (in the given order) |
+| %           | a,b           | Modulus operator |
 | size        | a             | Total size of a population (deprecated) |
 | count       | a,b           | Sub-group counts of population **a** based on a logical check **b** of sub-group keys |
 | poisson     | a             | Generates a Poisson random number with lambda=a (works only when **deterministic:false**) |

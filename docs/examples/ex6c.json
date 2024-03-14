@@ -1,0 +1,50 @@
+{
+    "model": {
+        "title": "Climate-sensitive population dynamics of Aedes albopictus",
+        "type": "Population",
+        "url": "https://github.com/kerguler/Population",
+        "deterministic": true,
+        "parameters": {
+            "algorithm": "Population",
+            "istep": 0.01
+        }
+    },
+    "populations": [
+        {
+            "id": "adult",
+            "name": "Adult females",
+            "processes": [
+                {
+                    "id": "adult_mort",
+                    "name": "Adult lifetime",
+                    "arbiter": "ACC_ERLANG",
+                    "value": [20, 5]
+                },
+                ["for", "A", 3, 10, {
+                    "id": "adult_mort_[A]",
+                    "name": "Adult lifetime",
+                    "arbiter": "ACC_ERLANG",
+                    "value": [20, 5]
+                }]
+            ]
+        },
+        ["for", "B", 1, 2, ["for", "A", 3, 10,
+            {
+                "id": "egg_[B]_[A]",
+                "name": "Eggs",
+                "processes": [
+                    {
+                        "id": "adult_mort_[B]_[A]",
+                        "name": "Adult lifetime",
+                        "arbiter": "ACC_ERLANG",
+                        "value": [20, 5]
+                    }
+                ]
+            }
+        ]]
+    ],
+    "transfers": [
+    ],
+    "transformations": [
+    ]
+}

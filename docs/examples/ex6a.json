@@ -9,39 +9,53 @@
             "istep": 0.01
         }
     },
-    "populations": [
+    "environ": [
         {
-            "id": "adult",
+            "id": "temp",
+            "name": "Air temperature at 2m above ground (in °C)",
+            "url": ""
+        }
+    ],
+    "parameters": [
+        {
+            "id": "pr_d4_dev_0",
+            "constant": false,
+            "name": "Temperature-driven adult (female) life expectancy no.0",
+            "value": -95.07
+        },{
+            "id": "pr_d4_dev_1",
+            "constant": false,
+            "name": "Temperature-driven adult (female) life expectancy no.1",
+            "value": 14.32
+        },{
+            "id": "pr_d4_dev_2",
+            "constant": false,
+            "name": "Temperature-driven adult (male) life expectancy no.2",
+            "value": -0.32
+        }
+    ],
+    "functions": {
+        "coord": ["define", ["I", "T"], ["+", ["*", "I", "TIMEF"], "T"]]
+    },
+    "intermediates": [
+        ["for", "XY", 0, 24, {
+            "id": "int_adult_life_mn_[XY]",
+            "value": ["max", "1.0", ["+", "pr_d4_dev_0", ["*", "pr_d4_dev_1", ["temp", ["coord", "[XY]", "TIME_1"]]], ["*", "pr_d4_dev_2", ["pow", ["temp", ["coord", "[XY]", "TIME_1"]], "2"]]]]
+        }]
+    ],
+    "populations": [
+        ["for", "XY", 0, 24, {
+            "id": "adult_[XY]",
             "name": "Adult females",
             "processes": [
                 {
-                    "id": "adult_mort",
+                    "id": "adult_mort_[XY]",
                     "name": "Adult lifetime",
                     "arbiter": "ACC_ERLANG",
-                    "value": [20, 5]
-                },
-                ["for", "A", 3, 10, {
-                    "id": "adult_mort_[A]",
-                    "name": "Adult lifetime",
-                    "arbiter": "ACC_ERLANG",
-                    "value": [20, 5]
-                }]
+                    "value": ["int_adult_life_mn_[XY]", ["*", "0.5", "int_adult_life_mn_[XY]"]]
+                }
             ]
-        },
-        ["for", "B", 1, 2, ["for", "A", 3, 10,
-            {
-                "id": "egg_[B]_[A]",
-                "name": "Eggs",
-                "processes": [
-                    {
-                        "id": "adult_mort_[B]_[A]",
-                        "name": "Adult lifetime",
-                        "arbiter": "ACC_ERLANG",
-                        "value": [20, 5]
-                    }
-                ]
-            }
-        ]]
+        }]
     ],
     "transfers": [
     ],
