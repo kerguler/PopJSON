@@ -73,6 +73,7 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
 
     model_param = pr;
 
+
     population adult;
 
     number num = numZERO;

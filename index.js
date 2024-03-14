@@ -71,7 +71,8 @@ class PopJSON {
     results() {
         return({
             "model": this.header + this.model,
-            "error": this.error
+            "error": this.error,
+            "json": this.json
         });
     }
     parse_file(filename) {
@@ -117,6 +118,9 @@ class PopJSON {
             });
         } else if (obj.constructor == Array) {
             if (obj[0] == str) {
+                /*
+                 * FOR LOOP
+                 */
                 if (obj.length != 5) {
                     this.error += "Error in for loop construction!\n";
                     this.model = "";
@@ -124,7 +128,7 @@ class PopJSON {
                 }
                 for (let i = obj[2]; i <= obj[3]; i++) {
                     let tmp = this.handle_repeats(obj[4],label=obj[1],counter=i);
-                    if (tmp.constructor == Array) {
+                    if (tmp.constructor == Array && obj[4][0] == str) { // NEXT ONE IS A FOR LOOP
                         for (let j=0; j<tmp.length; j++)
                             ret.push(this.handle_repeats(tmp[j],label=label,counter=counter));
                     } else {
@@ -132,9 +136,12 @@ class PopJSON {
                     }
                 }
             } else {
+                /*
+                 *
+                 */
                 for (let i=0; i<obj.length; i++) {
                     let tmp = this.handle_repeats(obj[i],label=label,counter=counter);
-                    if (tmp.constructor == Array) {
+                    if (tmp.constructor == Array && obj[i][0] == str) { // NEXT ONE IS A FOR LOOP
                         for (let j=0; j<tmp.length; j++)
                             ret.push(tmp[j]);
                     } else {
