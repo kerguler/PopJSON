@@ -121,7 +121,7 @@ class model:
         """
         ftime = numpy.int32(ftime)
         if self.numenv > 0:
-            envir = numpy.hstack([numpy.array(envir[key],dtype=numpy.float64) for key in self.envnames])
+            envir = numpy.hstack([numpy.insert(numpy.array(envir[key],dtype=numpy.float64),0,len(envir[key])) for key in self.envnames])
         else:
             envir = numpy.array([])
         y0 = numpy.hstack([numpy.array(y0[key] if key in y0 else 0.0,dtype=numpy.float64) for key in self.popnames])

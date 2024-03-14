@@ -108,7 +108,55 @@ class PopJSON {
         this.parse();
         return(this.results());
     }
+    handle_repeats(obj,label="",counter=0) {
+        let str = "for";
+        let ret = obj.constructor();
+        if (obj.constructor == Object) {
+            Object.entries(obj).forEach(([key, value]) => {
+                ret[key] = this.handle_repeats(value,label=label,counter=counter);
+            });
+        } else if (obj.constructor == Array) {
+            if (obj[0] == str) {
+                if (obj.length != 5) {
+                    this.error += "Error in for loop construction!\n";
+                    this.model = "";
+                    return {};
+                }
+                for (let i = obj[2]; i <= obj[3]; i++) {
+                    let tmp = this.handle_repeats(obj[4],label=obj[1],counter=i);
+                    if (tmp.constructor == Array) {
+                        for (let j=0; j<tmp.length; j++)
+                            ret.push(this.handle_repeats(tmp[j],label=label,counter=counter));
+                    } else {
+                        ret.push(tmp);
+                    }
+                }
+            } else {
+                for (let i=0; i<obj.length; i++) {
+                    let tmp = this.handle_repeats(obj[i],label=label,counter=counter);
+                    if (tmp.constructor == Array) {
+                        for (let j=0; j<tmp.length; j++)
+                            ret.push(tmp[j]);
+                    } else {
+                        ret.push(tmp);
+                    }
+                }
+            }
+        } else if (obj.constructor == String) {
+            if (label) {
+                var regExp = new RegExp("\\["+label+"\\]","g");
+                ret = obj.replace(regExp, counter);
+            } else {
+                ret = obj;
+            }
+        } else {
+            ret = obj;
+        }
+        return ret;
+    }    
     parse() {
+        this.json = this.handle_repeats(this.json);
+        //
         let that = this;
         this.ids = [];
         this.deterministic = this.json['model']['deterministic'];
@@ -451,8 +499,9 @@ class PopJSON {
         this.model += "\n";
         this.model += "    model_param = pr;\n";
         if ('environ' in this.json) {
-           this.json['environ'].forEach( (elm, i) => {
-                that.model += "    envir_" + elm['id'] + " = envir + " + util.format(i) + " * tf;\n";
+            this.model += "\n";
+            this.json['environ'].forEach( (elm, i) => {
+                that.model += "    envir_" + elm['id'] + " = envir + 1; envir += (int)round(*envir) + 1;\n";
            });
            this.model += "\n";
         }

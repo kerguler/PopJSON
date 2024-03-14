@@ -73,7 +73,8 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
     TIME = 0;
 
     model_param = pr;
-    envir_temp = envir + 0 * tf;
+
+    envir_temp = envir + 1; envir += (int)round(*envir) + 1;
 
     population larva;
 

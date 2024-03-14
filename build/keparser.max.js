@@ -953,8 +953,12 @@ class PopJSON {
         //
         this.header = "";
         this.model = "";
-        if (!this.error)
+        if (!this.error) {
+            this.handle_repeats();
             this.write_model();
+        }
+    }
+    handle_repeats() {
     }
     write_model() {
         this.funcountid = 0;
@@ -1262,8 +1266,9 @@ class PopJSON {
         this.model += "\n";
         this.model += "    model_param = pr;\n";
         if ('environ' in this.json) {
-           this.json['environ'].forEach( (elm, i) => {
-                that.model += "    envir_" + elm['id'] + " = envir + " + util.format(i) + " * tf;\n";
+            this.model += "\n";
+            this.json['environ'].forEach( (elm, i) => {
+                that.model += "    envir_" + elm['id'] + " = envir + 1; envir += (int)round(*envir) + 1;\n";
            });
            this.model += "\n";
         }
