@@ -61,17 +61,37 @@
                     "value_old": ["int_adult_life_mn_[XY]", ["*", "0.5", "int_adult_life_mn_[XY]"]]
                 }
             ]
+        }],
+        ["for", "XY", 0, 24, {
+            "id": "dummy_[XY]",
+            "name": "Adult females",
+            "processes": [
+                {
+                    "id": "dummy_mort_[XY]",
+                    "name": "Adult lifetime",
+                    "arbiter": "ACC_FIXED",
+                    "value": ["100.0"],
+                    "value_old": ["int_adult_life_mn_[XY]", ["*", "0.5", "int_adult_life_mn_[XY]"]]
+                }
+            ]
         }]
     ],
     "transfers": [
         ["for", "XYfrom", 0, 24, ["for", "XYto", 0, 24, {
-            "id": "transfer_[XYfrom]_[XYto]",
+            "id": "transfer_adult[XYfrom]_dummy[XYto]",
             "name": "Adult female dispersion",
             "from": "adult_[XYfrom]",
-            "to": "adult_[XYto]",
+            "to": "dummy_[XYto]",
             "value": [["tprob", ["matrix", "[XYfrom]", "[XYto]"]], ["adult_mort_[XYfrom]"]],
-            "if_old": [">", ["tprob", ["matrix", "[XYfrom]", "[XYto]"]], "0.0"]
-        }]]
+            "if": [">", ["tprob", ["matrix", "[XYfrom]", "[XYto]"]], "0.0"]
+        }]],
+        ["for", "XY", 0, 24, {
+            "id": "transfer_dummy[XY]_adult[XY]",
+            "name": "Adult female dispersion",
+            "from": "dummy_[XY]",
+            "to": "adult_[XY]",
+            "value": ["1.0", ["dummy_mort_[XY]"]]
+        }]
     ],
     "transformations": [
     ]
