@@ -1486,6 +1486,9 @@ class PopJSON {
             */
             if ('transformations' in this.json) {
                 this.json['transformations'].forEach( (trx) => {
+                    if ('if' in trx) {
+                        that.model += "                if (" + that.parse_value(trx['if']) + ") {\n";
+                    }
                     that.model += "                " + trx['id'] + " = " + that.parse_value(trx['value']) + ";\n";
                     that.model += "\n";
                     if ('to' in trx) {
@@ -1501,12 +1504,18 @@ class PopJSON {
                             that.model += "                size_" + trx['to'] + ".i += " + trx['id'] + ";\n";
                         }
                     }
+                    if ('if' in trx) {
+                        that.model += "                }\n";
+                    }
                 } );
                 that.model += "\n";
             }
             //
             if ('transfers' in this.json) {
                 this.json['transfers'].forEach( (trn) => {
+                    if ('if' in trn) {
+                        that.model += "                if (" + that.parse_value(trn['if']) + ") {\n";
+                    }
                     if (trn['from'] in that.processobj) {
                         that.model += "                spop2_harvest(popdone_" + that.processobj[trn['from']]['parent_id'] + "[" + trn['from'] + "], " + trn['to'] + ", fun_harvest_" + trn['id'] + ");\n";
                     } else if (that.populations.includes(trn['from'])) {
@@ -1514,6 +1523,9 @@ class PopJSON {
                     } else {
                         that.error += "Error in defining the source population for transfer: " + trn['from'] + "\n";
                         return "";
+                    }
+                    if ('if' in trn) {
+                        that.model += "                }\n";
                     }
                 } );
                 that.model += "\n";

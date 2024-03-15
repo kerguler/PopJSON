@@ -4,9 +4,36 @@ import population as pop
 
 print("Processing ex6a...")
 ex6a = pop.model("examples/ex6a.dylib")
-t2m = 30.0+numpy.random.random(30)*20-10
-t2m = numpy.repeat(t2m,25)
-out6a = ex6a.sim(len(t2m),envir={"temp":t2m},pr=ex6a.param,y0={"adult_0_0":100.0})
+
+tf = 30
+t2m = 30.0+numpy.random.random(tf)*20-10
+t2m = numpy.hstack([t2m for i in range(25)])
+
+# WARNING
+# Each transfer alters the state immediately!
+
+tprob = numpy.repeat(0.0,25*25)
+for xy0 in range(25):
+    x0 = int(numpy.floor(xy0 / 5))
+    y0 = xy0 % 5
+    for xy1 in range(25):
+        x1 = int(numpy.floor(xy1 / 5))
+        y1 = xy1 % 5
+        d = numpy.sqrt((x1-x0)**2+(y1-y0)**2)
+        tprob[xy0*25+xy1] = 0.1 if d>0.5 and d<1.5 else 0.0
+        print(x0,y0,x1,y1,tprob[xy0*25+xy1])
+
+out6a = ex6a.sim(tf,envir={"temp":t2m,"tprob":tprob},pr=ex6a.param,y0={"adult_0":100.0})
+
+plt.imshow(tprob.reshape((25,25)))
+plt.show()
+
+plt.imshow(out6a['ret'][0,:,:])
+plt.show()
+
+for i in range(tf):
+    plt.imshow(out6a['ret'][0,i,:].reshape((5,5)))#,vmin=0,vmax=100)
+    plt.show()
 
 
 print("Processing ex1E...")
