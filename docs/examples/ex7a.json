@@ -1,0 +1,49 @@
+{
+    "model": {
+        "title": "Climate-sensitive population dynamics of Aedes albopictus",
+        "type": "Population",
+        "url": "https://github.com/kerguler/Population",
+        "deterministic": true,
+        "parameters": {
+            "algorithm": "Population",
+            "istep": 0.01
+        }
+    },
+    "environ": [
+        {
+            "id": "tprob",
+            "name": "5x5 connectivity matrix (fraction of transfer per day)",
+            "url": ""
+        }
+    ],
+    "parameters": [
+    ],
+    "functions": {
+    },
+    "intermediates": [
+    ],
+    "populations": [
+        ["for", "XY", 0, 24, {
+            "id": "adult_[XY]",
+            "name": "Adult females",
+            "processes": [
+                {
+                    "id": "adult_mort_[XY]",
+                    "name": "Adult lifetime",
+                    "arbiter": "NOAGE_CONST",
+                    "value": ["0.0"]
+                }
+            ]
+        }]
+    ],
+    "migrations": [
+        {
+            "id": "adult_dispersion",
+            "name": "Adult female dispersion",
+            "prob": "tprob",
+            "target": [["for", "XY", 0, 24, "adult_[XY]"]]
+        }
+    ],
+    "transformations": [
+    ]
+}

@@ -175,6 +175,7 @@ class PopJSON {
             return(this.results());
         }
         this.populations = this.json['populations'].map( (pr) => that.check_ids(pr['id']) );
+        this.popobj = {}; this.json['populations'].forEach( (pop) => that.popobj[pop['id']]=pop );
         this.processes = []; this.json['populations'].forEach( (pop) => 'processes' in pop ? pop['processes'].forEach( (pr) => { that.processes.push(that.check_ids(pr['id'])); } ) : [] );
         this.processobj = {}; this.json['populations'].forEach( (pop) => 'processes' in pop ? pop['processes'].forEach( (pr) => { that.processobj[pr['id']] = pr; that.processobj[pr['id']]['parent_id'] = pop['id']; } ) : {} );
         if (!('parameters' in this.json)) this.json['parameters'] = [];
@@ -188,6 +189,25 @@ class PopJSON {
         this.transformations = this.json['transformations'].map( (pr) => that.check_ids(pr['id']) );
         if (!('transfers' in this.json)) this.json['transfers'] = [];
         this.transfers = Array.from(new Set(this.json['transfers'].map( (pr) => pr['from'] in that.processobj ? that.processobj[pr['from']]['parent_id'] : pr['from'] )));
+        //
+        if (!('migrations' in this.json)) this.json['migrations'] = [];
+        this.json['migrations'].forEach( (pr) => that.check_ids(pr['id']) );
+        this.migrations = {}; 
+        this.json['migrations'].forEach( (mig, i) => {
+            let targets = mig['target'].constructor == Array ? mig['target'] : [mig['target']];
+            targets.forEach( (spc, i) => {
+                let pop;
+                if (that.populations.includes(spc)) {
+                    that.migrations[spc] = that.popobj[spc];
+                } else if (that.processes.includes(spc)) {
+                    that.migrations[spc] = that.processobj[spc];
+                } else {
+                    that.error += "Migration target should either be a population or a process!\nOffending target: " + spc + "\n";
+                    that.model = "";
+                    return {};
+                }
+            });
+        });
         //
         this.operations = ["abs","min","max","round","poisson","binomial","define","?","&&","||",">=","<=",">","<","==","sqrt","pow","exp","log","log2","log10","indicator","index","size","count","*","+","-","/","%"];
         this.funparnames = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z",
@@ -207,6 +227,7 @@ class PopJSON {
         this.model = "";
         this.write_header();
         this.write_functions();
+        this.write_migrate();
         this.write_harvest();
         this.write_custom();
         this.write_init();
@@ -339,6 +360,28 @@ class PopJSON {
            });
            this.header += "\n";
         }
+    }
+    write_migrate() {
+        if (!('migrations' in this.json)) return;
+        //
+        let that = this;
+        var di, pop;
+        this.json['migrations'].forEach( (trn) => {
+            that.header += "void fun_migrate_" + trn['id'] + "(number *key, number num, void *pop) {\n";
+            that.header += "    number q[" + util.format(that.numproc - 1) + "] = {\n";
+            /*
+             * Assumes that all target populations are of the same sort
+             */
+            pop = that.json['populations'].filter( (tmp) => tmp['id'] == trn['target'][0] )[0];
+            pop['processes'].forEach( (proc, j) => {
+                di = that.popart[pop['id']][proc['arbiter']];
+                that.header += "        {." + di + "=key[" + j + "]." + di + "},\n";
+            } );
+            that.header += "    };\n";
+            that.header += "    spop2_add(*(population *)pop, q, num);\n";
+            that.header += "}\n";
+            that.header += "\n";
+        } );
     }
     write_transfer() {
         if (!('transfers' in this.json)) return;
@@ -538,6 +581,11 @@ class PopJSON {
                     that.model += "    population popdone_" + spc['id'] + "[" + util.format(that.numproc) + "];\n";
                 }
             } );
+            if ('migrations' in this.json) {
+                Object.keys(this.migrations).forEach( (trg) => {
+                    that.model += "    population popdummy_" + trg + " = spop2_init(arbiters, " + det + ");\n";
+                });
+            }
             if ('transformations' in this.json) {
                 if (this.deterministic) {
                     this.json['transformations'].map( (trx) => trx['id'] ).forEach( (id) => {
@@ -611,7 +659,7 @@ class PopJSON {
                 that.model += "        if (y0[" + util.format(i) + "]) { num." + ("i",that.deterministic ? "d" : "i") + " = y0[" + util.format(i) + "]; spop2_add(" + spc['id'] + ", key, num); }\n";
                 that.model += "\n";
                 if (that.transfers && that.transfers.includes(spc['id']) && that.populations.includes(spc['id'])) {
-                        for (j=0; j<that.numproc; j++) {
+                    for (j=0; j<that.numproc; j++) {
                         that.model += "        popdone_" + spc['id'] + "[" + util.format(j) + "] = spop2_init(arbiters, " + det + ");\n";
                     }
                 }
@@ -774,6 +822,11 @@ class PopJSON {
                     }
                 }
             });
+            if ('migrations' in this.json && this.migrations) {
+                Object.keys(this.migrations).forEach( (trg) => {
+                    that.model += "    spop2_free(&(popdummy_" + trg + "));\n";
+                });
+            }
             this.model += "\n";
         }
         this.model += "}\n";
