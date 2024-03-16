@@ -46,12 +46,144 @@ double *model_param;
 double *envir_tprob;
 
 
+double tprob_adult_dispersion[25];
 
-void fun_migrate_adult_dispersion(number *key, number num, void *pop) {
-    number q[1] = {
-        {.i=key[0].i},
-    };
-    spop2_add(*(population *)pop, q, num);
+
+void fun_harvest_adult_dispersion_0(number *key, number num, number *newkey, double *frac) {
+    newkey[0].i=key[0].i;
+    *frac = tprob_adult_dispersion[0];
+}
+
+void fun_harvest_adult_dispersion_1(number *key, number num, number *newkey, double *frac) {
+    newkey[0].i=key[0].i;
+    *frac = tprob_adult_dispersion[1];
+}
+
+void fun_harvest_adult_dispersion_2(number *key, number num, number *newkey, double *frac) {
+    newkey[0].i=key[0].i;
+    *frac = tprob_adult_dispersion[2];
+}
+
+void fun_harvest_adult_dispersion_3(number *key, number num, number *newkey, double *frac) {
+    newkey[0].i=key[0].i;
+    *frac = tprob_adult_dispersion[3];
+}
+
+void fun_harvest_adult_dispersion_4(number *key, number num, number *newkey, double *frac) {
+    newkey[0].i=key[0].i;
+    *frac = tprob_adult_dispersion[4];
+}
+
+void fun_harvest_adult_dispersion_5(number *key, number num, number *newkey, double *frac) {
+    newkey[0].i=key[0].i;
+    *frac = tprob_adult_dispersion[5];
+}
+
+void fun_harvest_adult_dispersion_6(number *key, number num, number *newkey, double *frac) {
+    newkey[0].i=key[0].i;
+    *frac = tprob_adult_dispersion[6];
+}
+
+void fun_harvest_adult_dispersion_7(number *key, number num, number *newkey, double *frac) {
+    newkey[0].i=key[0].i;
+    *frac = tprob_adult_dispersion[7];
+}
+
+void fun_harvest_adult_dispersion_8(number *key, number num, number *newkey, double *frac) {
+    newkey[0].i=key[0].i;
+    *frac = tprob_adult_dispersion[8];
+}
+
+void fun_harvest_adult_dispersion_9(number *key, number num, number *newkey, double *frac) {
+    newkey[0].i=key[0].i;
+    *frac = tprob_adult_dispersion[9];
+}
+
+void fun_harvest_adult_dispersion_10(number *key, number num, number *newkey, double *frac) {
+    newkey[0].i=key[0].i;
+    *frac = tprob_adult_dispersion[10];
+}
+
+void fun_harvest_adult_dispersion_11(number *key, number num, number *newkey, double *frac) {
+    newkey[0].i=key[0].i;
+    *frac = tprob_adult_dispersion[11];
+}
+
+void fun_harvest_adult_dispersion_12(number *key, number num, number *newkey, double *frac) {
+    newkey[0].i=key[0].i;
+    *frac = tprob_adult_dispersion[12];
+}
+
+void fun_harvest_adult_dispersion_13(number *key, number num, number *newkey, double *frac) {
+    newkey[0].i=key[0].i;
+    *frac = tprob_adult_dispersion[13];
+}
+
+void fun_harvest_adult_dispersion_14(number *key, number num, number *newkey, double *frac) {
+    newkey[0].i=key[0].i;
+    *frac = tprob_adult_dispersion[14];
+}
+
+void fun_harvest_adult_dispersion_15(number *key, number num, number *newkey, double *frac) {
+    newkey[0].i=key[0].i;
+    *frac = tprob_adult_dispersion[15];
+}
+
+void fun_harvest_adult_dispersion_16(number *key, number num, number *newkey, double *frac) {
+    newkey[0].i=key[0].i;
+    *frac = tprob_adult_dispersion[16];
+}
+
+void fun_harvest_adult_dispersion_17(number *key, number num, number *newkey, double *frac) {
+    newkey[0].i=key[0].i;
+    *frac = tprob_adult_dispersion[17];
+}
+
+void fun_harvest_adult_dispersion_18(number *key, number num, number *newkey, double *frac) {
+    newkey[0].i=key[0].i;
+    *frac = tprob_adult_dispersion[18];
+}
+
+void fun_harvest_adult_dispersion_19(number *key, number num, number *newkey, double *frac) {
+    newkey[0].i=key[0].i;
+    *frac = tprob_adult_dispersion[19];
+}
+
+void fun_harvest_adult_dispersion_20(number *key, number num, number *newkey, double *frac) {
+    newkey[0].i=key[0].i;
+    *frac = tprob_adult_dispersion[20];
+}
+
+void fun_harvest_adult_dispersion_21(number *key, number num, number *newkey, double *frac) {
+    newkey[0].i=key[0].i;
+    *frac = tprob_adult_dispersion[21];
+}
+
+void fun_harvest_adult_dispersion_22(number *key, number num, number *newkey, double *frac) {
+    newkey[0].i=key[0].i;
+    *frac = tprob_adult_dispersion[22];
+}
+
+void fun_harvest_adult_dispersion_23(number *key, number num, number *newkey, double *frac) {
+    newkey[0].i=key[0].i;
+    *frac = tprob_adult_dispersion[23];
+}
+
+void fun_harvest_adult_dispersion_24(number *key, number num, number *newkey, double *frac) {
+    newkey[0].i=key[0].i;
+    *frac = tprob_adult_dispersion[24];
+}
+
+void prepare_tprobs(int *numcol, double *ttprobs, double *tprobs) {
+    int rA, rB, i = 0;
+    double sum;
+    for (i=0, rB=0; rB<(*numcol); rB++) {
+        sum = 1.0;
+        for (rA=0; rA<(*numcol); rA++, i++) {
+            tprobs[i] = sum <= 0.0 ? 1.0 : ttprobs[i] / sum;
+            sum -= ttprobs[i];
+        }
+    }
 }
 
 void init(int *no, int *np, int *ni, int *ne, int *st) {

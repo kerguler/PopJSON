@@ -351,6 +351,14 @@ class PopJSON {
             });
             this.header += "\n";
         }
+        //
+        if ('migrations' in this.json) {
+            this.json['migrations'].forEach( (mig) => {
+                that.header += "double tprob_" + mig['id'] + "[" + util.format(mig['target'].constructor == Array ? mig['target'].length : 1) + "];\n";
+            } );
+            this.header += "\n";
+            this.write_tprobs();
+        }
     }
     write_functions() {
         let that = this;
@@ -367,18 +375,32 @@ class PopJSON {
         let that = this;
         var di, pop;
         this.json['migrations'].forEach( (trn) => {
-            that.header += "void fun_migrate_" + trn['id'] + "(number *key, number num, void *pop) {\n";
-            that.header += "    number q[" + util.format(that.numproc - 1) + "] = {\n";
-            /*
-             * Assumes that all target populations are of the same sort
-             */
-            pop = that.json['populations'].filter( (tmp) => tmp['id'] == trn['target'][0] )[0];
+            trn['target'].forEach( (trx, i) => {
+                that.header += "void fun_harvest_" + trn['id'] + "_" + util.format(i) + "(number *key, number num, number *newkey, double *frac) {\n";
+                pop = that.json['populations'].filter( (tmp) => tmp['id'] == trx )[0];
+                pop['processes'].forEach( (proc, j) => {
+                    di = that.popart[pop['id']][proc['arbiter']];
+                    that.header += "    newkey[" + util.format(j) + "]." + di + "=key[" + util.format(j) + "]." + di + ";\n";
+                } );
+                that.header += "    *frac = tprob_" + trn['id'] + "[" + util.format(i) + "];\n";
+                that.header += "}\n";
+                that.header += "\n";
+            } );
+        } );
+    }
+    write_harvest() {
+        if (!('transfers' in this.json)) return;
+        //
+        let that = this;
+        var di, pop;
+        this.json['transfers'].forEach( (trn) => {
+            that.header += "void fun_harvest_" + trn['id'] + "(number *key, number num, number *newkey, double *frac) {\n";
+            pop = that.json['populations'].filter( (tmp) => tmp['id'] == trn['to'] )[0];
             pop['processes'].forEach( (proc, j) => {
                 di = that.popart[pop['id']][proc['arbiter']];
-                that.header += "        {." + di + "=key[" + j + "]." + di + "},\n";
+                that.header += "    newkey[" + util.format(j) + "]." + di + "=" + that.parse_value(trn['value'][1][j], true) + ";\n";
             } );
-            that.header += "    };\n";
-            that.header += "    spop2_add(*(population *)pop, q, num);\n";
+            that.header += "    *frac = " + that.parse_value(trn['value'][0], true) + ";\n";
             that.header += "}\n";
             that.header += "\n";
         } );
@@ -399,23 +421,6 @@ class PopJSON {
             } );
             that.header += "    };\n";
             that.header += "    spop2_add(*(population *)pop, q, num);\n";
-            that.header += "}\n";
-            that.header += "\n";
-        } );
-    }
-    write_harvest() {
-        if (!('transfers' in this.json)) return;
-        //
-        let that = this;
-        var di, pop;
-        this.json['transfers'].forEach( (trn) => {
-            that.header += "void fun_harvest_" + trn['id'] + "(number *key, number num, number *newkey, double *frac) {\n";
-            pop = that.json['populations'].filter( (tmp) => tmp['id'] == trn['to'] )[0];
-            pop['processes'].forEach( (proc, j) => {
-                di = that.popart[pop['id']][proc['arbiter']];
-                that.header += "    newkey[" + util.format(j) + "]." + di + "=" + that.parse_value(trn['value'][1][j], true) + ";\n";
-            } );
-            that.header += "    *frac = " + that.parse_value(trn['value'][0], true) + ";\n";
             that.header += "}\n";
             that.header += "\n";
         } );
@@ -539,6 +544,20 @@ class PopJSON {
             }
             this.model += "\n";
         }
+    }
+    write_tprobs() {
+        this.model += "void prepare_tprobs(int *numcol, double *ttprobs, double *tprobs) {\n";
+        this.model += "    int rA, rB, i = 0;\n";
+        this.model += "    double sum;\n";
+        this.model += "    for (i=0, rB=0; rB<(*numcol); rB++) {\n";
+        this.model += "        sum = 1.0;\n";
+        this.model += "        for (rA=0; rA<(*numcol); rA++, i++) {\n";
+        this.model += "            tprobs[i] = sum <= 0.0 ? 1.0 : ttprobs[i] / sum;\n";
+        this.model += "            sum -= ttprobs[i];\n";
+        this.model += "        }\n";
+        this.model += "    }\n";
+        this.model += "}\n";
+        this.model += "\n";
     }
     write_sim() {
         let i, j;
