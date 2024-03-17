@@ -354,7 +354,7 @@ class PopJSON {
         //
         if ('migrations' in this.json) {
             this.json['migrations'].forEach( (mig) => {
-                that.header += "double tprob_" + mig['id'] + "[" + util.format(mig['target'].constructor == Array ? mig['target'].length : 1) + "];\n";
+                that.header += "double tprob_" + mig['id'] + "[" + util.format(mig['target'].constructor == Array ? mig['target'].length**2 : 1) + "];\n";
             } );
             this.header += "\n";
             this.write_tprobs();
@@ -375,16 +375,20 @@ class PopJSON {
         let that = this;
         var di, pop;
         this.json['migrations'].forEach( (trn) => {
-            trn['target'].forEach( (trx, i) => {
-                that.header += "void fun_harvest_" + trn['id'] + "_" + util.format(i) + "(number *key, number num, number *newkey, double *frac) {\n";
-                pop = that.json['populations'].filter( (tmp) => tmp['id'] == trx )[0];
-                pop['processes'].forEach( (proc, j) => {
-                    di = that.popart[pop['id']][proc['arbiter']];
-                    that.header += "    newkey[" + util.format(j) + "]." + di + "=key[" + util.format(j) + "]." + di + ";\n";
+            let i = 0;
+            trn['target'].forEach( (trx0, i0) => {
+                trn['target'].forEach( (trx1, i1) => {
+                    that.header += "void fun_harvest_" + trn['id'] + "_" + util.format(i) + "(number *key, number num, number *newkey, double *frac) {\n";
+                    pop = that.json['populations'].filter( (tmp) => tmp['id'] == trx0 )[0];
+                    pop['processes'].forEach( (proc, j) => {
+                        di = that.popart[pop['id']][proc['arbiter']];
+                        that.header += "    newkey[" + util.format(j) + "]." + di + "=key[" + util.format(j) + "]." + di + ";\n";
+                    } );
+                    that.header += "    *frac = tprob_" + trn['id'] + "[" + util.format(i) + "];\n";
+                    that.header += "}\n";
+                    that.header += "\n";
+                    i++;
                 } );
-                that.header += "    *frac = tprob_" + trn['id'] + "[" + util.format(i) + "];\n";
-                that.header += "}\n";
-                that.header += "\n";
             } );
         } );
     }
@@ -579,8 +583,10 @@ class PopJSON {
         //
         if ('migrations' in this.json) {
             this.json['migrations'].forEach( (trg) => {
-                if (!(trg['prob'] in that.environs)) {
-
+                if (!(that.environs.includes(trg['prob']))) {
+                    that.error += "Migration probability matrix is missing!\n";
+                    that.model = "";
+                    return {};
                 }
                 let len = trg['target'].constructor == Array ? Math.round(Math.sqrt(trg['target'].length)) : 1;
                 that.model += "    prepare_tprobs(" + len + ", envir_" + trg['prob'] + ", " + trg['prob'] + "_" + trg['id'] + ");\n";
@@ -797,17 +803,55 @@ class PopJSON {
                 } );
                 that.model += "\n";
                 //
+                Array.from(new Set(this.json['transfers'].map( (trn) => trn['to'] ))).forEach( (trn) => {
+                    that.model += "                size_" + trn + " = spop2_size(" + trn + ");\n";
+                } );
+                that.model += "\n";
+            }
+            //
+            if ('migrations' in this.json) {
+                let pops = [];
+                let i = 0;
+                this.json['migrations'].forEach( (trn) => {
+                    trn['target'].forEach( (trx0, i0) => {
+                        trn['target'].forEach( (trx1, i1) => {
+                            that.model += "                spop2_harvest(";
+                            if (trx0 in that.processobj) {
+                                that.model += "popdone_" + that.processobj[trx0]['parent_id'] + "[" + trx0 + "]";
+                            } else {
+                                that.model += trx0;
+                                if (!pops.includes(trx0)) pops.push(trx0);
+                            }
+                            that.model += ", popdummy_" + trx1 + ", fun_harvest_" + trn['id'] + "_" + util.format(i) + ");\n";
+                            i++;
+                        } );
+                    } );
+                } );
+                that.model += "\n";
+                this.json['migrations'].forEach( (trn) => {
+                    trn['target'].forEach( (trx, i) => {
+                        if (trx in that.processobj) {
+                            that.model += "                spop2_addpop(popdone_" + that.processobj[trx]['parent_id'] + "[" + trx + "], popdummy_" + trx + ");\n";
+                        } else {
+                            that.model += "                spop2_addpop(" + trx + ", popdummy_" + trx + ");\n";
+                        }
+                    } );
+                } );
+                that.model += "\n";
+                //
+                pops.forEach( (pop) => {
+                    that.model += "                size_" + pop + " = spop2_size(" + pop + ");\n";
+                } );
+                that.model += "\n";
+            }
+            //
+            if ('transfers' in this.json) {
                 this.transfers.forEach( (trn) => {
                     for (j=0; j<that.numproc; j++) {
                         that.model += "                spop2_empty(&popdone_" + trn + "[" + util.format(j) + "]);\n"
                     }
                     that.model += "\n";
                 } );
-                //
-                Array.from(new Set(this.json['transfers'].map( (trn) => trn['to'] ))).forEach( (trn) => {
-                    that.model += "                size_" + trn + " = spop2_size(" + trn + ");\n";
-                } );
-                that.model += "\n";
             }
             //
             that.model += "        }\n";

@@ -2,6 +2,34 @@ import numpy
 from matplotlib import pyplot as plt
 import population as pop
 
+print("Processing ex7a...")
+ex7a = pop.model("examples/ex7a.dylib")
+
+tf = 30
+
+tprob = numpy.repeat(0.0,25*25)
+for xy0 in range(25):
+    x0 = int(numpy.floor(xy0 / 5))
+    y0 = xy0 % 5
+    for xy1 in range(25):
+        x1 = int(numpy.floor(xy1 / 5))
+        y1 = xy1 % 5
+        tprob[xy0*25+xy1] = 0.1 if (x1==x0 and y1==y0+1) or (x1==x0+1 and y1==y0) or (x1==x0+1 and y1==y0+1) else 0.0
+
+plt.imshow(tprob.reshape((25,25)),interpolation='none')
+plt.show()
+
+out7a = ex7a.sim(tf,envir={"tprob":tprob},pr=ex7a.param,y0={"adult_0":100.0})
+
+plt.imshow(out7a['ret'][0,:,:25],interpolation='none')
+plt.show()
+
+for i in range(tf):
+    plt.imshow(out7a['ret'][0,i,:25].reshape((5,5)),interpolation='none')#,vmin=0,vmax=100)
+    plt.show()
+
+
+
 print("Processing ex6a...")
 ex6a = pop.model("examples/ex6a.dylib")
 
