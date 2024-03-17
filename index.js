@@ -546,12 +546,12 @@ class PopJSON {
         }
     }
     write_tprobs() {
-        this.model += "void prepare_tprobs(int *numcol, double *ttprobs, double *tprobs) {\n";
+        this.model += "void prepare_tprobs(int numcol, double *ttprobs, double *tprobs) {\n";
         this.model += "    int rA, rB, i = 0;\n";
         this.model += "    double sum;\n";
-        this.model += "    for (i=0, rB=0; rB<(*numcol); rB++) {\n";
+        this.model += "    for (i=0, rB=0; rB<numcol; rB++) {\n";
         this.model += "        sum = 1.0;\n";
-        this.model += "        for (rA=0; rA<(*numcol); rA++, i++) {\n";
+        this.model += "        for (rA=0; rA<numcol; rA++, i++) {\n";
         this.model += "            tprobs[i] = sum <= 0.0 ? 1.0 : ttprobs[i] / sum;\n";
         this.model += "            sum -= ttprobs[i];\n";
         this.model += "        }\n";
@@ -575,6 +575,17 @@ class PopJSON {
                 that.model += "    envir_" + elm['id'] + " = envir + 1; envir += (int)round(*envir) + 1;\n";
            });
            this.model += "\n";
+        }
+        //
+        if ('migrations' in this.json) {
+            this.json['migrations'].forEach( (trg) => {
+                if (!(trg['prob'] in that.environs)) {
+
+                }
+                let len = trg['target'].constructor == Array ? Math.round(Math.sqrt(trg['target'].length)) : 1;
+                that.model += "    prepare_tprobs(" + len + ", envir_" + trg['prob'] + ", " + trg['prob'] + "_" + trg['id'] + ");\n";
+            });
+            this.model += "\n";
         }
         //
         if (this.json['model']['type'] == "Population") {

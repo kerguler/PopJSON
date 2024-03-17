@@ -174,12 +174,12 @@ void fun_harvest_adult_dispersion_24(number *key, number num, number *newkey, do
     *frac = tprob_adult_dispersion[24];
 }
 
-void prepare_tprobs(int *numcol, double *ttprobs, double *tprobs) {
+void prepare_tprobs(int numcol, double *ttprobs, double *tprobs) {
     int rA, rB, i = 0;
     double sum;
-    for (i=0, rB=0; rB<(*numcol); rB++) {
+    for (i=0, rB=0; rB<numcol; rB++) {
         sum = 1.0;
-        for (rA=0; rA<(*numcol); rA++, i++) {
+        for (rA=0; rA<numcol; rA++, i++) {
             tprobs[i] = sum <= 0.0 ? 1.0 : ttprobs[i] / sum;
             sum -= ttprobs[i];
         }
@@ -219,6 +219,8 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
     model_param = pr;
 
     envir_tprob = envir + 1; envir += (int)round(*envir) + 1;
+
+    prepare_tprobs(5, envir_tprob, tprob_adult_dispersion);
 
     population adult_0;
     population adult_1;
