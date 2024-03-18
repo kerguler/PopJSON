@@ -4,34 +4,26 @@ import population as pop
 
 print("Processing ex6a...")
 ex6a = pop.model("examples/ex6a.dylib")
-
+#
 C = 3
-C2 = C**2
-C4 = C2**2
-tf = 1000
-
-tprob = numpy.repeat(0.0,C4)
-for xy0 in range(C2):
-    x0 = int(numpy.floor(xy0 / C))
-    y0 = xy0 % C
-    for xy1 in range(C2):
-        x1 = int(numpy.floor(xy1 / C))
-        y1 = xy1 % C
-        z = xy0*C2+xy1
-        tprob[z] = 0.1 if (x1==x0 and abs(y1-y0)==1) or (abs(x1-x0)==1 and y1==y0) or (abs(x1-x0)==1 and abs(y1-y0)==1) else 0.0
-    tprob[xy0*C2+xy0] = 1.0 - sum(tprob[(xy0*C2):((xy0+1)*C2)])
-
-print(tprob.reshape((C2,C2)))
-
-out6a = ex6a.sim(tf,envir={"tprob":tprob},pr=ex6a.param,y0={"adult_0":100.0})
-
-print(numpy.sum(out6a['ret'][0,tf-1,:]))
-
+#
+dfun = lambda p0,p1: abs(p1[0]-p0[0])+abs(p1[1]-p0[1])
+pts = [(x,y) for x in range(C) for y in range(C)]
+tprobs = numpy.array([[0.1 if dfun(p0,p1)==1 else 0.0 for p1 in pts] for p0 in pts])
+numpy.fill_diagonal(tprobs,1.0-numpy.sum(tprobs,axis=1))
+#
+print(["| %s |\n" %(" | ".join([str(a) for a in row])) for row in tprobs.reshape((C**2,C**2))])
+#
+out6a = ex6a.sim(1000,envir={"tprob":tprobs},pr=ex6a.param,y0={"adult_0":100.0})
 for i in [0,5,10,100]:
-    print(out6a['ret'][0,i,:].reshape((C,C)))
     plt.imshow(out6a['ret'][0,i,:].reshape((C,C)),interpolation='none',vmin=0,vmax=100)
-    plt.show()
-
+    plt.xticks(numpy.arange(C))
+    plt.yticks(numpy.arange(C))
+    plt.gca().xaxis.set_tick_params(size=0,labeltop=True,labelbottom=False)
+    plt.gca().yaxis.set_tick_params(size=0)
+    plt.title("Step %d" %i,fontsize=18)
+    plt.savefig("figures/ex6a%d.png" %i,bbox_inches="tight",dpi=100)
+    plt.close()
 
 print("Processing ex1E...")
 ex1E = pop.model("examples/ex1E.dylib")

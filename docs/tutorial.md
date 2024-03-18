@@ -528,6 +528,51 @@ Here is the output under two constant temperatures (15<sup>o</sup>C and 30<sup>o
 
 The plot demonstrates that the majority of larva population complete development in less than 20 days when it is 30<sup>o</sup>C (black lines). This results in the production of adults with short lifetimes (most of them die in 40 days). On the other hand, when it is 15<sup>o</sup>C, the majority of larvae develop in more than 20 days, resulting in **history** becoming more than 50 (blue lines). Please note that, above, we defined average immature lifetime as 40, and, therefore, 50\% of lifetime as 20. Consequently, we see most of the emerging adults surviving for 80 days on average.
 
+## Vector dispersion modelling
+
+It is common in vector dynamics and epidemiological models to associate populations with a geographical area. We must define the populations and the links between them explicitly to model the movement of individuals from one area to another.
+
+PopJSON incorporates the **migrations** tag for this purpose.
+
+```json
+{
+    "migrations": [
+        {
+            "id": "adult_dispersion",
+            "name": "Adult female dispersion",
+            "prob": "tprob",
+            "target": [["for", "XY", 0, 8, "adult_[XY]"]]
+        }
+    ]    
+}
+```
+
+|     |     |     |     |     |     |     |     |     |
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| 0.8 | 0.1 | 0.0 | 0.1 | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 |
+| 0.1 | 0.7 | 0.1 | 0.0 | 0.1 | 0.0 | 0.0 | 0.0 | 0.0 |
+| 0.0 | 0.1 | 0.8 | 0.0 | 0.0 | 0.1 | 0.0 | 0.0 | 0.0 |
+| 0.1 | 0.0 | 0.0 | 0.7 | 0.1 | 0.0 | 0.1 | 0.0 | 0.0 |
+| 0.0 | 0.1 | 0.0 | 0.1 | 0.6 | 0.1 | 0.0 | 0.1 | 0.0 |
+| 0.0 | 0.0 | 0.1 | 0.0 | 0.1 | 0.7 | 0.0 | 0.0 | 0.1 |
+| 0.0 | 0.0 | 0.0 | 0.1 | 0.0 | 0.0 | 0.8 | 0.1 | 0.0 |
+| 0.0 | 0.0 | 0.0 | 0.0 | 0.1 | 0.0 | 0.1 | 0.7 | 0.1 |
+| 0.0 | 0.0 | 0.0 | 0.0 | 0.0 | 0.1 | 0.0 | 0.1 | 0.8 |
+
+<div class="myFigures">
+
+![](figures/ex6a0.png "")
+
+![](figures/ex6a5.png "")
+
+![](figures/ex6a10.png "")
+
+![](figures/ex6a100.png "")
+
+</div>
+
+See [ex6a.json](./examples/ex6a.json) and [ex6a.c](./examples/ex6a.c) for the full PopJSON representation and the C translation.
+
 ## Genetic structure and inheritance
 
 <p><img src="figures/044-forklift.png" width="200px" alt="Under construction"></img></p>
@@ -578,6 +623,7 @@ We are working on this. Please come back soon for updates.
  - <a href="./examples/ex3b.json" target="_blank" rel="noreferrer">ex3b.json</a>
  - <a href="./examples/ex4a.json" target="_blank" rel="noreferrer">ex4a.json</a>
  - <a href="./examples/ex5a.json" target="_blank" rel="noreferrer">ex5a.json</a>
+ - <a href="./examples/ex6a.json" target="_blank" rel="noreferrer">ex6a.json</a>
 
 # SandBox
 

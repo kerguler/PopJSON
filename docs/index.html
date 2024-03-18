@@ -157,6 +157,9 @@ structured population models</span>
         <li><a href="#declaring-class-dependent-rates"
         id="toc-declaring-class-dependent-rates">Declaring
         class-dependent rates</a></li>
+        <li><a href="#vector-dispersion-modelling"
+        id="toc-vector-dispersion-modelling">Vector dispersion
+        modelling</a></li>
         <li><a href="#genetic-structure-and-inheritance"
         id="toc-genetic-structure-and-inheritance">Genetic structure and
         inheritance</a></li>
@@ -839,6 +842,136 @@ resulting in <strong>history</strong> becoming more than 50 (blue
 lines). Please note that, above, we defined average immature lifetime as
 40, and, therefore, 50% of lifetime as 20. Consequently, we see most of
 the emerging adults surviving for 80 days on average.</p>
+<h2 id="vector-dispersion-modelling">Vector dispersion modelling</h2>
+<p>It is common in vector dynamics and epidemiological models to
+associate populations with a geographical area. We must define the
+populations and the links between them explicitly to model the movement
+of individuals from one area to another.</p>
+<p>PopJSON incorporates the <strong>migrations</strong> tag for this
+purpose.</p>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;migrations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_dispersion&quot;</span><span class="fu">,</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Adult female dispersion&quot;</span><span class="fu">,</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;prob&quot;</span><span class="fu">:</span> <span class="st">&quot;tprob&quot;</span><span class="fu">,</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;target&quot;</span><span class="fu">:</span> <span class="ot">[[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;XY&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">8</span><span class="ot">,</span> <span class="st">&quot;adult_[XY]&quot;</span><span class="ot">]]</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span>    </span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<table>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">0.8</td>
+<td style="text-align: center;">0.1</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.1</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">0.1</td>
+<td style="text-align: center;">0.7</td>
+<td style="text-align: center;">0.1</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.1</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.1</td>
+<td style="text-align: center;">0.8</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.1</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">0.1</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.7</td>
+<td style="text-align: center;">0.1</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.1</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.1</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.1</td>
+<td style="text-align: center;">0.6</td>
+<td style="text-align: center;">0.1</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.1</td>
+<td style="text-align: center;">0.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.1</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.1</td>
+<td style="text-align: center;">0.7</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.1</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.8</td>
+<td style="text-align: center;">0.1</td>
+<td style="text-align: center;">0.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.1</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.1</td>
+<td style="text-align: center;">0.7</td>
+<td style="text-align: center;">0.1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.1</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">0.1</td>
+<td style="text-align: center;">0.8</td>
+</tr>
+</tbody>
+</table>
+<div class="myFigures">
+<p><img src="figures/ex6a0.png" /></p>
+<p><img src="figures/ex6a5.png" /></p>
+<p><img src="figures/ex6a10.png" /></p>
+<p><img src="figures/ex6a100.png" /></p>
+</div>
+<p>See <a href="./examples/ex6a.json">ex6a.json</a> and <a
+href="./examples/ex6a.c">ex6a.c</a> for the full PopJSON representation
+and the C translation.</p>
 <h2 id="genetic-structure-and-inheritance">Genetic structure and
 inheritance</h2>
 <p>
@@ -943,73 +1076,78 @@ from 0) (deprecated)</td>
 <td style="text-align: left;">Division (in the given order)</td>
 </tr>
 <tr class="odd">
+<td style="text-align: left;">%</td>
+<td style="text-align: left;">a,b</td>
+<td style="text-align: left;">Modulus operator</td>
+</tr>
+<tr class="even">
 <td style="text-align: left;">size</td>
 <td style="text-align: left;">a</td>
 <td style="text-align: left;">Total size of a population
 (deprecated)</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">count</td>
 <td style="text-align: left;">a,b</td>
 <td style="text-align: left;">Sub-group counts of population
 <strong>a</strong> based on a logical check <strong>b</strong> of
 sub-group keys</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">poisson</td>
 <td style="text-align: left;">a</td>
 <td style="text-align: left;">Generates a Poisson random number with
 lambda=a (works only when <strong>deterministic:false</strong>)</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">binomial</td>
 <td style="text-align: left;">a,b</td>
 <td style="text-align: left;">Generates a Binomial random number with
 n=a and p=b (works only when <strong>deterministic:false</strong>)</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">define</td>
 <td style="text-align: left;">a,b</td>
 <td style="text-align: left;">Function definition with parameters a and
 equation b</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">?</td>
 <td style="text-align: left;">a,b,c</td>
 <td style="text-align: left;">Condition expression (if a is true, return
 b, else, return c)</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">&amp;&amp;</td>
 <td style="text-align: left;">…</td>
 <td style="text-align: left;">Logical AND</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">||</td>
 <td style="text-align: left;">…</td>
 <td style="text-align: left;">Logical OR</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">&gt;</td>
 <td style="text-align: left;">a,b</td>
 <td style="text-align: left;">Logical greater than</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">&lt;</td>
 <td style="text-align: left;">a,b</td>
 <td style="text-align: left;">Logical smaller than</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">&gt;=</td>
 <td style="text-align: left;">a,b</td>
 <td style="text-align: left;">Logical greater than or equal</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">&lt;=</td>
 <td style="text-align: left;">a,b</td>
 <td style="text-align: left;">Logical smaller than or equal</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">==</td>
 <td style="text-align: left;">a,b</td>
 <td style="text-align: left;">Logical equal to</td>
@@ -1026,6 +1164,7 @@ b, else, return c)</td>
 <li><a href="./examples/ex3b.json" target="_blank" rel="noreferrer">ex3b.json</a></li>
 <li><a href="./examples/ex4a.json" target="_blank" rel="noreferrer">ex4a.json</a></li>
 <li><a href="./examples/ex5a.json" target="_blank" rel="noreferrer">ex5a.json</a></li>
+<li><a href="./examples/ex6a.json" target="_blank" rel="noreferrer">ex6a.json</a></li>
 </ul>
 <h1 id="sandbox">SandBox</h1>
 <div class="myGroup">
