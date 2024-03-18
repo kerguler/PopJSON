@@ -3220,7 +3220,7 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
 
     envir_tprob = envir + 1; envir += (int)round(*envir) + 1;
 
-    prepare_tprobs(5, envir_tprob, tprob_adult_dispersion);
+    prepare_tprobs(25, envir_tprob, tprob_adult_dispersion);
 
     population adult_0;
     population adult_1;
@@ -4585,6 +4585,33 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
                 size_adult_22 = spop2_size(adult_22);
                 size_adult_23 = spop2_size(adult_23);
                 size_adult_24 = spop2_size(adult_24);
+
+
+                spop2_empty(&popdummy_adult_0);
+                spop2_empty(&popdummy_adult_1);
+                spop2_empty(&popdummy_adult_2);
+                spop2_empty(&popdummy_adult_3);
+                spop2_empty(&popdummy_adult_4);
+                spop2_empty(&popdummy_adult_5);
+                spop2_empty(&popdummy_adult_6);
+                spop2_empty(&popdummy_adult_7);
+                spop2_empty(&popdummy_adult_8);
+                spop2_empty(&popdummy_adult_9);
+                spop2_empty(&popdummy_adult_10);
+                spop2_empty(&popdummy_adult_11);
+                spop2_empty(&popdummy_adult_12);
+                spop2_empty(&popdummy_adult_13);
+                spop2_empty(&popdummy_adult_14);
+                spop2_empty(&popdummy_adult_15);
+                spop2_empty(&popdummy_adult_16);
+                spop2_empty(&popdummy_adult_17);
+                spop2_empty(&popdummy_adult_18);
+                spop2_empty(&popdummy_adult_19);
+                spop2_empty(&popdummy_adult_20);
+                spop2_empty(&popdummy_adult_21);
+                spop2_empty(&popdummy_adult_22);
+                spop2_empty(&popdummy_adult_23);
+                spop2_empty(&popdummy_adult_24);
 
         }
 

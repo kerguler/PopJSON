@@ -11,3 +11,7 @@ examples:
 
 clean:
 	rm *.dylib
+
+test:
+	gcc -L/usr/local/lib -I/usr/local/include -Wall -lm -lpopulation -lgsl -lgslcblas -shared -fPIC -o ex7a.dylib ex7a.c
+

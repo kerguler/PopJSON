@@ -5,27 +5,35 @@ import population as pop
 print("Processing ex7a...")
 ex7a = pop.model("examples/ex7a.dylib")
 
+C = 5
+C2 = C**2
+C4 = C2**2
 tf = 30
 
-tprob = numpy.repeat(0.0,25*25)
-for xy0 in range(25):
-    x0 = int(numpy.floor(xy0 / 5))
-    y0 = xy0 % 5
-    for xy1 in range(25):
-        x1 = int(numpy.floor(xy1 / 5))
-        y1 = xy1 % 5
-        tprob[xy0*25+xy1] = 0.1 if (x1==x0 and y1==y0+1) or (x1==x0+1 and y1==y0) or (x1==x0+1 and y1==y0+1) else 0.0
+tprob = numpy.repeat(0.0,C4)
+for xy0 in range(C2):
+    x0 = int(numpy.floor(xy0 / C))
+    y0 = xy0 % C
+    for xy1 in range(C2):
+        x1 = int(numpy.floor(xy1 / C))
+        y1 = xy1 % C
+        z = xy0*C2+xy1
+        tprob[z] = 0.1 if (x1==x0 and abs(y1-y0)==1) or (abs(x1-x0)==1 and y1==y0) or (abs(x1-x0)==1 and abs(y1-y0)==1) else 0.0
+        print(x0,y0,x1,y1,z,tprob[z])
+    tprob[xy0*C2+xy0] = 1.0 - sum(tprob[(xy0*C2):((xy0+1)*C2)])
 
-plt.imshow(tprob.reshape((25,25)),interpolation='none')
+print(tprob.reshape((C2,C2)))
+
+plt.imshow(tprob.reshape((C2,C2)),interpolation='none')
 plt.show()
 
 out7a = ex7a.sim(tf,envir={"tprob":tprob},pr=ex7a.param,y0={"adult_0":100.0})
 
-plt.imshow(out7a['ret'][0,:,:25],interpolation='none')
+plt.imshow(out7a['ret'][0,:,:],interpolation='none')
 plt.show()
 
 for i in range(tf):
-    plt.imshow(out7a['ret'][0,i,:25].reshape((5,5)),interpolation='none')#,vmin=0,vmax=100)
+    plt.imshow(out7a['ret'][0,i,:].reshape((C,C)),interpolation='none',vmin=0,vmax=100)
     plt.show()
 
 

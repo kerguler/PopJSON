@@ -588,7 +588,7 @@ class PopJSON {
                     that.model = "";
                     return {};
                 }
-                let len = trg['target'].constructor == Array ? Math.round(Math.sqrt(trg['target'].length)) : 1;
+                let len = trg['target'].constructor == Array ? trg['target'].length : 1;
                 that.model += "    prepare_tprobs(" + len + ", envir_" + trg['prob'] + ", " + trg['prob'] + "_" + trg['id'] + ");\n";
             });
             this.model += "\n";
@@ -827,7 +827,7 @@ class PopJSON {
                         } );
                     } );
                 } );
-                that.model += "\n";
+                this.model += "\n";
                 this.json['migrations'].forEach( (trn) => {
                     trn['target'].forEach( (trx, i) => {
                         if (trx in that.processobj) {
@@ -837,12 +837,28 @@ class PopJSON {
                         }
                     } );
                 } );
-                that.model += "\n";
+                this.model += "\n";
                 //
                 pops.forEach( (pop) => {
                     that.model += "                size_" + pop + " = spop2_size(" + pop + ");\n";
                 } );
-                that.model += "\n";
+                this.model += "\n";
+                //
+                this.json['migrations'].forEach( (trn) => {
+                    trn['target'].forEach( (trx, i) => {
+                        if (trx in that.processobj) {
+                            that.model += "                spop2_empty(&popdone_" + that.processobj[trx]['parent_id'] + "[" + trx + "]);\n";
+                        }
+                    } );
+                } );
+                this.model += "\n";
+                //
+                this.json['migrations'].forEach( (trn) => {
+                    trn['target'].forEach( (trx, i) => {
+                        that.model += "                spop2_empty(&popdummy_" + trx + ");\n";
+                    } );
+                } );
+                this.model += "\n";
             }
             //
             if ('transfers' in this.json) {
