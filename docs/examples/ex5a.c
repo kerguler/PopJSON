@@ -23,6 +23,7 @@ double dmin(double a, double b) { return a < b ? a : b; }
 double dmax(double a, double b) { return a > b ? a : b; }
 
 int TIME;
+int TIMEF;
 
 double *model_param;
 double *envir_temp;
@@ -31,6 +32,7 @@ double immat_death;
 double immat_to_adult;
 double d2m;
 double d2s;
+
 
 #define briere1(T,a,L,R) (((((T) <= (L))) ? (365.0) : (((((T) >= (R))) ? (365.0) : (dmin(365.0, dmax(1.0, (1.0 / exp(((a) + log((T)) + log(((T) - (L))) + (0.5 * log(((R) - (T))))))))))))))
 
@@ -43,6 +45,18 @@ void fun_harvest_maturation(number *key, number num, number *newkey, double *fra
 void fun_hazpar_adult_mort_adult(const number *key, const number num, double *par) {
     par[0] = (((key[history].i > 50)) ? (80) : (40));
     par[1] = 5;
+}
+
+void prepare_tprobs(int numcol, double *ttprobs, double *tprobs) {
+    int rA, rB, i = 0;
+    double sum;
+    for (i=0, rB=0; rB<numcol; rB++) {
+        sum = 1.0;
+        for (rA=0; rA<numcol; rA++, i++) {
+            tprobs[i] = sum <= 0.0 ? 1.0 : ttprobs[i] / sum;
+            sum -= ttprobs[i];
+        }
+    }
 }
 
 void init(int *no, int *np, int *ni, int *ne, int *st) {
@@ -88,10 +102,12 @@ void destroy(void) {
 void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *file0, const char *file1, double *ret, double *iret, int *success) {
 
     TIME = 0;
+    TIMEF = tf;
 
     model_param = pr;
 
     envir_temp = envir + 1; envir += (int)round(*envir) + 1;
+
 
     population immat;
     population adult;
@@ -207,11 +223,16 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
 
                 spop2_harvest(popdone_immat[immat_dev], adult, fun_harvest_maturation);
 
+                size_adult = spop2_size(adult);
+
+
+
+
+
+
                 spop2_empty(&popdone_immat[0]);
                 spop2_empty(&popdone_immat[1]);
                 spop2_empty(&popdone_immat[2]);
-
-                size_adult = spop2_size(adult);
 
         }
 

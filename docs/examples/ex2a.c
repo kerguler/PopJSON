@@ -17,12 +17,26 @@ double dmin(double a, double b) { return a < b ? a : b; }
 double dmax(double a, double b) { return a > b ? a : b; }
 
 int TIME;
+int TIMEF;
 
 double *model_param;
 
 double larva_death;
 double larva_to_pupa;
 
+
+
+void prepare_tprobs(int numcol, double *ttprobs, double *tprobs) {
+    int rA, rB, i = 0;
+    double sum;
+    for (i=0, rB=0; rB<numcol; rB++) {
+        sum = 1.0;
+        for (rA=0; rA<numcol; rA++, i++) {
+            tprobs[i] = sum <= 0.0 ? 1.0 : ttprobs[i] / sum;
+            sum -= ttprobs[i];
+        }
+    }
+}
 
 void init(int *no, int *np, int *ni, int *ne, int *st) {
     spop2_set_eps(0.01);
@@ -52,8 +66,10 @@ void destroy(void) {
 void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *file0, const char *file1, double *ret, double *iret, int *success) {
 
     TIME = 0;
+    TIMEF = tf;
 
     model_param = pr;
+
 
 
     population larva;
@@ -124,6 +140,11 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
                 larva_death = completed_larva[larva_mort].d;
 
                 larva_to_pupa = completed_larva[larva_dev].d;
+
+
+
+
+
 
 
 

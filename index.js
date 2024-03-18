@@ -354,7 +354,7 @@ class PopJSON {
         //
         if ('migrations' in this.json) {
             this.json['migrations'].forEach( (mig) => {
-                that.header += "double tprob_" + mig['id'] + "[" + util.format(mig['target'].constructor == Array ? mig['target'].length**2 : 1) + "];\n";
+                that.header += "double tprob_" + mig['id'] + "[" + util.format(mig['target'].constructor == Array ? Math.pow(mig['target'].length,2) : 1) + "];\n";
             } );
             this.header += "\n";
             this.write_tprobs();

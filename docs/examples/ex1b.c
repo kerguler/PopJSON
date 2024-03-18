@@ -18,10 +18,24 @@ double dmin(double a, double b) { return a < b ? a : b; }
 double dmax(double a, double b) { return a > b ? a : b; }
 
 int TIME;
+int TIMEF;
 
 double *model_param;
 
 
+
+
+void prepare_tprobs(int numcol, double *ttprobs, double *tprobs) {
+    int rA, rB, i = 0;
+    double sum;
+    for (i=0, rB=0; rB<numcol; rB++) {
+        sum = 1.0;
+        for (rA=0; rA<numcol; rA++, i++) {
+            tprobs[i] = sum <= 0.0 ? 1.0 : ttprobs[i] / sum;
+            sum -= ttprobs[i];
+        }
+    }
+}
 
 void init(int *no, int *np, int *ni, int *ne, int *st) {
     spop2_random_init();
@@ -53,8 +67,10 @@ void destroy(void) {
 void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *file0, const char *file1, double *ret, double *iret, int *success) {
 
     TIME = 0;
+    TIMEF = tf;
 
     model_param = pr;
+
 
 
     population larva;
@@ -115,6 +131,11 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
                 par[0] = 10;
                 par[1] = 4;
                 spop2_step(larva, par, &size_larva, completed_larva, 0);
+
+
+
+
+
 
 
 

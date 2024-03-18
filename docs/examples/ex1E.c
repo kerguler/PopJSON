@@ -20,6 +20,7 @@ double dmin(double a, double b) { return a < b ? a : b; }
 double dmax(double a, double b) { return a > b ? a : b; }
 
 int TIME;
+int TIMEF;
 
 double *model_param;
 double *envir_temp;
@@ -27,7 +28,20 @@ double *envir_temp;
 double d2m;
 double d2s;
 
+
 #define briere1(T,a,L,R) (((((T) <= (L))) ? (365.0) : (((((T) >= (R))) ? (365.0) : (dmin(365.0, dmax(1.0, (1.0 / exp(((a) + log((T)) + log(((T) - (L))) + (0.5 * log(((R) - (T))))))))))))))
+
+void prepare_tprobs(int numcol, double *ttprobs, double *tprobs) {
+    int rA, rB, i = 0;
+    double sum;
+    for (i=0, rB=0; rB<numcol; rB++) {
+        sum = 1.0;
+        for (rA=0; rA<numcol; rA++, i++) {
+            tprobs[i] = sum <= 0.0 ? 1.0 : ttprobs[i] / sum;
+            sum -= ttprobs[i];
+        }
+    }
+}
 
 void init(int *no, int *np, int *ni, int *ne, int *st) {
     spop2_set_eps(0.01);
@@ -71,10 +85,12 @@ void destroy(void) {
 void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *file0, const char *file1, double *ret, double *iret, int *success) {
 
     TIME = 0;
+    TIMEF = tf;
 
     model_param = pr;
 
     envir_temp = envir + 1; envir += (int)round(*envir) + 1;
+
 
     population larva;
 
@@ -138,6 +154,11 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
                 par[0] = d2m;
                 par[1] = d2s;
                 spop2_step(larva, par, &size_larva, completed_larva, 0);
+
+
+
+
+
 
 
 

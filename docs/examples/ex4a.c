@@ -18,6 +18,7 @@ double dmin(double a, double b) { return a < b ? a : b; }
 double dmax(double a, double b) { return a > b ? a : b; }
 
 int TIME;
+int TIMEF;
 
 double *model_param;
 
@@ -25,6 +26,7 @@ double adult_death;
 double num_gravid;
 double egg_laying;
 double total_eggs;
+
 
 
 void fun_harvest_gonotrophic_cycle(number *key, number num, number *newkey, double *frac) {
@@ -40,6 +42,18 @@ double fun_hazard_adult_num_dev_adult(hazard hfun, unsigned int d, number q, num
     hazpar hz = age_const_pars(devmn, devsd);
     double a = age_const_calc(age_const_haz, 0, key[adult_num_dev], hz.k, hz.theta, key);
     return a;
+}
+
+void prepare_tprobs(int numcol, double *ttprobs, double *tprobs) {
+    int rA, rB, i = 0;
+    double sum;
+    for (i=0, rB=0; rB<numcol; rB++) {
+        sum = 1.0;
+        for (rA=0; rA<numcol; rA++, i++) {
+            tprobs[i] = sum <= 0.0 ? 1.0 : ttprobs[i] / sum;
+            sum -= ttprobs[i];
+        }
+    }
 }
 
 void init(int *no, int *np, int *ni, int *ne, int *st) {
@@ -70,8 +84,10 @@ void destroy(void) {
 void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *file0, const char *file1, double *ret, double *iret, int *success) {
 
     TIME = 0;
+    TIMEF = tf;
 
     model_param = pr;
+
 
 
     population adult;
@@ -165,12 +181,17 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
 
                 spop2_harvest(popdone_adult[adult_dev], adult, fun_harvest_gonotrophic_cycle);
 
+                size_adult = spop2_size(adult);
+
+
+
+
+
+
                 spop2_empty(&popdone_adult[0]);
                 spop2_empty(&popdone_adult[1]);
                 spop2_empty(&popdone_adult[2]);
                 spop2_empty(&popdone_adult[3]);
-
-                size_adult = spop2_size(adult);
 
         }
 

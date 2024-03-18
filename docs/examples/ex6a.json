@@ -11,87 +11,38 @@
     },
     "environ": [
         {
-            "id": "temp",
-            "name": "Air temperature at 2m above ground (in °C)",
-            "url": ""
-        },{
             "id": "tprob",
-            "name": "5x5 connectivity matrix (fraction of transfer per day)",
+            "name": "3x3 connectivity matrix (fraction of transfer per day)",
             "url": ""
         }
     ],
     "parameters": [
-        {
-            "id": "pr_d4_dev_0",
-            "constant": false,
-            "name": "Temperature-driven adult (female) life expectancy no.0",
-            "value": -95.07
-        },{
-            "id": "pr_d4_dev_1",
-            "constant": false,
-            "name": "Temperature-driven adult (female) life expectancy no.1",
-            "value": 14.32
-        },{
-            "id": "pr_d4_dev_2",
-            "constant": false,
-            "name": "Temperature-driven adult (male) life expectancy no.2",
-            "value": -0.32
-        }
     ],
     "functions": {
-        "coord": ["define", ["I", "T"], ["+", ["*", "I", "TIMEF"], "T"]],
-        "matrix": ["define", ["I", "T"], ["+", ["*", "I", "25"], "T"]]
     },
     "intermediates": [
-        ["for", "XY", 0, 24, {
-            "id": "int_adult_life_mn_[XY]",
-            "value": ["max", "1.0", ["+", "pr_d4_dev_0", ["*", "pr_d4_dev_1", ["temp", ["coord", "[XY]", "TIME_1"]]], ["*", "pr_d4_dev_2", ["pow", ["temp", ["coord", "[XY]", "TIME_1"]], "2"]]]]
-        }]
     ],
     "populations": [
-        ["for", "XY", 0, 24, {
+        ["for", "XY", 0, 8, {
             "id": "adult_[XY]",
             "name": "Adult females",
             "processes": [
                 {
                     "id": "adult_mort_[XY]",
                     "name": "Adult lifetime",
-                    "arbiter": "ACC_FIXED",
-                    "value": ["100.0"],
-                    "value_old": ["int_adult_life_mn_[XY]", ["*", "0.5", "int_adult_life_mn_[XY]"]]
-                }
-            ]
-        }],
-        ["for", "XY", 0, 24, {
-            "id": "dummy_[XY]",
-            "name": "Adult females",
-            "processes": [
-                {
-                    "id": "dummy_mort_[XY]",
-                    "name": "Adult lifetime",
-                    "arbiter": "ACC_FIXED",
-                    "value": ["100.0"],
-                    "value_old": ["int_adult_life_mn_[XY]", ["*", "0.5", "int_adult_life_mn_[XY]"]]
+                    "arbiter": "NOAGE_CONST",
+                    "value": ["0.0"]
                 }
             ]
         }]
     ],
-    "transfers": [
-        ["for", "XYfrom", 0, 24, ["for", "XYto", 0, 24, {
-            "id": "transfer_adult[XYfrom]_dummy[XYto]",
+    "migrations": [
+        {
+            "id": "adult_dispersion",
             "name": "Adult female dispersion",
-            "from": "adult_[XYfrom]",
-            "to": "dummy_[XYto]",
-            "value": [["tprob", ["matrix", "[XYfrom]", "[XYto]"]], ["adult_mort_[XYfrom]"]],
-            "if": [">", ["tprob", ["matrix", "[XYfrom]", "[XYto]"]], "0.0"]
-        }]],
-        ["for", "XY", 0, 24, {
-            "id": "transfer_dummy[XY]_adult[XY]",
-            "name": "Adult female dispersion",
-            "from": "dummy_[XY]",
-            "to": "adult_[XY]",
-            "value": ["1.0", ["dummy_mort_[XY]"]]
-        }]
+            "prob": "tprob",
+            "target": [["for", "XY", 0, 8, "adult_[XY]"]]
+        }
     ],
     "transformations": [
     ]

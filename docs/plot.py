@@ -2,13 +2,13 @@ import numpy
 from matplotlib import pyplot as plt
 import population as pop
 
-print("Processing ex7a...")
-ex7a = pop.model("examples/ex7a.dylib")
+print("Processing ex6a...")
+ex6a = pop.model("examples/ex6a.dylib")
 
-C = 5
+C = 3
 C2 = C**2
 C4 = C2**2
-tf = 30
+tf = 1000
 
 tprob = numpy.repeat(0.0,C4)
 for xy0 in range(C2):
@@ -19,62 +19,17 @@ for xy0 in range(C2):
         y1 = xy1 % C
         z = xy0*C2+xy1
         tprob[z] = 0.1 if (x1==x0 and abs(y1-y0)==1) or (abs(x1-x0)==1 and y1==y0) or (abs(x1-x0)==1 and abs(y1-y0)==1) else 0.0
-        print(x0,y0,x1,y1,z,tprob[z])
     tprob[xy0*C2+xy0] = 1.0 - sum(tprob[(xy0*C2):((xy0+1)*C2)])
 
 print(tprob.reshape((C2,C2)))
 
-plt.imshow(tprob.reshape((C2,C2)),interpolation='none')
-plt.show()
+out6a = ex6a.sim(tf,envir={"tprob":tprob},pr=ex6a.param,y0={"adult_0":100.0})
 
-out7a = ex7a.sim(tf,envir={"tprob":tprob},pr=ex7a.param,y0={"adult_0":100.0})
+print(numpy.sum(out6a['ret'][0,tf-1,:]))
 
-plt.imshow(out7a['ret'][0,:,:],interpolation='none')
-plt.show()
-
-for i in range(tf):
-    plt.imshow(out7a['ret'][0,i,:].reshape((C,C)),interpolation='none',vmin=0,vmax=100)
-    plt.show()
-
-
-
-print("Processing ex6a...")
-ex6a = pop.model("examples/ex6a.dylib")
-
-tf = 30
-t2m = 30.0+numpy.random.random(tf)*20-10
-t2m = numpy.hstack([t2m for i in range(25)])
-
-# WARNING
-# Each transfer is processed sequentially!
-# Each transfer alters the state immediately!
-
-ttprob = numpy.repeat(0.0,25*25)
-for xy0 in range(25):
-    x0 = int(numpy.floor(xy0 / 5))
-    y0 = xy0 % 5
-    for xy1 in range(25):
-        x1 = int(numpy.floor(xy1 / 5))
-        y1 = xy1 % 5
-        d = numpy.sqrt((x1-x0)**2+(y1-y0)**2)
-        ttprob[xy0*25+xy1] = 0.1 if d>0.5 and d<1.5 else 0.0
-
-tprob = numpy.repeat(0.0,25*25)
-for xy0 in range(25):
-    for xy1 in range(25):
-        tprob[xy0*25+xy1] = ttprob[xy0*25+xy1]
-
-
-out6a = ex6a.sim(tf,envir={"temp":t2m,"tprob":tprob},pr=ex6a.param,y0={"adult_0":100.0})
-
-plt.imshow(tprob.reshape((25,25)))
-plt.show()
-
-plt.imshow(out6a['ret'][0,:,:25])
-plt.show()
-
-for i in range(tf):
-    plt.imshow(out6a['ret'][0,i,:25].reshape((5,5)))#,vmin=0,vmax=100)
+for i in [0,5,10,100]:
+    print(out6a['ret'][0,i,:].reshape((C,C)))
+    plt.imshow(out6a['ret'][0,i,:].reshape((C,C)),interpolation='none',vmin=0,vmax=100)
     plt.show()
 
 

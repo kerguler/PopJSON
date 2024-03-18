@@ -1,5 +1,4 @@
-# export MODELS=ex1a ex1E ex1b ex2a ex3a ex3b ex4a ex5a ex6a ex7a
-export MODELS=ex7a
+export MODELS=ex1a ex1E ex1b ex2a ex3a ex3b ex4a ex5a ex6a
 
 examples:
 	for MNAME in $$MODELS; do \
@@ -11,7 +10,4 @@ examples:
 
 clean:
 	rm *.dylib
-
-test:
-	gcc -L/usr/local/lib -I/usr/local/include -Wall -lm -lpopulation -lgsl -lgslcblas -shared -fPIC -o ex7a.dylib ex7a.c
 
