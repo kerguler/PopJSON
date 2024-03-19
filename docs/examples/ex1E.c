@@ -136,6 +136,7 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
     if (file0 && file0[0]!=' ') {
         fclose(file);
     }
+
     d2m = 0.0;
     d2s = 0.0;
 

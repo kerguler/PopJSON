@@ -1430,7 +1430,7 @@ class PopJSON {
             } );
             if ('migrations' in this.json) {
                 Object.keys(this.migrations).forEach( (trg) => {
-                    that.model += "    population popdummy_" + trg + " = spop2_init(arbiters, " + det + ");\n";
+                    that.model += "    population popdummy_" + trg + ";\n";
                 });
             }
             if ('transformations' in this.json) {
@@ -1517,6 +1517,16 @@ class PopJSON {
             this.model += "    if (file0 && file0[0]!=' ') {\n";
             this.model += "        fclose(file);\n";
             this.model += "    }\n";
+            this.model += "\n";
+            Object.keys(this.migrations).forEach( (trg) => {
+                let spc = that.popobj[trg in that.popobj ? trg : that.processobj[trg]['parent_id']];
+                for (j=0; j<that.numproc; j++) {
+                    that.model += "    arbiters[" + util.format(j) + "] = " + (j < spc['processes'].length ? spc['processes'][j]['arbiter'] : "STOP") + ";\n";
+                    that.model += "    key[" + util.format(j) + "] = numZERO;\n";
+                }
+                that.model += "    popdummy_" + trg + " = spop2_init(arbiters, " + det + ");\n";
+                that.model += "\n";
+            } );
         }
         //
         if ('intermediates' in this.json) {

@@ -517,15 +517,15 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
     number completed_adult_6[2];
     number completed_adult_7[2];
     number completed_adult_8[2];
-    population popdummy_adult_0 = spop2_init(arbiters, DETERMINISTIC);
-    population popdummy_adult_1 = spop2_init(arbiters, DETERMINISTIC);
-    population popdummy_adult_2 = spop2_init(arbiters, DETERMINISTIC);
-    population popdummy_adult_3 = spop2_init(arbiters, DETERMINISTIC);
-    population popdummy_adult_4 = spop2_init(arbiters, DETERMINISTIC);
-    population popdummy_adult_5 = spop2_init(arbiters, DETERMINISTIC);
-    population popdummy_adult_6 = spop2_init(arbiters, DETERMINISTIC);
-    population popdummy_adult_7 = spop2_init(arbiters, DETERMINISTIC);
-    population popdummy_adult_8 = spop2_init(arbiters, DETERMINISTIC);
+    population popdummy_adult_0;
+    population popdummy_adult_1;
+    population popdummy_adult_2;
+    population popdummy_adult_3;
+    population popdummy_adult_4;
+    population popdummy_adult_5;
+    population popdummy_adult_6;
+    population popdummy_adult_7;
+    population popdummy_adult_8;
     double par[1];
 
     FILE *file;
@@ -691,6 +691,61 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
     if (file0 && file0[0]!=' ') {
         fclose(file);
     }
+
+    arbiters[0] = NOAGE_CONST;
+    key[0] = numZERO;
+    arbiters[1] = STOP;
+    key[1] = numZERO;
+    popdummy_adult_0 = spop2_init(arbiters, DETERMINISTIC);
+
+    arbiters[0] = NOAGE_CONST;
+    key[0] = numZERO;
+    arbiters[1] = STOP;
+    key[1] = numZERO;
+    popdummy_adult_1 = spop2_init(arbiters, DETERMINISTIC);
+
+    arbiters[0] = NOAGE_CONST;
+    key[0] = numZERO;
+    arbiters[1] = STOP;
+    key[1] = numZERO;
+    popdummy_adult_2 = spop2_init(arbiters, DETERMINISTIC);
+
+    arbiters[0] = NOAGE_CONST;
+    key[0] = numZERO;
+    arbiters[1] = STOP;
+    key[1] = numZERO;
+    popdummy_adult_3 = spop2_init(arbiters, DETERMINISTIC);
+
+    arbiters[0] = NOAGE_CONST;
+    key[0] = numZERO;
+    arbiters[1] = STOP;
+    key[1] = numZERO;
+    popdummy_adult_4 = spop2_init(arbiters, DETERMINISTIC);
+
+    arbiters[0] = NOAGE_CONST;
+    key[0] = numZERO;
+    arbiters[1] = STOP;
+    key[1] = numZERO;
+    popdummy_adult_5 = spop2_init(arbiters, DETERMINISTIC);
+
+    arbiters[0] = NOAGE_CONST;
+    key[0] = numZERO;
+    arbiters[1] = STOP;
+    key[1] = numZERO;
+    popdummy_adult_6 = spop2_init(arbiters, DETERMINISTIC);
+
+    arbiters[0] = NOAGE_CONST;
+    key[0] = numZERO;
+    arbiters[1] = STOP;
+    key[1] = numZERO;
+    popdummy_adult_7 = spop2_init(arbiters, DETERMINISTIC);
+
+    arbiters[0] = NOAGE_CONST;
+    key[0] = numZERO;
+    arbiters[1] = STOP;
+    key[1] = numZERO;
+    popdummy_adult_8 = spop2_init(arbiters, DETERMINISTIC);
+
 
     size_adult_0 = spop2_size(adult_0);
     size_adult_1 = spop2_size(adult_1);

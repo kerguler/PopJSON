@@ -141,6 +141,7 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
         fclose(file);
     }
 
+
     size_adult = spop2_size(adult);
 
     ret[0] = (double)(size_adult.i);
