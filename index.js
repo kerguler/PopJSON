@@ -143,7 +143,7 @@ class PopJSON {
                     let tmp = this.handle_repeats(obj[i],label=label,counter=counter);
                     if (tmp.constructor == Array && obj[i][0] == str) { // NEXT ONE IS A FOR LOOP
                         for (let j=0; j<tmp.length; j++)
-                            ret.push(tmp[j]);
+                            ret.push(this.handle_repeats(tmp[j],label=label,counter=counter));
                     } else {
                         ret.push(tmp);
                     }
