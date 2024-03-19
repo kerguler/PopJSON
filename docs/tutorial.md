@@ -530,9 +530,11 @@ The plot demonstrates that the majority of larva population complete development
 
 ## Vector dispersion modelling
 
-It is common in vector dynamics and epidemiological models to associate populations with a geographical area. We must define the populations and the links between them explicitly to model the movement of individuals from one area to another.
+In spatially explicit vector dynamics and epidemiological models, populations are associated with a geographical area. Then, a three dimensional transition kernel (most likely based on a distance measure) is defined to guide the movement of individuals from one area to another.
 
-PopJSON incorporates the **migrations** tag for this purpose.
+To model such mobility, we implemented the **migrations** tag, which takes the transition kernel with the **prob** tag and the list of mobile populations with the **target** tag. The transition kernel is a square matrix of transition rates/probabilities from each population (at each location) to all the others (at other locations).
+
+The following is an example definition, which concerns 9 adult mosquito populations located at 3x3 neighbouring grid boxes. 
 
 ```json
 {
@@ -547,8 +549,39 @@ PopJSON incorporates the **migrations** tag for this purpose.
 }
 ```
 
+Please note that instead of supplying ```["adult_0","adult_1","adult_2",...]``` to **target**, we used a **for** loop. This loop is defined with a list of 5 elements: the **for** tag, a label, the beginning number, the ending number (included), and the object to be repeated. The substring contaning the label, [XY], is replaced at each iteration of the counter, XY. 
+
+For loop can also be used to replicate objects, such as populations as shown in the following example.
+
+```json
+{
+    "populations": [
+        ["for", "XY", 0, 8, 
+            {
+            "id": "adult_[XY]",
+            "name": "Adult females",
+            "processes": [
+                    {
+                    "id": "adult_mort_[XY]",
+                    "name": "Adult lifetime",
+                    "arbiter": "NOAGE_CONST",
+                    "value": ["0.0"]
+                    }
+                ]
+            }
+        ]
+    ]
+}
+```
+
+This defines 9 populations, labelled from 0 to 8, with no exit rate (for testing purposes).
+
+Next, we define a transition kernel. For simplicity, we assume that a population moves between two connected grid cells at a rate of 10% per step.
+
 |     |     |     |     |     |     |     |     |     |
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| Row 0 | Row 0 | Row 0 | Row 1 | Row 1 | Row 1 | Row 2 | Row 2 | Row 2 |
+| Col 0 | Col 1 | Col 2 | Col 0 | Col 1 | Col 2 | Col 0 | Col 1 | Col 2 |
 | 0.8 | 0.1 | 0.0 | 0.1 | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 |
 | 0.1 | 0.7 | 0.1 | 0.0 | 0.1 | 0.0 | 0.0 | 0.0 | 0.0 |
 | 0.0 | 0.1 | 0.8 | 0.0 | 0.0 | 0.1 | 0.0 | 0.0 | 0.0 |
@@ -558,6 +591,10 @@ PopJSON incorporates the **migrations** tag for this purpose.
 | 0.0 | 0.0 | 0.0 | 0.1 | 0.0 | 0.0 | 0.8 | 0.1 | 0.0 |
 | 0.0 | 0.0 | 0.0 | 0.0 | 0.1 | 0.0 | 0.1 | 0.7 | 0.1 |
 | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 | 0.1 | 0.0 | 0.1 | 0.8 |
+
+Please note that each row should sum up to 1, otherwise the remaining fraction of the population might be lost. The resulting transition kernel must be supplied as an environmental variable in the form of an array, such as ```[0.8, 0.1, 0.0, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.7, 0.1, 0.0, ...]```.
+
+The resulting spread, originating from 100 individuals at row (0,0), can be seen below.
 
 <div class="myFigures">
 
