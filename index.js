@@ -589,7 +589,7 @@ class PopJSON {
                     return {};
                 }
                 let len = trg['target'].constructor == Array ? trg['target'].length : 1;
-                that.model += "    prepare_tprobs(" + len + ", envir_" + trg['prob'] + ", " + trg['prob'] + "_" + trg['id'] + ");\n";
+                that.model += "    prepare_tprobs(" + len + ", envir_" + trg['prob'] + ", tprob_" + trg['id'] + ");\n";
             });
             this.model += "\n";
         }
@@ -821,8 +821,8 @@ class PopJSON {
             //
             if ('migrations' in this.json) {
                 let pops = [];
-                let i = 0;
                 this.json['migrations'].forEach( (trn) => {
+                    let i = 0;
                     trn['target'].forEach( (trx0, i0) => {
                         trn['target'].forEach( (trx1, i1) => {
                             that.model += "                spop2_harvest(";
