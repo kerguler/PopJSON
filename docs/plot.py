@@ -30,7 +30,7 @@ ex1E = pop.model("examples/ex1E.dylib")
 t2m = numpy.arange(0,40,0.01)+273.15
 out1Ef = ex1E.sim(len(t2m), envir={"temp":t2m}, pr=ex1E.param)
 plt.plot(t2m[1:],out1Ef['iret'][0,:,0],'-',c="black")
-plt.xlabel("Temperature (°C)")
+plt.xlabel("Temperature (K)")
 plt.ylabel("Development time (days)")
 plt.ylim(0,100)
 plt.savefig("figures/ex1Ebr.png",bbox_inches="tight",dpi=300)
