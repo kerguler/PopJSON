@@ -11,6 +11,7 @@ dfun = lambda p0,p1: abs(p1[0]-p0[0])+abs(p1[1]-p0[1])
 pts = [(x,y) for x in range(C) for y in range(C)]
 tprobs = numpy.array([[0.1 if dfun(p0,p1)==1 else 0.0 for p1 in pts] for p0 in pts])
 numpy.fill_diagonal(tprobs,1.0-numpy.sum(tprobs,axis=1))
+tprobs = tprobs.reshape(C**4)
 #
 print(["| %s |\n" %(" | ".join([str(a) for a in row])) for row in tprobs.reshape((C**2,C**2))])
 #
