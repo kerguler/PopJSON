@@ -101,7 +101,7 @@ A population, by definition, is a structured collection of similar individuals. 
     ]
 }
 ```
-See [ex1a.json](./examples/ex1a.json) and [ex1a.c](./examples/ex1a.c) for the full PopJSON representation and the C translation.
+See [ex1a.json](./examples/ex1a.json) and [ex1a.c](./examples/ex1a.c) for full PopJSON representation and C translation. Use [plot_ex1.py](./plot_ex1.py) to run the model.
 
 The above example represents a larva population with a development time of 10 days (with a standard deviation of 4 days). The population is age-structured and the development time is gamma-distributed.
 
@@ -225,7 +225,7 @@ Lastly, we define the **parameters** of the model to complete the temperature de
     ]
 }
 ```
-See [ex1E.json](./examples/ex1E.json) and [ex1E.c](./examples/ex1E.c) for the full PopJSON representation and the C translation.
+See [ex1E.json](./examples/ex1E.json) and [ex1E.c](./examples/ex1E.c) for full PopJSON representation and C translation. Use [plot_ex1E.py](./plot_ex1E.py) to run the model.
 
 <div class="myFigures">
 
@@ -276,7 +276,7 @@ Here, we define the two processes for larva (in the plausible order) and follow 
     ]
 }
 ```
-See [ex2a.json](./examples/ex2a.json) and [ex2a.c](./examples/ex2a.c) for the full PopJSON representation and the C translation.
+See [ex2a.json](./examples/ex2a.json) and [ex2a.c](./examples/ex2a.c) for full PopJSON representation and C translation. Use [plot_ex2.py](./plot_ex2.py) to run the model.
 
 The following **transformations** tag is needed to bind **larva_mort** to **larva_death** and **larva_dev** to **larva_to_pupa** to make them visible (remember that internal population structure is hidden by default). Otherwise, only the size of the **larva** population is monitored.
 
@@ -368,7 +368,7 @@ The problem, however, is the need to add the females back into the population. F
 
 Before making the transfer, the algorithm allows us to declare the fraction of each sub-class to be transferred and to apply a transformation on the sub-class structure. This is defined in the **value** tag above as the first and second elements, respectively. Namely, all individuals should be transferred, the value of the process **adult_mort** (of **adult**) should stay as is, and **adult_dev** (the second one in the - second - list) should be reset to 0.
 
-See [ex3a.json](./examples/ex3a.json) and [ex3a.c](./examples/ex3a.c) for the full PopJSON representation and the C translation ([ex3b.json](./examples/ex3b.json) and [ex3b.c](./examples/ex3b.c) for the stochastic version).
+See [ex3a.json](./examples/ex3a.json) and [ex3a.c](./examples/ex3a.c) for full PopJSON representation and C translation ([ex3b.json](./examples/ex3b.json) and [ex3b.c](./examples/ex3b.c) for the stochastic version). Use [plot_ex3.py](./plot_ex3.py) to run the model.
 
 And, voila!
 
@@ -434,7 +434,7 @@ Finally, we define **total_eggs** as the cumulative number of eggs laid.
     ]
 }
 ```
-See [ex4a.json](./examples/ex4a.json) and [ex4a.c](./examples/ex4a.c) for the full PopJSON representation and the C translation.
+See [ex4a.json](./examples/ex4a.json) and [ex4a.c](./examples/ex4a.c) for full PopJSON representation and C translation. Use [plot_ex4.py](./plot_ex4.py) to run the model.
 
 ![Limited number of gonotrophic cycles](figures/ex4a.png "Deterministic - Erlang-distributed")
 
@@ -520,7 +520,7 @@ Where does **history** come from? Please have a look at the **transfers** declar
 
 When immature stage development is complete, we take all those completing development (**immat_dev**) and add them to the **adult** stage by setting the **adult_mort** counter 0 (adult life has just started) and **history** a scaled version of **immat_mort**. For instance, if a group of individuals have spent 50\% of their lifetime in the immature stage, **history** of the adults will become 50. If development is faster, **history** will be smaller. Please note that the scaling is necessary as the **NOAGE_CONST** arbiter of **history** accepts an integer counter.
 
-See [ex5a.json](./examples/ex5a.json) and [ex5a.c](./examples/ex5a.c) for the full PopJSON representation and the C translation.
+See [ex5a.json](./examples/ex5a.json) and [ex5a.c](./examples/ex5a.c) for full PopJSON representation and C translation. Use [plot_ex5.py](./plot_ex5.py) to run the model.
 
 Here is the output under two constant temperatures (15<sup>o</sup>C and 30<sup>o</sup>C)
 
@@ -608,12 +608,114 @@ The resulting spread, originating from 100 individuals at row (0,0), can be seen
 
 </div>
 
-See [ex6a.json](./examples/ex6a.json) and [ex6a.c](./examples/ex6a.c) for the full PopJSON representation and the C translation.
+See [ex6a.json](./examples/ex6a.json) and [ex6a.c](./examples/ex6a.c) for full PopJSON representation and C translation. Use [plot_ex6.py](./plot_ex6.py) to run the model.
 
 ## Genetic structure and inheritance
 
-<p><img src="figures/044-forklift.png" width="200px" alt="Under construction"></img></p>
-We are working on this. Please come back soon for updates.
+We can introduce genetic structure to the spatially-explicit population above by adding just a few more lines of PopJSON. First, we divide the population into immatures and adults. Then, configure the necessary stage transformations (adult emergence and ovipositioning), and finally, set up adult mobility across the spatial scale.
+
+```json
+{
+    "populations": [
+        ["for", "G", 0, 2, ["for", "XY", 0, 63, {
+            "id": "immature_[G]_[XY]",
+            "name": "Immature stages (combined)",
+            "processes": [
+                {
+                    "id": "immature_dev_[G]_[XY]",
+                    "name": "Development time",
+                    "arbiter": "ACC_ERLANG",
+                    "value": ["pr_stage_duration_mn", "pr_stage_duration_sd"]
+                }
+            ]
+        } ]],
+        ["for", "G", 0, 2, ["for", "XY", 0, 63, {
+            "id": "adult_[G]_[XY]",
+            "name": "Adult females",
+            "processes": [
+                {
+                    "id": "adult_mort_[G]_[XY]",
+                    "name": "Adult lifetime",
+                    "arbiter": "ACC_ERLANG",
+                    "value": ["pr_stage_duration_mn", "pr_stage_duration_sd"]
+                }
+            ]
+        } ]]
+    ]
+}
+```
+
+In this definition of the populations, we use nested for loops to structure both immatures and adults into 3 genotypes (**AA**, **Aa**, and **aa**) and 64 locations.
+
+```json
+{
+    "transformations": [
+        ["for", "G", 0, 2, ["for", "XY", 0, 63, {
+            "id": "emergence_[G]_[XY]",
+            "to": "adult_[G]_[XY]",
+            "value": "immature_dev_[G]_[XY]"
+        } ]],
+        ["for", "Ga", 0, 2, ["for", "Gb", 0, 2, ["for", "Gab", 0, 2, ["for", "XY", 0, 63, {
+            "id": "ovipos_[Ga]_[Gb]_[Gab]_[XY]",
+            "to": "immature_[Gab]_[XY]",
+            "value": ["*","pr_F4",["cube","[Ga]","[Gb]","[Gab]"],"adult_[Ga]_[XY]","adult_[Gb]_[XY]"]
+        } ]]]]
+    ]
+}
+```
+
+For each of these sub-groups, we define a transformation from the immature stages to the adult stage. To represent egg laying, we use the nested for loops in the following order: For each location (**XY**), for each genotype of the progeny (**Gab**) at that location, and for each genotype of the father (**Gb**) and mother (**Ga**) at that location, we extract the fraction of the progeny from the inheritance cube and multiply it with the expected number of eggs (fecundity x males x females). We assume, for simplicity, that the adults are a mixture of males and females and the sex ratio is included in parameter **pr_F4**.
+
+We define a simple Mendelian inheritance cube for two alleles (**A** and **a**) in one locus (for more information about the inheritance cubes, see <a href="https://doi.org/10.1371/journal.pcbi.1009030" target="_blank" rel="noreferrer">MGDrivE</a>). Essentially, we assume that when a mother with genotype **Aa** mates with a father with genotype **Aa**, their progeny will consist of 25% **AA**, 50% **Aa**, and 25% **aa** individuals.
+
+The cube needs to be supplied as a linear environmental variable (**inheritance**):
+```json
+{
+    "environ": [
+        ["for", "G", 0, 2, {
+            "id": "tprob_[G]",
+            "name": "Connectivity matrix (fraction of transfer per day)",
+            "url": ""
+        }],
+        {
+            "id": "inheritance",
+            "name": "The inheritance cube",
+            "url": ""
+        }
+    ]
+}
+```
+
+Therefore, the extraction is performed using a simple mapping equation:
+```json
+{
+    "functions": {
+        "cube": ["define", ["a","b","c"], ["inheritance", ["+", ["*", "a", 9], ["*", "b", 3], "c"]]]
+    }
+}
+```
+
+Finally, we define mobility for the three adult genotypes:
+```json
+{
+    "migrations": [
+        ["for", "G", 0, 2, {
+            "id": "adult_dispersion_[G]",
+            "name": "Adult dispersion",
+            "prob": "tprob_[G]",
+            "target": [["for", "XY", 0, 63, "adult_[G]_[XY]"]]
+        }]
+    ]
+}
+```
+
+![Initial state](figures/ex7a000.png "")
+
+![Population at step 40](figures/ex7a040.png "")
+
+![Population at step 160](figures/ex7a160.png "")
+
+See [ex7a.json](./examples/ex7a.json) and [ex7a.c](./examples/ex7a.c) for full PopJSON representation and C translation. Use [plot_ex7.py](./plot_ex7.py) to run the model.
 
 # Operators for equations
 

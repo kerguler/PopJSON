@@ -1,0 +1,93 @@
+{
+    "model": {
+        "title": "Climate-sensitive population dynamics of Aedes albopictus",
+        "type": "Population",
+        "url": "https://github.com/kerguler/Population",
+        "deterministic": true,
+        "parameters": {
+            "algorithm": "Population",
+            "istep": 1e-13
+        }
+    },
+    "environ": [
+        ["for", "G", 0, 2, {
+            "id": "tprob_[G]",
+            "name": "Connectivity matrix (fraction of transfer per day)",
+            "url": ""
+        }],
+        {
+            "id": "inheritance",
+            "name": "The inheritance cube",
+            "url": ""
+        }
+    ],
+    "parameters": [
+        {
+            "id": "pr_stage_duration_mn",
+            "constant": false,
+            "name": "Mean stage duration",
+            "value": 40.0
+        },{
+            "id": "pr_stage_duration_sd",
+            "constant": false,
+            "name": "St. dev. of stage duration",
+            "value": 10.0
+        },{
+            "id": "pr_F4",
+            "constant": false,
+            "name": "Fecundity",
+            "value": 0.01
+        }
+    ],
+    "functions": {
+        "cube": ["define", ["a","b","c"], ["inheritance", ["+", ["*", "a", 9], ["*", "b", 3], "c"]]]
+    },
+    "intermediates": [
+    ],
+    "populations": [
+        ["for", "G", 0, 2, ["for", "XY", 0, 63, {
+            "id": "immature_[G]_[XY]",
+            "name": "Immature stages (combined)",
+            "processes": [
+                {
+                    "id": "immature_dev_[G]_[XY]",
+                    "name": "Development time",
+                    "arbiter": "ACC_ERLANG",
+                    "value": ["pr_stage_duration_mn", "pr_stage_duration_sd"]
+                }
+            ]
+        } ]],
+        ["for", "G", 0, 2, ["for", "XY", 0, 63, {
+            "id": "adult_[G]_[XY]",
+            "name": "Adults",
+            "processes": [
+                {
+                    "id": "adult_mort_[G]_[XY]",
+                    "name": "Adult lifetime",
+                    "arbiter": "ACC_ERLANG",
+                    "value": ["pr_stage_duration_mn", "pr_stage_duration_sd"]
+                }
+            ]
+        } ]]
+    ],
+    "transformations": [
+        ["for", "G", 0, 2, ["for", "XY", 0, 63, {
+            "id": "emergence_[G]_[XY]",
+            "to": "adult_[G]_[XY]",
+            "value": "immature_dev_[G]_[XY]"
+        } ]],
+        ["for", "Ga", 0, 2, ["for", "Gb", 0, 2, ["for", "Gab", 0, 2, ["for", "XY", 0, 63, {
+            "id": "ovipos_[Ga]_[Gb]_[Gab]_[XY]",
+            "to": "immature_[Gab]_[XY]",
+            "value": ["*","pr_F4",["cube","[Ga]","[Gb]","[Gab]"],"adult_[Ga]_[XY]","adult_[Gb]_[XY]"]
+        } ]]]]
+    ],
+    "migrations": [
+        ["for", "G", 0, 2, {
+            "id": "adult_dispersion_[G]",
+            "name": "Adult dispersion",
+            "prob": "tprob_[G]",
+            "target": [["for", "XY", 0, 63, "adult_[G]_[XY]"]]
+        }]
+    ]
+}

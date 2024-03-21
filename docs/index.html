@@ -299,8 +299,9 @@ class="sourceCode json"><code class="sourceCode json"><span id="cb2-1"><a href="
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
 <span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <p>See <a href="./examples/ex1a.json">ex1a.json</a> and <a
-href="./examples/ex1a.c">ex1a.c</a> for the full PopJSON representation
-and the C translation.</p>
+href="./examples/ex1a.c">ex1a.c</a> for full PopJSON representation and
+C translation. Use <a href="./plot_ex1.py">plot_ex1.py</a> to run the
+model.</p>
 <p>The above example represents a larva population with a development
 time of 10 days (with a standard deviation of 4 days). The population is
 age-structured and the development time is gamma-distributed.</p>
@@ -454,8 +455,9 @@ class="sourceCode json"><code class="sourceCode json"><span id="cb8-1"><a href="
 <span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
 <span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <p>See <a href="./examples/ex1E.json">ex1E.json</a> and <a
-href="./examples/ex1E.c">ex1E.c</a> for the full PopJSON representation
-and the C translation.</p>
+href="./examples/ex1E.c">ex1E.c</a> for full PopJSON representation and
+C translation. Use <a href="./plot_ex1E.py">plot_ex1E.py</a> to run the
+model.</p>
 <div class="myFigures">
 <figure>
 <img src="figures/ex1Ebr.png" title="Briere1 function"
@@ -515,8 +517,9 @@ class="sourceCode json"><code class="sourceCode json"><span id="cb9-1"><a href="
 <span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
 <span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <p>See <a href="./examples/ex2a.json">ex2a.json</a> and <a
-href="./examples/ex2a.c">ex2a.c</a> for the full PopJSON representation
-and the C translation.</p>
+href="./examples/ex2a.c">ex2a.c</a> for full PopJSON representation and
+C translation. Use <a href="./plot_ex2.py">plot_ex2.py</a> to run the
+model.</p>
 <p>The following <strong>transformations</strong> tag is needed to bind
 <strong>larva_mort</strong> to <strong>larva_death</strong> and
 <strong>larva_dev</strong> to <strong>larva_to_pupa</strong> to make
@@ -626,9 +629,10 @@ of the process <strong>adult_mort</strong> (of <strong>adult</strong>)
 should stay as is, and <strong>adult_dev</strong> (the second one in the
 - second - list) should be reset to 0.</p>
 <p>See <a href="./examples/ex3a.json">ex3a.json</a> and <a
-href="./examples/ex3a.c">ex3a.c</a> for the full PopJSON representation
-and the C translation (<a href="./examples/ex3b.json">ex3b.json</a> and
-<a href="./examples/ex3b.c">ex3b.c</a> for the stochastic version).</p>
+href="./examples/ex3a.c">ex3a.c</a> for full PopJSON representation and
+C translation (<a href="./examples/ex3b.json">ex3b.json</a> and <a
+href="./examples/ex3b.c">ex3b.c</a> for the stochastic version). Use <a
+href="./plot_ex3.py">plot_ex3.py</a> to run the model.</p>
 <p>And, voila!</p>
 <figure>
 <img src="figures/ex3a.png" title="Deterministic - Erlang-distributed"
@@ -712,8 +716,9 @@ class="sourceCode json"><code class="sourceCode json"><span id="cb15-1"><a href=
 <span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
 <span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <p>See <a href="./examples/ex4a.json">ex4a.json</a> and <a
-href="./examples/ex4a.c">ex4a.c</a> for the full PopJSON representation
-and the C translation.</p>
+href="./examples/ex4a.c">ex4a.c</a> for full PopJSON representation and
+C translation. Use <a href="./plot_ex4.py">plot_ex4.py</a> to run the
+model.</p>
 <figure>
 <img src="figures/ex4a.png" title="Deterministic - Erlang-distributed"
 alt="Limited number of gonotrophic cycles" />
@@ -823,8 +828,9 @@ faster, <strong>history</strong> will be smaller. Please note that the
 scaling is necessary as the <strong>NOAGE_CONST</strong> arbiter of
 <strong>history</strong> accepts an integer counter.</p>
 <p>See <a href="./examples/ex5a.json">ex5a.json</a> and <a
-href="./examples/ex5a.c">ex5a.c</a> for the full PopJSON representation
-and the C translation.</p>
+href="./examples/ex5a.c">ex5a.c</a> for full PopJSON representation and
+C translation. Use <a href="./plot_ex5.py">plot_ex5.py</a> to run the
+model.</p>
 <p>Here is the output under two constant temperatures (15<sup>o</sup>C
 and 30<sup>o</sup>C)</p>
 <figure>
@@ -1050,14 +1056,137 @@ can be seen below.</p>
 <p><img src="figures/ex6a100.png" /></p>
 </div>
 <p>See <a href="./examples/ex6a.json">ex6a.json</a> and <a
-href="./examples/ex6a.c">ex6a.c</a> for the full PopJSON representation
-and the C translation.</p>
+href="./examples/ex6a.c">ex6a.c</a> for full PopJSON representation and
+C translation. Use <a href="./plot_ex6.py">plot_ex6.py</a> to run the
+model.</p>
 <h2 id="genetic-structure-and-inheritance">Genetic structure and
 inheritance</h2>
-<p>
-<img src="figures/044-forklift.png" width="200px" alt="Under construction"></img>
-</p>
-<p>We are working on this. Please come back soon for updates.</p>
+<p>We can introduce genetic structure to the spatially-explicit
+population above by adding just a few more lines of PopJSON. First, we
+divide the population into immatures and adults. Then, configure the
+necessary stage transformations (adult emergence and ovipositioning),
+and finally, set up adult mobility across the spatial scale.</p>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;populations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>        <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;G&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">2</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;XY&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">63</span><span class="ot">,</span> <span class="fu">{</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;immature_[G]_[XY]&quot;</span><span class="fu">,</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Immature stages (combined)&quot;</span><span class="fu">,</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;processes&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>                <span class="fu">{</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;immature_dev_[G]_[XY]&quot;</span><span class="fu">,</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Development time&quot;</span><span class="fu">,</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;arbiter&quot;</span><span class="fu">:</span> <span class="st">&quot;ACC_ERLANG&quot;</span><span class="fu">,</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;pr_stage_duration_mn&quot;</span><span class="ot">,</span> <span class="st">&quot;pr_stage_duration_sd&quot;</span><span class="ot">]</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>                <span class="fu">}</span></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>            <span class="ot">]</span></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span> <span class="ot">]],</span></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>        <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;G&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">2</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;XY&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">63</span><span class="ot">,</span> <span class="fu">{</span></span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_[G]_[XY]&quot;</span><span class="fu">,</span></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Adult females&quot;</span><span class="fu">,</span></span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;processes&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>                <span class="fu">{</span></span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_mort_[G]_[XY]&quot;</span><span class="fu">,</span></span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Adult lifetime&quot;</span><span class="fu">,</span></span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;arbiter&quot;</span><span class="fu">:</span> <span class="st">&quot;ACC_ERLANG&quot;</span><span class="fu">,</span></span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;pr_stage_duration_mn&quot;</span><span class="ot">,</span> <span class="st">&quot;pr_stage_duration_sd&quot;</span><span class="ot">]</span></span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>                <span class="fu">}</span></span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>            <span class="ot">]</span></span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span> <span class="ot">]]</span></span>
+<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>In this definition of the populations, we use nested for loops to
+structure both immatures and adults into 3 genotypes
+(<strong>AA</strong>, <strong>Aa</strong>, and <strong>aa</strong>) and
+64 locations.</p>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;transformations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>        <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;G&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">2</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;XY&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">63</span><span class="ot">,</span> <span class="fu">{</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;emergence_[G]_[XY]&quot;</span><span class="fu">,</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;to&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_[G]_[XY]&quot;</span><span class="fu">,</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="st">&quot;immature_dev_[G]_[XY]&quot;</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span> <span class="ot">]],</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>        <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;Ga&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">2</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;Gb&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">2</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;Gab&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">2</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;XY&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">63</span><span class="ot">,</span> <span class="fu">{</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;ovipos_[Ga]_[Gb]_[Gab]_[XY]&quot;</span><span class="fu">,</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;to&quot;</span><span class="fu">:</span> <span class="st">&quot;immature_[Gab]_[XY]&quot;</span><span class="fu">,</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;*&quot;</span><span class="ot">,</span><span class="st">&quot;pr_F4&quot;</span><span class="ot">,[</span><span class="st">&quot;cube&quot;</span><span class="ot">,</span><span class="st">&quot;[Ga]&quot;</span><span class="ot">,</span><span class="st">&quot;[Gb]&quot;</span><span class="ot">,</span><span class="st">&quot;[Gab]&quot;</span><span class="ot">],</span><span class="st">&quot;adult_[Ga]_[XY]&quot;</span><span class="ot">,</span><span class="st">&quot;adult_[Gb]_[XY]&quot;</span><span class="ot">]</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span> <span class="ot">]]]]</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>For each of these sub-groups, we define a transformation from the
+immature stages to the adult stage. To represent egg laying, we use the
+nested for loops in the following order: For each location
+(<strong>XY</strong>), for each genotype of the progeny
+(<strong>Gab</strong>) at that location, and for each genotype of the
+father (<strong>Gb</strong>) and mother (<strong>Ga</strong>) at that
+location, we extract the fraction of the progeny from the inheritance
+cube and multiply it with the expected number of eggs (fecundity x males
+x females). We assume, for simplicity, that the adults are a mixture of
+males and females and the sex ratio is included in parameter
+<strong>pr_F4</strong>.</p>
+<p>We define a simple Mendelian inheritance cube for two alleles
+(<strong>A</strong> and <strong>a</strong>) in one locus (for more
+information about the inheritance cubes, see
+<a href="https://doi.org/10.1371/journal.pcbi.1009030" target="_blank" rel="noreferrer">MGDrivE</a>).
+Essentially, we assume that when a mother with genotype
+<strong>Aa</strong> mates with a father with genotype
+<strong>Aa</strong>, their progeny will consist of 25%
+<strong>AA</strong>, 50% <strong>Aa</strong>, and 25%
+<strong>aa</strong> individuals.</p>
+<p>The cube needs to be supplied as a linear environmental variable
+(<strong>inheritance</strong>):</p>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;environ&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>        <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;G&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">2</span><span class="ot">,</span> <span class="fu">{</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;tprob_[G]&quot;</span><span class="fu">,</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Connectivity matrix (fraction of transfer per day)&quot;</span><span class="fu">,</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;url&quot;</span><span class="fu">:</span> <span class="st">&quot;&quot;</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">],</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;inheritance&quot;</span><span class="fu">,</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;The inheritance cube&quot;</span><span class="fu">,</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;url&quot;</span><span class="fu">:</span> <span class="st">&quot;&quot;</span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>Therefore, the extraction is performed using a simple mapping
+equation:</p>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;functions&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;cube&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;define&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;a&quot;</span><span class="ot">,</span><span class="st">&quot;b&quot;</span><span class="ot">,</span><span class="st">&quot;c&quot;</span><span class="ot">],</span> <span class="ot">[</span><span class="st">&quot;inheritance&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;+&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;*&quot;</span><span class="ot">,</span> <span class="st">&quot;a&quot;</span><span class="ot">,</span> <span class="dv">9</span><span class="ot">],</span> <span class="ot">[</span><span class="st">&quot;*&quot;</span><span class="ot">,</span> <span class="st">&quot;b&quot;</span><span class="ot">,</span> <span class="dv">3</span><span class="ot">],</span> <span class="st">&quot;c&quot;</span><span class="ot">]]]</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>Finally, we define mobility for the three adult genotypes:</p>
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;migrations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>        <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;G&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">2</span><span class="ot">,</span> <span class="fu">{</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_dispersion_[G]&quot;</span><span class="fu">,</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Adult dispersion&quot;</span><span class="fu">,</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;prob&quot;</span><span class="fu">:</span> <span class="st">&quot;tprob_[G]&quot;</span><span class="fu">,</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;target&quot;</span><span class="fu">:</span> <span class="ot">[[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;XY&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">63</span><span class="ot">,</span> <span class="st">&quot;adult_[G]_[XY]&quot;</span><span class="ot">]]</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">]</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<figure>
+<img src="figures/ex7a000.png" alt="Initial state" />
+<figcaption aria-hidden="true">Initial state</figcaption>
+</figure>
+<figure>
+<img src="figures/ex7a040.png" alt="Population at step 40" />
+<figcaption aria-hidden="true">Population at step 40</figcaption>
+</figure>
+<figure>
+<img src="figures/ex7a160.png" alt="Population at step 160" />
+<figcaption aria-hidden="true">Population at step 160</figcaption>
+</figure>
+<p>See <a href="./examples/ex7a.json">ex7a.json</a> and <a
+href="./examples/ex7a.c">ex7a.c</a> for full PopJSON representation and
+C translation. Use <a href="./plot_ex7.py">plot_ex7.py</a> to run the
+model.</p>
 <h1 id="operators-for-equations">Operators for equations</h1>
 <table>
 <colgroup>
