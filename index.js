@@ -20,10 +20,10 @@
 
 'use strict';
 
-const version = '1.2.5';
+const version = '1.2.6';
 
-const fs = require('fs');
-const util = require('util');
+// const fs = require('fs');
+// const util = require('util');
 
 const arbiter = {
     'ACC_FIXED': 'd',
@@ -77,6 +77,7 @@ class PopJSON {
             "json": this.json
         });
     }
+    /*
     parse_file(filename) {
         this.filename = filename;
         let data = fs.readFileSync(this.filename);
@@ -94,6 +95,7 @@ class PopJSON {
         this.parse();
         return(this.results());
     }
+    */
     parse_json(text) {
         try {
             this.json = JSON.parse(text);
@@ -314,28 +316,28 @@ class PopJSON {
             } );
         }
         //
-        this.header += "#define NumPar " + util.format(this.numpar) + "\n";
-        this.header += "#define NumPop " + util.format(this.numpop) + "\n";
-        this.header += "#define NumInt " + util.format(this.numint) + "\n";
-        this.header += "#define NumEnv " + util.format(this.numenv) + "\n";
+        this.header += "#define NumPar " + String(this.numpar) + "\n";
+        this.header += "#define NumPop " + String(this.numpop) + "\n";
+        this.header += "#define NumInt " + String(this.numint) + "\n";
+        this.header += "#define NumEnv " + String(this.numenv) + "\n";
         this.header += "\n";
         //
         this.json['parameters'].filter( (p) => !p['constant'] ).forEach( (pr, i) => {
-            that.header += "#define " + pr['id'] + " " + util.format(i) + "\n";
+            that.header += "#define " + pr['id'] + " " + String(i) + "\n";
         } );
         this.header += "\n";
         //
         if (this.json['model']['type'] == "Population") {
             this.json['populations'].forEach( (spc, i) => {
                 spc['processes'].forEach( (prc, j) => {
-                    that.header += "#define " + prc['id'] + " " + util.format(j) + "\n";
+                    that.header += "#define " + prc['id'] + " " + String(j) + "\n";
                 } );
             } );
             this.header += "\n";
         }
         //
         this.json['parameters'].filter( (p) => p['constant'] ).forEach( (p) => {
-            that.header += "double " + p['id'] + " = " + util.format(p['value']) + ";\n";
+            that.header += "double " + p['id'] + " = " + String(p['value']) + ";\n";
         } );
         this.header += "\n";
         //
@@ -375,7 +377,7 @@ class PopJSON {
         //
         if ('migrations' in this.json) {
             this.json['migrations'].forEach( (mig) => {
-                that.header += "double tprob_" + mig['id'] + "[" + util.format(mig['target'].constructor == Array ? Math.pow(mig['target'].length,2) : 1) + "];\n";
+                that.header += "double tprob_" + mig['id'] + "[" + String(mig['target'].constructor == Array ? Math.pow(mig['target'].length,2) : 1) + "];\n";
             } );
             this.header += "\n";
             this.write_tprobs();
@@ -399,13 +401,13 @@ class PopJSON {
             let i = 0;
             trn['target'].forEach( (trx0, i0) => {
                 trn['target'].forEach( (trx1, i1) => {
-                    that.header += "void fun_harvest_" + trn['id'] + "_" + util.format(i) + "(number *key, number num, number *newkey, double *frac) {\n";
+                    that.header += "void fun_harvest_" + trn['id'] + "_" + String(i) + "(number *key, number num, number *newkey, double *frac) {\n";
                     pop = that.json['populations'].filter( (tmp) => tmp['id'] == trx0 )[0];
                     pop['processes'].forEach( (proc, j) => {
                         di = that.popart[pop['id']][proc['arbiter']];
-                        that.header += "    newkey[" + util.format(j) + "]." + di + "=key[" + util.format(j) + "]." + di + ";\n";
+                        that.header += "    newkey[" + String(j) + "]." + di + "=key[" + String(j) + "]." + di + ";\n";
                     } );
-                    that.header += "    *frac = tprob_" + trn['id'] + "[" + util.format(i) + "];\n";
+                    that.header += "    *frac = tprob_" + trn['id'] + "[" + String(i) + "];\n";
                     that.header += "}\n";
                     that.header += "\n";
                     i++;
@@ -423,7 +425,7 @@ class PopJSON {
             pop = that.json['populations'].filter( (tmp) => tmp['id'] == trn['to'] )[0];
             pop['processes'].forEach( (proc, j) => {
                 di = that.popart[pop['id']][proc['arbiter']];
-                that.header += "    newkey[" + util.format(j) + "]." + di + "=" + that.parse_value(trn['value'][1][j], true) + ";\n";
+                that.header += "    newkey[" + String(j) + "]." + di + "=" + that.parse_value(trn['value'][1][j], true) + ";\n";
             } );
             that.header += "    *frac = " + that.parse_value(trn['value'][0], true) + ";\n";
             that.header += "}\n";
@@ -437,7 +439,7 @@ class PopJSON {
         var di, pop;
         this.json['transfers'].forEach( (trn) => {
             that.header += "void fun_transfer_" + trn['id'] + "(number *key, number num, void *pop) {\n";
-            that.header += "    number q[" + util.format(that.numproc) + "] = {\n";
+            that.header += "    number q[" + String(that.numproc) + "] = {\n";
             // pop = that.json['populations'].filter( (tmp) => tmp['id'] == that.processobj[trn['to']]['parent_id'] )[0];
             pop = that.json['populations'].filter( (tmp) => tmp['id'] == trn['to'] )[0];
             pop['processes'].forEach( (proc, j) => {
@@ -468,7 +470,7 @@ class PopJSON {
                 if (('hazpar' in proc) && proc['hazpar']) {
                     that.header += "void fun_hazpar_" + proc['id'] + "_" + pop['id'] + "(const number *key, const number num, double *par) {\n";
                     proc['value'].forEach( (val, i) => {
-                        that.header += "    par[" + util.format(i) + "] = " + that.parse_value(val, true) + ";\n";
+                        that.header += "    par[" + String(i) + "] = " + that.parse_value(val, true) + ";\n";
                     } );
                     that.header += "}\n";
                     that.header += "\n";
@@ -484,7 +486,7 @@ class PopJSON {
                 this.model += "\n";
             }
             if ('istep' in this.json['model']['parameters']) {
-                this.model += "    spop2_set_eps(" + util.format(this.json['model']['parameters']['istep']) + ");\n";
+                this.model += "    spop2_set_eps(" + String(this.json['model']['parameters']['istep']) + ");\n";
                 this.model += "\n";
             }
         }
@@ -522,9 +524,9 @@ class PopJSON {
         this.model += "        names[i] = strdup(temp[i]);\n";
         this.model += "\n";
         this.json['parameters'].filter( (p) => !p['constant'] ).forEach( (pr, i) => {
-            that.model += "    param[" + pr['id'] + "] = " + util.format('value' in pr ? this.parse_value(pr['value']) : 0.0) + ";\n";
-            that.model += "    parmin[" + pr['id'] + "] = " + util.format('min' in pr ? this.parse_value(pr['min']) : ('value' in pr ? this.parse_value(pr['value']) : 0.0)) + ";\n";
-            that.model += "    parmax[" + pr['id'] + "] = " + util.format('max' in pr ? this.parse_value(pr['max']) : ('value' in pr ? this.parse_value(pr['value']) : 0.0)) + ";\n";
+            that.model += "    param[" + pr['id'] + "] = " + String('value' in pr ? this.parse_value(pr['value']) : 0.0) + ";\n";
+            that.model += "    parmin[" + pr['id'] + "] = " + String('min' in pr ? this.parse_value(pr['min']) : ('value' in pr ? this.parse_value(pr['value']) : 0.0)) + ";\n";
+            that.model += "    parmax[" + pr['id'] + "] = " + String('max' in pr ? this.parse_value(pr['max']) : ('value' in pr ? this.parse_value(pr['value']) : 0.0)) + ";\n";
         } );
         this.model += "}\n";
         this.model += "\n";
@@ -541,31 +543,31 @@ class PopJSON {
         let that = this;
         if (this.deterministic) {
             this.json['populations'].forEach( (spc, i) => {
-                that.model += "    ".repeat(tab) + "ret[" + util.format(i) + "] = size_" + spc['id'] + ".d;\n" + "    ".repeat(tab) + "if (CHECK(ret[" + util.format(i) + "])) {goto endall;};\n";
+                that.model += "    ".repeat(tab) + "ret[" + String(i) + "] = size_" + spc['id'] + ".d;\n" + "    ".repeat(tab) + "if (CHECK(ret[" + String(i) + "])) {goto endall;};\n";
             } );
         } else {
             this.json['populations'].forEach( (spc, i) => {
-                that.model += "    ".repeat(tab) + "ret[" + util.format(i) + "] = (double)(size_" + spc['id'] + ".i);\n" + "    ".repeat(tab) + "if (CHECK(ret[" + util.format(i) + "])) {goto endall;};\n";
+                that.model += "    ".repeat(tab) + "ret[" + String(i) + "] = (double)(size_" + spc['id'] + ".i);\n" + "    ".repeat(tab) + "if (CHECK(ret[" + String(i) + "])) {goto endall;};\n";
             } );
         }
         this.model += "\n";
-        this.model += "    ".repeat(tab) + "ret += " + (util.format(this.json['populations'].length)) + ";\n";
+        this.model += "    ".repeat(tab) + "ret += " + (String(this.json['populations'].length)) + ";\n";
         this.model += "\n";
         if (iret) {
             if ('intermediates' in this.json) {
                 this.json['intermediates'].forEach( (spc, i) => {
-                    that.model += "    ".repeat(tab) + "iret[" + util.format(i) + "] = " + spc['id'] + ";\n" + "    ".repeat(tab) + "if (CHECK(iret[" + util.format(i) + "])) {goto endall;};\n";
+                    that.model += "    ".repeat(tab) + "iret[" + String(i) + "] = " + spc['id'] + ";\n" + "    ".repeat(tab) + "if (CHECK(iret[" + String(i) + "])) {goto endall;};\n";
                 } );
                 this.model += "\n";
             }
             if ('transformations' in this.json) {
                 this.json['transformations'].forEach( (spc, i) => {
-                    that.model += "    ".repeat(tab) + "iret[" + util.format(this.json['intermediates'].length + i) + "] = " + spc['id'] + ";\n" + "    ".repeat(tab) + "if (CHECK(iret[" + util.format(i) + "])) {goto endall;};\n";
+                    that.model += "    ".repeat(tab) + "iret[" + String(this.json['intermediates'].length + i) + "] = " + spc['id'] + ";\n" + "    ".repeat(tab) + "if (CHECK(iret[" + String(i) + "])) {goto endall;};\n";
                 } );
                 this.model += "\n";
             }
             if ('intermediates' in this.json) {
-                this.model += "    ".repeat(tab) + "iret += " + (util.format(this.json['intermediates'].length + this.json['transformations'].length)) + ";\n";
+                this.model += "    ".repeat(tab) + "iret += " + (String(this.json['intermediates'].length + this.json['transformations'].length)) + ";\n";
             }
             this.model += "\n";
         }
@@ -617,25 +619,25 @@ class PopJSON {
         //
         if (this.json['model']['type'] == "Population") {
             this.json['populations'].forEach( (spc) => {
-                that.model += "    population " + util.format(spc['id']) + ";\n";
+                that.model += "    population " + String(spc['id']) + ";\n";
             });
             this.model += "\n";
         }
         if (this.json['model']['type'] == "Population") {
             this.model += "    number num = numZERO;\n";
-            this.model += "    char arbiters[" + util.format(this.numproc) + "];\n";
-            this.model += "    number key[" + util.format(this.numproc) + "];\n";
+            this.model += "    char arbiters[" + String(this.numproc) + "];\n";
+            this.model += "    number key[" + String(this.numproc) + "];\n";
             this.json['populations'].forEach( (spc, i) => {
                 that.model += "    number size_" + spc['id'] + ";\n";
             } );
             this.json['populations'].forEach( (spc, i) => {
                 if (spc['processes'].length == 0) return;
                 //
-                that.model += "    number completed_" + spc['id'] + "[" + util.format(that.numproc) + "];\n";
+                that.model += "    number completed_" + spc['id'] + "[" + String(that.numproc) + "];\n";
             } );
             this.json['populations'].forEach( (spc, i) => {
                 if (that.transfers && that.transfers.includes(spc['id']) && that.populations.includes(spc['id'])) {
-                    that.model += "    population popdone_" + spc['id'] + "[" + util.format(that.numproc) + "];\n";
+                    that.model += "    population popdone_" + spc['id'] + "[" + String(that.numproc) + "];\n";
                 }
             } );
             if ('migrations' in this.json) {
@@ -654,7 +656,7 @@ class PopJSON {
                     } );
                 }
             }
-            this.model += "    double par[" + util.format(this.numprocpar) + "];\n";
+            this.model += "    double par[" + String(this.numprocpar) + "];\n";
             this.model += "\n";
             //
             this.model += "    FILE *file;\n";
@@ -678,7 +680,7 @@ class PopJSON {
                 that.model += "\n";
                 if (that.transfers && that.transfers.includes(spc['id']) && that.populations.includes(spc['id'])) {
                         for (j=0; j<that.numproc; j++) {
-                        that.model += "        popdone_" + spc['id'] + "[" + util.format(j) + "] = spop2_loadstate_empty(buff);\n";
+                        that.model += "        popdone_" + spc['id'] + "[" + String(j) + "] = spop2_loadstate_empty(buff);\n";
                     }
                 }
                 that.model += "\n";
@@ -688,8 +690,8 @@ class PopJSON {
             this.model += "    } else {\n";
             this.json['populations'].forEach( (spc, i) => {
                 for (j=0; j<that.numproc; j++) {
-                    that.model += "        arbiters[" + util.format(j) + "] = " + (j < spc['processes'].length ? spc['processes'][j]['arbiter'] : "STOP") + ";\n";
-                    that.model += "        key[" + util.format(j) + "] = numZERO;\n";
+                    that.model += "        arbiters[" + String(j) + "] = " + (j < spc['processes'].length ? spc['processes'][j]['arbiter'] : "STOP") + ";\n";
+                    that.model += "        key[" + String(j) + "] = numZERO;\n";
                 }
                 that.model += "        " + spc['id'] + " = spop2_init(arbiters, " + det + ");\n";
                 for (j=0; j<that.numproc; j++) {
@@ -698,7 +700,7 @@ class PopJSON {
                             that.error += "Stepper not defined. Please choose one of these: " + Object.keys(stepper).join(", ") + "\n";
                             break;
                         }
-                        that.model += "        " + spc['id'] + "->arbiters[" + util.format(j) + "]->fun_step = " + stepper[spc['processes'][j]['stepper']] + ";\n";
+                        that.model += "        " + spc['id'] + "->arbiters[" + String(j) + "]->fun_step = " + stepper[spc['processes'][j]['stepper']] + ";\n";
                     }
                     if (j < spc['processes'].length) {
                         if ('hazard' in spc['processes'][j]) {
@@ -706,18 +708,18 @@ class PopJSON {
                                 that.error += "Hazard not defined. Please choose one of these: " + Object.keys(hazard).join(", ") + "\n";
                                 break;
                             }
-                            that.model += "        " + spc['id'] + "->arbiters[" + util.format(j) + "]->fun_calc = fun_hazard_" + spc['processes'][j]['id'] + "_" + spc['id'] + ";\n";
+                            that.model += "        " + spc['id'] + "->arbiters[" + String(j) + "]->fun_calc = fun_hazard_" + spc['processes'][j]['id'] + "_" + spc['id'] + ";\n";
                         }
                         if ('hazpar' in spc['processes'][j]) {
-                            that.model += "        " + spc['id'] + "->arbiters[" + util.format(j) + "]->fun_q_par = fun_hazpar_" + spc['processes'][j]['id'] + "_" + spc['id'] + ";\n";
+                            that.model += "        " + spc['id'] + "->arbiters[" + String(j) + "]->fun_q_par = fun_hazpar_" + spc['processes'][j]['id'] + "_" + spc['id'] + ";\n";
                         }
                     }
                 }
-                that.model += "        if (y0[" + util.format(i) + "]) { num." + ("i",that.deterministic ? "d" : "i") + " = y0[" + util.format(i) + "]; spop2_add(" + spc['id'] + ", key, num); }\n";
+                that.model += "        if (y0[" + String(i) + "]) { num." + ("i",that.deterministic ? "d" : "i") + " = y0[" + String(i) + "]; spop2_add(" + spc['id'] + ", key, num); }\n";
                 that.model += "\n";
                 if (that.transfers && that.transfers.includes(spc['id']) && that.populations.includes(spc['id'])) {
                     for (j=0; j<that.numproc; j++) {
-                        that.model += "        popdone_" + spc['id'] + "[" + util.format(j) + "] = spop2_init(arbiters, " + det + ");\n";
+                        that.model += "        popdone_" + spc['id'] + "[" + String(j) + "] = spop2_init(arbiters, " + det + ");\n";
                     }
                 }
                 this.model += "\n";
@@ -731,8 +733,8 @@ class PopJSON {
             Object.keys(this.migrations).forEach( (trg) => {
                 let spc = that.popobj[trg in that.popobj ? trg : that.processobj[trg]['parent_id']];
                 for (j=0; j<that.numproc; j++) {
-                    that.model += "    arbiters[" + util.format(j) + "] = " + (j < spc['processes'].length ? spc['processes'][j]['arbiter'] : "STOP") + ";\n";
-                    that.model += "    key[" + util.format(j) + "] = numZERO;\n";
+                    that.model += "    arbiters[" + String(j) + "] = " + (j < spc['processes'].length ? spc['processes'][j]['arbiter'] : "STOP") + ";\n";
+                    that.model += "    key[" + String(j) + "] = numZERO;\n";
                 }
                 that.model += "    popdummy_" + trg + " = spop2_init(arbiters, " + det + ");\n";
                 that.model += "\n";
@@ -775,7 +777,7 @@ class PopJSON {
                     }
                 } );
                 for (j = 0; j < that.numprocpar; j++) {
-                    that.model += "                par[" + util.format(j) + "] = " + (pars.length ? that.parse_value(pars.shift()) : "0.0") + ";\n";
+                    that.model += "                par[" + String(j) + "] = " + (pars.length ? that.parse_value(pars.shift()) : "0.0") + ";\n";
                 }
                 that.model += "                spop2_step(" + spc['id'] + ", par, &size_" + spc['id'] + ", completed_" + spc['id'] + ", " + (that.transfers.includes(spc['id']) && that.populations.includes(spc['id']) ? "popdone_" + spc['id'] : "0") + ");\n";
                 that.model += "\n";
@@ -797,7 +799,7 @@ class PopJSON {
                     that.model += "\n";
                     if ('to' in trx) {
                         for (j=0; j<that.numproc; j++) {
-                            that.model += "                key[" + util.format(j) + "] = numZERO;\n";
+                            that.model += "                key[" + String(j) + "] = numZERO;\n";
                         }
                         that.model += "                num" + (that.deterministic ? ".d" : ".i") + " = " + trx['id'] + ";\n";
                         that.model += "                spop2_add(" + trx['to'] + ", key, num);\n";
@@ -853,7 +855,7 @@ class PopJSON {
                                 that.model += trx0;
                                 if (!pops.includes(trx0)) pops.push(trx0);
                             }
-                            that.model += ", popdummy_" + trx1 + ", fun_harvest_" + trn['id'] + "_" + util.format(i) + ");\n";
+                            that.model += ", popdummy_" + trx1 + ", fun_harvest_" + trn['id'] + "_" + String(i) + ");\n";
                             i++;
                         } );
                     } );
@@ -895,7 +897,7 @@ class PopJSON {
             if ('transfers' in this.json) {
                 this.transfers.forEach( (trn) => {
                     for (j=0; j<that.numproc; j++) {
-                        that.model += "                spop2_empty(&popdone_" + trn + "[" + util.format(j) + "]);\n"
+                        that.model += "                spop2_empty(&popdone_" + trn + "[" + String(j) + "]);\n"
                     }
                     that.model += "\n";
                 } );
@@ -939,7 +941,7 @@ class PopJSON {
                 that.model += "    spop2_free(&" + spc['id'] + ");\n";
                 if (that.transfers && that.transfers.includes(spc['id']) && that.populations.includes(spc['id'])) {
                     for (j=0; j<that.numproc; j++) {
-                        that.model += "    spop2_free(&(popdone_" + spc['id'] + "[" + util.format(j) + "]));\n";
+                        that.model += "    spop2_free(&(popdone_" + spc['id'] + "[" + String(j) + "]));\n";
                     }
                 }
             });
