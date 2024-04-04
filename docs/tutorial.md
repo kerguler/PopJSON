@@ -382,7 +382,7 @@ Using the `Population` package, we can define customised hazard functions to app
 
 ```json
 {
-    "populations": [
+    "processes": [
         {
             "id": "adult_num_dev",
             "name": "Number of gonotrophic cycles in adult females",
