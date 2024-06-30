@@ -20,7 +20,7 @@
 
 'use strict';
 
-const version = '1.2.6';
+const version = '1.2.7';
 
 // const fs = require('fs');
 // const util = require('util');
@@ -784,11 +784,11 @@ class PopJSON {
             } );
             //
             /*
-                TO DO!
-                THERE SHOULD BE AN ORDER TO THESE PROCESSES:
+                THERE IS AN ORDER IN THESE PROCESSES:
                     INTERMEDIATES
                     TRANSFORMATIONS
                     TRANSFERS
+                    MIGRATIONS
             */
             if ('transformations' in this.json) {
                 this.json['transformations'].forEach( (trx) => {
@@ -798,8 +798,16 @@ class PopJSON {
                     that.model += "                " + trx['id'] + " = " + that.parse_value(trx['value']) + ";\n";
                     that.model += "\n";
                     if ('to' in trx) {
-                        for (j=0; j<that.numproc; j++) {
-                            that.model += "                key[" + String(j) + "] = numZERO;\n";
+                        if ('key' in trx) {
+                            var pop = that.json['populations'].filter( (tmp) => tmp['id'] == trx['to'] )[0];
+                            pop['processes'].forEach( (proc, j) => {
+                                var di = that.popart[pop['id']][proc['arbiter']];
+                                that.model += "                key[" + String(j) + "]." + di + " = " + that.parse_value(trx['key'][j]) + ";\n";
+                            } );
+                        } else {
+                            for (j=0; j<that.numproc; j++) {
+                                that.model += "                key[" + String(j) + "] = numZERO;\n";
+                            }
                         }
                         that.model += "                num" + (that.deterministic ? ".d" : ".i") + " = " + trx['id'] + ";\n";
                         that.model += "                spop2_add(" + trx['to'] + ", key, num);\n";
@@ -845,6 +853,9 @@ class PopJSON {
             if ('migrations' in this.json) {
                 let pops = [];
                 this.json['migrations'].forEach( (trn) => {
+                    if ('if' in trn) {
+                        that.model += "                if (" + that.parse_value(trn['if']) + ") {\n";
+                    }
                     let i = 0;
                     trn['target'].forEach( (trx0, i0) => {
                         trn['target'].forEach( (trx1, i1) => {
@@ -859,6 +870,9 @@ class PopJSON {
                             i++;
                         } );
                     } );
+                    if ('if' in trn) {
+                        that.model += "                }\n";
+                    }
                 } );
                 this.model += "\n";
                 this.json['migrations'].forEach( (trn) => {

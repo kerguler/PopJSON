@@ -304,6 +304,35 @@ The resulting larva population size and the number of larvae completing each pro
 
 We can do more with the `Populations` package, and here we describe a few interesting examples we could think of. Please <a href="https://github.com/kerguler/PopJSON/issues" target="_blank" rel="noreferrer">contact us</a> with requests or your own examples. Feel free to use the [SandBox](#sandbox) below.
 
+## Conditional transformations
+
+We can include an **if** statement to conditionally execute any **transformations**, **transfers**, or **migrations** (see <a href="#declaring-cyclic-development-gonotrophic-cycle">Declaring cyclic development</a> and <a href="#vector-dispersion-modelling">Vector dispersion modelling</a> for more information on the latter two).
+
+As an example, let's use the **if** statement to delay introducing the population in the <a href="#declaring-a-population-or-a-development-stage">first</a> example. Also, instead of introducting a naive cohort, let's use the **key** statement to start with a population that has already experienced 5 iterations of development.
+
+```json
+{
+    "transformations": [
+        {
+            "id": "initial_structure",
+            "to": "larva",
+            "value": 100,
+            "key": [5],
+            "if": ["==", "TIME", 15]
+        }
+    ]
+}
+```
+See [ex1c.json](./examples/ex1c.json) and [ex1c.c](./examples/ex1c.c) for full PopJSON representation and C translation. Use [plot_ex1.py](./plot_ex1.py) to run the model.
+
+The "initial_structure" used above instructs the introduction of 100 larvae (with development indicator 5) into the population at time 15. As a result, the larvae will continue development for another 5 days and complete at time 20.
+
+<div class="myFigures">
+
+![Delayed larva development time](figures/ex1c.png "Deterministic - Gamma-distributed")
+
+</div>
+
 ## Declaring cyclic development (gonotrophic cycle)
 
 Gonotrophic cycle is a complex process. After blood feeding, females develop eggs in their bodies and lay them before searching for blood again. To model the process, we define adult lifetime (**adult_mort**) and egg development (inside females) (**adult_dev**) for adult females.
