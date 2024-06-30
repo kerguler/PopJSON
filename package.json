@@ -1,13 +1,14 @@
 {
   "name": "popjson",
-  "version": "1.2.7",
+  "version": "1.2.8",
   "description": "PopJSON: JSON representation for dynamically-structured multi-process matrix population models",
   "main": "index.js",
   "dependencies": {
     "@cortex-js/compute-engine": "0.12.2",
     "browserify-css": "0.15.0",
     "reactify": "1.1.1",
-    "sanitize": "2.1.2"
+    "sanitize": "2.1.2",
+    "braces": "3.0.3"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
