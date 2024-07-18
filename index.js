@@ -20,7 +20,7 @@
 
 'use strict';
 
-const version = '1.2.8';
+const version = '1.2.9';
 
 // const fs = require('fs');
 // const util = require('util');
@@ -994,7 +994,12 @@ class PopJSON {
                 return "(" + value[1].join(",") + ") (" + def + ")";
             } else if (fun == "count") {
                 let pop = value[1];
-                if (!that.json['populations'].filter( (tmp) => tmp['id'] == pop )[0]) {
+                let popval = pop;
+                if (that.json['populations'].filter( (tmp) => tmp['id'] == pop )[0]) {
+                    //
+                } else if (pop in this.processobj) {
+                    popval = "popdone_" + this.processobj[pop]["parent_id"] + "[" + pop + "]";
+                } else {
                     this.error += "Error in count request\nHere is the correct usage:\n[\"count\", \"population name\", [condition]]\n";
                     return "";
                 }
@@ -1002,7 +1007,7 @@ class PopJSON {
                 let funname = "fun_count_" + pop + "_" + this.funcountid;
                 let context = this.parse_value(value[2], transfers=true);
                 this.write_funcount(funname,context)
-                return "spop2_count(" + pop + ", " + funname + ")" + (this.deterministic ? ".d" : ".i");
+                return "spop2_count(" + popval + ", " + funname + ")" + (this.deterministic ? ".d" : ".i");
             } else if (this.environs.includes(fun)) {
                 let prm = this.parse_value(value[1], transfers=transfers);
                 return "envir_" + fun + "[" + prm + "]";
