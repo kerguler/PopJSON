@@ -130,19 +130,22 @@ class model:
         file1 = bytes(file1,'utf-8') if file1 else bytes(" ",'utf-8')
         rep = numpy.int32(rep)
         rdim = rep if rep >= 0 else -rep
-        ret = numpy.ndarray(rdim*ftime*self.numpop, dtype=numpy.float64)
-        iret = numpy.ndarray(rdim*(ftime-1)*self.numint, dtype=numpy.float64)
-        success = numpy.array(0, dtype=numpy.int32, ndmin=1)
-        self.csim(ftime,
-                  rep,
-                  envir,
-                  pr,
-                  y0,
-                  file0,
-                  file1,
-                  ret,
-                  iret,
-                  success)
+        retrow = ftime*self.numpop
+        iretrow = (ftime-1)*self.numint
+        ret = numpy.ndarray(rdim*retrow, dtype=numpy.float64)
+        iret = numpy.ndarray(rdim*iretrow, dtype=numpy.float64)
+        success = numpy.array([0 for r in range(rdim)], dtype=numpy.int32, ndmin=1)
+        for r in range(rdim):
+            self.csim(ftime,
+                      rep,
+                      envir,
+                      pr,
+                      y0,
+                      file0,
+                      file1,
+                      ret[(r*retrow):((r+1)*retrow)],
+                      iret[(r*iretrow):((r+1)*iretrow)],
+                      success[r:(r+1)])
         ret = numpy.array(ret).reshape((rdim,ftime,self.numpop))
         iret = numpy.array(iret).reshape((rdim,ftime-1,self.numint))
         return { 
