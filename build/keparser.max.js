@@ -21,7 +21,7 @@ require=(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c=
 
 'use strict';
 
-const version = '1.2.11';
+const version = '1.2.12';
 const version_pop = '0.1.7';
 
 // const fs = require('fs');
@@ -285,7 +285,7 @@ class PopJSON {
         this.numpar = this.json['parameters'].filter( (p) => !p['constant'] ).length;
         this.numpop = this.json['populations'].length;
         this.numint_int = this.json['intermediates'].length;
-        this.numint_trans = this.json['transformations'].length;
+        this.numint_trans = this.json['transformations'].length + this.json['transfers'].length;
         this.numint = this.numint_int + this.numint_trans;
         this.numenv = this.environs.length;
         //
@@ -367,6 +367,18 @@ class PopJSON {
                 } );
             } else {
                 this.json['transformations'].map( (trx) => trx['id'] ).forEach( (id) => {
+                    that.header += "unsigned int " + id + ";\n";
+                } );
+            }
+        }
+        //
+        if ('transfers' in this.json) {
+            if (this.deterministic) {
+                this.json['transfers'].map( (trx) => trx['id'] ).forEach( (id) => {
+                    that.header += "double " + id + ";\n";
+                } );
+            } else {
+                this.json['transfers'].map( (trx) => trx['id'] ).forEach( (id) => {
                     that.header += "unsigned int " + id + ";\n";
                 } );
             }
@@ -516,7 +528,12 @@ class PopJSON {
             this.model += "        \"" + this.json['intermediates'].map( (pr) => pr['id'] ).join("\", \"") + "\",\n";
         }
         if (this.numint_trans > 0) {
-            this.model += "        \"" + this.json['transformations'].map( (pr) => pr['id'] ).join("\", \"") + "\",\n";
+            if (this.json['transformations']) {
+                this.model += "        \"" + this.json['transformations'].map( (pr) => pr['id'] ).join("\", \"") + "\",\n";
+            }
+            if (this.json['transfers']) {
+                this.model += "        \"" + this.json['transfers'].map( (pr) => pr['id'] ).join("\", \"") + "\",\n";
+            }
         }
         if (this.numenv > 0) {
             this.model += "        \"" + this.environs.join("\", \"") + "\",\n";
@@ -570,8 +587,14 @@ class PopJSON {
                 } );
                 this.model += "\n";
             }
+            if ('transfers' in this.json) {
+                this.json['transfers'].forEach( (spc, i) => {
+                    that.model += "    ".repeat(tab) + "iret[" + String(this.json['intermediates'].length + this.json['transformations'].length + i) + "] = " + spc['id'] + ";\n" + "    ".repeat(tab) + "if (CHECK(iret[" + String(i) + "])) {goto endall;};\n";
+                } );
+                this.model += "\n";
+            }
             if ('intermediates' in this.json) {
-                this.model += "    ".repeat(tab) + "iret += " + (String(this.json['intermediates'].length + this.json['transformations'].length)) + ";\n";
+                this.model += "    ".repeat(tab) + "iret += " + (String(this.json['intermediates'].length + this.json['transformations'].length + this.json['transfers'].length)) + ";\n";
             }
             this.model += "\n";
         }
@@ -656,6 +679,17 @@ class PopJSON {
                     } );
                 } else {
                     this.json['transformations'].map( (trx) => trx['id'] ).forEach( (id) => {
+                        that.model += "    " + id + " = 0;\n";
+                    } );
+                }
+            }
+            if ('transfers' in this.json) {
+                if (this.deterministic) {
+                    this.json['transfers'].map( (trx) => trx['id'] ).forEach( (id) => {
+                        that.model += "    " + id + " = 0.0;\n";
+                    } );
+                } else {
+                    this.json['transfers'].map( (trx) => trx['id'] ).forEach( (id) => {
                         that.model += "    " + id + " = 0;\n";
                     } );
                 }
@@ -835,9 +869,17 @@ class PopJSON {
                         that.model += "                if (" + that.parse_value(trn['if']) + ") {\n";
                     }
                     if (trn['from'] in that.processobj) {
-                        that.model += "                spop2_harvest(popdone_" + that.processobj[trn['from']]['parent_id'] + "[" + trn['from'] + "], " + trn['to'] + ", fun_harvest_" + trn['id'] + ");\n";
+                        if (that.deterministic) {
+                            that.model += "                " + trn['id'] + " = spop2_harvest(popdone_" + that.processobj[trn['from']]['parent_id'] + "[" + trn['from'] + "], " + trn['to'] + ", fun_harvest_" + trn['id'] + ").d;\n";
+                        } else {
+                            that.model += "                " + trn['id'] + " = (unsigned int)(spop2_harvest(popdone_" + that.processobj[trn['from']]['parent_id'] + "[" + trn['from'] + "], " + trn['to'] + ", fun_harvest_" + trn['id'] + ").i);\n";
+                        }
                     } else if (that.populations.includes(trn['from'])) {
-                        that.model += "                spop2_harvest(" + trn['from'] + ", " + trn['to'] + ", fun_harvest_" + trn['id'] + ");\n";
+                        if (that.deterministic) {
+                            that.model += "                " + trn['id'] + " = spop2_harvest(" + trn['from'] + ", " + trn['to'] + ", fun_harvest_" + trn['id'] + ").d;\n";
+                        } else {
+                            that.model += "                " + trn['id'] + " = (unsigned int)(spop2_harvest(" + trn['from'] + ", " + trn['to'] + ", fun_harvest_" + trn['id'] + ").i);\n";
+                        }
                     } else {
                         that.error += "Error in defining the source population for transfer: " + trn['from'] + "\n";
                         return "";
@@ -1092,6 +1134,8 @@ class PopJSON {
                 } else if (this.intermediates.includes(value)) {
                     return value;
                 } else if (this.transformations.includes(value)) {
+                    return value;
+                } else if (this.transfers.includes(value)) {
                     return value;
                 } else if (this.operations.includes(value)) {
                     return value;
