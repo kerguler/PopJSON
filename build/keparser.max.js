@@ -21,7 +21,7 @@ require=(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c=
 
 'use strict';
 
-const version = '1.2.13';
+const version = '1.2.14';
 const version_pop = '0.1.7';
 
 // const fs = require('fs');
@@ -528,10 +528,10 @@ class PopJSON {
             this.model += "        \"" + this.json['intermediates'].map( (pr) => pr['id'] ).join("\", \"") + "\",\n";
         }
         if (this.numint_trans > 0) {
-            if (this.json['transformations']) {
+            if (this.json['transformations'].length > 0) {
                 this.model += "        \"" + this.json['transformations'].map( (pr) => pr['id'] ).join("\", \"") + "\",\n";
             }
-            if (this.json['transfers']) {
+            if (this.json['transfers'].length > 0) {
                 this.model += "        \"" + this.json['transfers'].map( (pr) => pr['id'] ).join("\", \"") + "\",\n";
             }
         }
