@@ -20,7 +20,7 @@
 
 'use strict';
 
-const version = '1.2.12';
+const version = '1.2.13';
 const version_pop = '0.1.7';
 
 // const fs = require('fs');
@@ -576,13 +576,15 @@ class PopJSON {
         if (iret) {
             if ('intermediates' in this.json) {
                 this.json['intermediates'].forEach( (spc, i) => {
-                    that.model += "    ".repeat(tab) + "iret[" + String(i) + "] = " + spc['id'] + ";\n" + "    ".repeat(tab) + "if (CHECK(iret[" + String(i) + "])) {goto endall;};\n";
+                    that.model += "    ".repeat(tab) + "iret[" + String(i) + "] = " + spc['id'] + ";\n" + 
+                                  "    ".repeat(tab) + "if (CHECK(iret[" + String(i) + "])) {goto endall;};\n";
                 } );
                 this.model += "\n";
             }
             if ('transformations' in this.json) {
                 this.json['transformations'].forEach( (spc, i) => {
-                    that.model += "    ".repeat(tab) + "iret[" + String(this.json['intermediates'].length + i) + "] = " + spc['id'] + ";\n" + "    ".repeat(tab) + "if (CHECK(iret[" + String(i) + "])) {goto endall;};\n";
+                    that.model += "    ".repeat(tab) + "iret[" + String(this.json['intermediates'].length + i) + "] = " + spc['id'] + ";\n" + 
+                                  "    ".repeat(tab) + "if (CHECK(iret[" + String(this.json['intermediates'].length + i) + "])) {goto endall;};\n";
                 } );
                 this.model += "\n";
             }
