@@ -21,7 +21,7 @@ require=(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c=
 
 'use strict';
 
-const version = '1.2.14';
+const version = '1.2.15';
 const version_pop = '0.1.7';
 
 // const fs = require('fs');
