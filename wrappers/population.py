@@ -168,7 +168,7 @@ class model:
                 "iret": []
             }
         elif len(pr) == 0 and len(prs) == 0:
-            prs = [[]]
+            prs = [self.param.copy()]
         #
         for pr in prs:
             sim = self._sim(ftime,envir,pr,y0,rep=rep,file0=file0,file1=file1)
