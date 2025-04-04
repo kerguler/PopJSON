@@ -21,7 +21,7 @@ require=(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c=
 
 'use strict';
 
-const version = '1.2.16';
+const version = '1.2.17';
 const version_pop = '0.1.7';
 
 // const fs = require('fs');
@@ -217,7 +217,7 @@ class PopJSON {
             });
         });
         //
-        this.operations = ["abs","min","max","round","poisson","binomial","define","?","&&","||",">=","<=",">","<","==","sqrt","pow","exp","log","log2","log10","indicator","index","size","count","*","+","-","/","%"];
+        this.operations = ["abs","min","max","round","poisson","binomial","define","?","&&","||",">=","<=",">","<","==","sqrt","pow","exp","log","log2","log10","indicator","index","size","count","*","+","-","/","%","!"];
         this.funparnames = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z",
                             "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
         //
@@ -1079,6 +1079,8 @@ class PopJSON {
                     return "(unsigned int)gsl_ran_binomial(RANDOM, " + prm[0] + ", " + prm[1] + ")";
                 } else if (fun == "poisson") {
                     return "(unsigned int)gsl_ran_poisson(RANDOM, " + prm[0] + ")";
+                } else if (fun == "!") {
+                    return "!(" + prm[0] + ")";
                 } else if (fun == "*") {
                     return "(" + prm.join(" * ") + ")";
                 } else if (fun == "+") {

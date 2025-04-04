@@ -775,6 +775,7 @@ See [ex7a.json](./examples/ex7a.json) and [ex7a.c](./examples/ex7a.c) for full P
 | ?           | a,b,c         | Condition expression (if a is true, return b, else, return c) |
 | &&          | ...           | Logical AND |
 | \|\|        | ...           | Logical OR |
+| !           | a             | Logical NOT |
 | >           | a,b           | Logical greater than |
 | <           | a,b           | Logical smaller than |
 | >=          | a,b           | Logical greater than or equal |
