@@ -20,7 +20,7 @@
 
 'use strict';
 
-const version = '1.2.17';
+const version = '1.2.18';
 const version_pop = '0.1.7';
 
 // const fs = require('fs');
@@ -404,7 +404,10 @@ class PopJSON {
            Object.entries(this.json['functions']).forEach( ([key, value]) => {
                 that.header += "#define " + key + that.parse_value(value) + "\n";
            });
-           this.header += "\n";
+           Object.entries(this.json['functions']).forEach( ([key, value]) => {
+            that.header += "double define_" + key + that.parse_value(value,false,true) + "\n";
+       });
+       this.header += "\n";
         }
     }
     write_migrate() {
@@ -1028,7 +1031,7 @@ class PopJSON {
         this.header += "}\n";
         this.header += "\n";
     }
-    parse_value(value, transfers=false) {
+    parse_value(value, transfers=false, fundef=false) {
         let that = this;
         if (Array.isArray(value)) { // Function
             let fun = this.parse_value(value[0], transfers=transfers);
@@ -1038,6 +1041,9 @@ class PopJSON {
                     return "";
                 }
                 let def = this.parse_value(value[2], transfers=transfers);
+                if (fundef) {
+                    return "(double " + value[1].join(", double ") + ") {return " + def + ";}";
+                }
                 return "(" + value[1].join(",") + ") (" + def + ")";
             } else if (fun == "count") {
                 let pop = value[1];

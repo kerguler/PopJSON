@@ -112,8 +112,19 @@ class model:
                               array_1d_int]
         #
     def destroy(self):
-        self.dylib.destroy
+        self.dylib.destroy()
         dlclose_func(self.dylib._handle)
+        #
+    def define_function(self,name,numpar):
+        try:
+            nm = 'define_'+name
+            fun = self.dylib[nm]
+            fun.restype = c_double
+            fun.argtypes = [c_double for i in range(numpar)]
+            return fun
+        except:
+            print("The model has no function definition for %s" %name)
+            return None
         #
     def _sim(self,ftime,envir,pr,y0={},rep=1,file0="",file1=""):
         """
