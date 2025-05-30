@@ -21,7 +21,7 @@ require=(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c=
 
 'use strict';
 
-const version = '1.2.18';
+const version = '1.2.19';
 const version_pop = '0.1.7';
 
 // const fs = require('fs');
@@ -795,7 +795,34 @@ class PopJSON {
             that.model += "    size_" + spc['id'] + " = spop2_size(" + spc['id'] + ");\n";
         } );
         this.model += "\n";
+        //
+        this.json['populations'].forEach( (pop, i) => {
+            if ('init' in pop) {
+                that.model += "    spop2_empty(&" + pop['id'] + ");\n";
+                pop['init'].forEach( (tmp) => {
+                    let count = 0;
+                    if ('processes' in pop) {
+                        pop['processes'].forEach( (proc, j) => {
+                            var di = that.popart[pop['id']][proc['arbiter']];
+                            that.model += "    key[" + String(j) + "]." + di + " = " + that.parse_value(tmp[count]) + ";\n";
+                            count++;
+                        } );
+                    }
+                    that.model += "    num." + (that.deterministic ? "d" : "i") + " = " + that.parse_value(tmp[count]) + ";\n";
+                    count++;
+                    if (count != pop['processes'].length+1) {
+                        this.error += "The initial conditions need to have " + String(pop['processes'].length) + " key(s) and 1 value!\n";
+                        return(this.results());        
+                    }
+                    that.model += "    spop2_add(" + pop['id'] + ", key, num);\n";
+                } );
+                that.model += "    size_" + pop['id'] + " = spop2_size(" + pop['id'] + ");\n";
+                that.model += "\n";
+            }
+        } );
+        //
         this.write_out(1, false);
+        //
         this.model += "    for (TIME=1; TIME<tf; TIME++) {\n";
         //
         if ('intermediates' in this.json) {
@@ -1064,7 +1091,7 @@ class PopJSON {
                 return "spop2_count(" + popval + ", " + funname + ")" + (this.deterministic ? ".d" : ".i");
             } else if (this.environs.includes(fun)) {
                 let prm = this.parse_value(value[1], transfers=transfers);
-                return "envir_" + fun + "[" + prm + "]";
+                return "envir_" + fun + "[(int)" + prm + "]";
             } else {
                 let prm = value.slice(1).map( (v) => that.parse_value(v, transfers=transfers) );
                 if (fun == "size") {

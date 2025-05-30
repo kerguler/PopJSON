@@ -21,12 +21,12 @@
 
 #define NumPar 0
 #define NumPop 1
-#define NumInt 4
+#define NumInt 2
 #define NumEnv 0
 
 
-#define adult_mort 0
-#define adult_dev 1
+#define larva_mort 0
+#define larva_dev 1
 
 
 double dmin(double a, double b) { return a < b ? a : b; }
@@ -37,18 +37,10 @@ int TIMEF;
 
 double *model_param;
 
-double adult_death;
-double num_gravid;
-double egg_laying;
-double gonotrophic_cycle;
+double larva_death;
+double larva_to_pupa;
 
 
-
-void fun_harvest_gonotrophic_cycle(number *key, number num, number *newkey, double *frac) {
-    newkey[0].d=key[adult_mort].d;
-    newkey[1].d=0;
-    *frac = 1.0;
-}
 
 void prepare_tprobs(int numcol, double *ttprobs, double *tprobs) {
     int rA, rB, i = 0;
@@ -74,9 +66,8 @@ void init(int *no, int *np, int *ni, int *ne, int *st) {
 
 void parnames(char **names, double *param, double *parmin, double *parmax) {
     char temp[NumPop+NumPar+NumInt+NumEnv][256] = {
-        "adult",
-        "adult_death", "num_gravid", "egg_laying",
-        "gonotrophic_cycle",
+        "larva",
+        "larva_death", "larva_to_pupa",
     };
 
     int i;
@@ -97,18 +88,15 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
 
 
 
-    population adult;
+    population larva;
 
     number num = numZERO;
     char arbiters[3];
     number key[3];
-    number size_adult;
-    number completed_adult[3];
-    population popdone_adult[3];
-    adult_death = 0.0;
-    num_gravid = 0.0;
-    egg_laying = 0.0;
-    gonotrophic_cycle = 0.0;
+    number size_larva;
+    number completed_larva[3];
+    larva_death = 0.0;
+    larva_to_pupa = 0.0;
     double par[4];
 
     FILE *file;
@@ -127,11 +115,8 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
         fread(&buffsz, sizeof(unsigned int), 1, file);
         buff = (number *)malloc(buffsz);
         fread(buff, buffsz, 1, file);
-        adult = spop2_loadstate(buff);
+        larva = spop2_loadstate(buff);
 
-        popdone_adult[0] = spop2_loadstate_empty(buff);
-        popdone_adult[1] = spop2_loadstate_empty(buff);
-        popdone_adult[2] = spop2_loadstate_empty(buff);
 
         free(buff);
 
@@ -142,12 +127,9 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
         key[1] = numZERO;
         arbiters[2] = STOP;
         key[2] = numZERO;
-        adult = spop2_init(arbiters, DETERMINISTIC);
-        if (y0[0]) { num.d = y0[0]; spop2_add(adult, key, num); }
+        larva = spop2_init(arbiters, DETERMINISTIC);
+        if (y0[0]) { num.d = y0[0]; spop2_add(larva, key, num); }
 
-        popdone_adult[0] = spop2_init(arbiters, DETERMINISTIC);
-        popdone_adult[1] = spop2_init(arbiters, DETERMINISTIC);
-        popdone_adult[2] = spop2_init(arbiters, DETERMINISTIC);
 
     }
 
@@ -156,9 +138,20 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
     }
 
 
-    size_adult = spop2_size(adult);
+    size_larva = spop2_size(larva);
 
-    ret[0] = size_adult.d;
+    spop2_empty(&larva);
+    key[0].d = 0;
+    key[1].d = 0;
+    num.d = 100;
+    spop2_add(larva, key, num);
+    key[0].d = 0;
+    key[1].d = 0.5;
+    num.d = 100;
+    spop2_add(larva, key, num);
+    size_larva = spop2_size(larva);
+
+    ret[0] = size_larva.d;
     if (CHECK(ret[0])) {goto endall;};
 
     ret += 1;
@@ -166,51 +159,39 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
     for (TIME=1; TIME<tf; TIME++) {
 
         if (rep >= 0) {
-                par[0] = 20;
-                par[1] = 5;
-                par[2] = 5;
-                par[3] = 1;
-                spop2_step(adult, par, &size_adult, completed_adult, popdone_adult);
+                par[0] = 7;
+                par[1] = 2;
+                par[2] = 10;
+                par[3] = 4;
+                spop2_step(larva, par, &size_larva, completed_larva, 0);
 
-                adult_death = completed_adult[adult_mort].d;
+                larva_death = completed_larva[larva_mort].d;
 
-                num_gravid = completed_adult[adult_dev].d;
-
-                egg_laying = (num_gravid * 10);
-
-
-                gonotrophic_cycle = spop2_harvest(popdone_adult[adult_dev], adult, fun_harvest_gonotrophic_cycle).d;
-
-                size_adult = spop2_size(adult);
+                larva_to_pupa = completed_larva[larva_dev].d;
 
 
 
 
 
 
-                spop2_empty(&popdone_adult[0]);
-                spop2_empty(&popdone_adult[1]);
-                spop2_empty(&popdone_adult[2]);
+
+
 
         }
 
-        ret[0] = size_adult.d;
+        ret[0] = size_larva.d;
         if (CHECK(ret[0])) {goto endall;};
 
         ret += 1;
 
 
-        iret[0] = adult_death;
+        iret[0] = larva_death;
         if (CHECK(iret[0])) {goto endall;};
-        iret[1] = num_gravid;
+        iret[1] = larva_to_pupa;
         if (CHECK(iret[1])) {goto endall;};
-        iret[2] = egg_laying;
-        if (CHECK(iret[2])) {goto endall;};
 
-        iret[3] = gonotrophic_cycle;
-        if (CHECK(iret[0])) {goto endall;};
 
-        iret += 4;
+        iret += 2;
 
     }
 
@@ -225,8 +206,8 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
         } else {
             rewind(file);
 
-            buffsz = spop2_buffsize(adult);
-            buff = spop2_savestate(adult);
+            buffsz = spop2_buffsize(larva);
+            buff = spop2_savestate(larva);
             fwrite(&buffsz, sizeof(unsigned int), 1, file);
             fwrite(buff, buffsz, 1, file);
             free(buff);
@@ -235,10 +216,7 @@ void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *fil
         }
     }
 
-    spop2_free(&adult);
-    spop2_free(&(popdone_adult[0]));
-    spop2_free(&(popdone_adult[1]));
-    spop2_free(&(popdone_adult[2]));
+    spop2_free(&larva);
 
 }
 

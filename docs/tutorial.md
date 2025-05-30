@@ -81,7 +81,7 @@ Before following the steps below, we recommend having a look at the <a href="htt
 
 ## Declaring a population (or a development stage)
 
-A population, by definition, is a structured collection of similar individuals. There exists classes in a population that are invisible to the end user, but they distinguish intividuals into sub-groups. For example, an age-structured population of larvae is composed of indivudals all at their larva stage of development, however, some have been there for long but some have just started. The time they turn into pupae depends on how long they have been in the stage. 
+A population, by definition, is a structured collection of similar individuals. There exists classes in a population that are invisible to the end user, but they distinguish individuals into sub-groups. For example, an age-structured population of larvae is composed of individuals all at their larva stage of development, however, some have been there for long but some have just started. The time they turn into pupae depends on how long they have been in the stage. 
 
 ```json
 {
@@ -237,7 +237,7 @@ See [ex1E.json](./examples/ex1E.json) and [ex1E.c](./examples/ex1E.c) for full P
 
 ## Declaring multiple processes
 
-The `Population` algorithm enables declaring multiple processes on a population. For instance, we could define lifetime and development time together having independent Erlang-distributed durations. Strinctly, they would not be completely independent as the processes take place in the order they are defined. This means that if we define development before larva mortality, pupa could be produced under conditions not suitable for larva survival. We do not what that I guess.
+The `Population` algorithm enables declaring multiple processes on a population. For instance, we could define lifetime and development time together having independent Erlang-distributed durations. Strictly, they would not be completely independent as the processes take place in the order they are defined. This means if we define development before larva mortality, pupae could be produced under conditions not suitable for larva survival. We do not want that.
 
 Here, we define the two processes for larva (in the plausible order) and follow the dynamics.
 
@@ -300,6 +300,46 @@ The resulting larva population size and the number of larvae completing each pro
 
 ![Erlang-distributed larva lifetime and development time](figures/ex2a.png "Deterministic - Erlang-distributed")
 
+## Declaring initial conditions
+
+Since version 1.2.19, the initial conditions, or an initial population configuration, can be declared using the **init** statement within a **population** declaration.
+
+Here, we demonstrate this by extending the previous example as the following:
+
+```json
+{
+    "populations": [
+        {
+            "id": "larva",
+            "name": "The larva stage",
+            "processes": [
+                {
+                    "id": "larva_mort",
+                    "name": "Larva lifetime",
+                    "arbiter": "ACC_ERLANG",
+                    "value": [7, 2]
+                },
+                {
+                    "id": "larva_dev",
+                    "name": "Larva development time",
+                    "arbiter": "ACC_ERLANG",
+                    "value": [10, 4]
+                }
+            ],
+            "init": [
+                [0,0,100],
+                [0,0.5,100]
+            ]
+        }
+    ]
+}
+```
+See [ex2b.json](./examples/ex2b.json) and [ex2b.c](./examples/ex2b.c) for full PopJSON representation and C translation. Use [plot_ex2.py](./plot_ex2.py) to run the model.
+
+The two triplets, [0,0,100] and [0,0.5,100], add two population sub-groups, one with 100 individuals with 0 age counter and 0 development counter and the other one with 100 individuals with 0 age counter and 0.5 development counter. The latter corresponds to about 5 days of pre-development, half of the mean, which will result in an early production of pupae as shown in the figure below.
+
+![Setting the initial population](figures/ex2b.png "Deterministic - Erlang-distributed")
+
 # Advanced usage
 
 We can do more with the `Populations` package, and here we describe a few interesting examples we could think of. Please <a href="https://github.com/kerguler/PopJSON/issues" target="_blank" rel="noreferrer">contact us</a> with requests or your own examples. Feel free to use the [SandBox](#sandbox) below.
@@ -308,7 +348,7 @@ We can do more with the `Populations` package, and here we describe a few intere
 
 We can include an **if** statement to conditionally execute any **transformations**, **transfers**, or **migrations** (see <a href="#declaring-cyclic-development-gonotrophic-cycle">Declaring cyclic development</a> and <a href="#vector-dispersion-modelling">Vector dispersion modelling</a> for more information on the latter two).
 
-As an example, let's use the **if** statement to delay introducing the population in the <a href="#declaring-a-population-or-a-development-stage">first</a> example. Also, instead of introducting a naive cohort, let's use the **key** statement to start with a population that has already experienced 5 iterations of development.
+As an example, let's use the **if** statement to delay introducing the population in the <a href="#declaring-a-population-or-a-development-stage">first</a> example. Also, instead of introducing a naive cohort, let's use the **key** statement to start with a population that has already experienced 5 iterations of development.
 
 ```json
 {
@@ -578,7 +618,7 @@ The following is an example definition, which concerns 9 adult mosquito populati
 }
 ```
 
-Please note that instead of supplying ```["adult_0","adult_1","adult_2",...]``` to **target**, we used a **for** loop. This loop is defined with a list of 5 elements: the **for** tag, a label, the beginning number, the ending number (included), and the object to be repeated. The substring contaning the label, [XY], is replaced at each iteration of the counter, XY. 
+Please note that instead of supplying ```["adult_0","adult_1","adult_2",...]``` to **target**, we used a **for** loop. This loop is defined with a list of 5 elements: the **for** tag, a label, the beginning number, the ending number (included), and the object to be repeated. The substring containing the label, [XY], is replaced at each iteration of the counter, XY. 
 
 For loop can also be used to replicate objects, such as populations as shown in the following example.
 
@@ -788,6 +828,7 @@ See [ex7a.json](./examples/ex7a.json) and [ex7a.c](./examples/ex7a.c) for full P
  - <a href="./examples/ex1b.json" target="_blank" rel="noreferrer">ex1b.json</a>
  - <a href="./examples/ex1E.json" target="_blank" rel="noreferrer">ex1E.json</a>
  - <a href="./examples/ex2a.json" target="_blank" rel="noreferrer">ex2a.json</a>
+ - <a href="./examples/ex2b.json" target="_blank" rel="noreferrer">ex2b.json</a>
  - <a href="./examples/ex3a.json" target="_blank" rel="noreferrer">ex3a.json</a>
  - <a href="./examples/ex3b.json" target="_blank" rel="noreferrer">ex3b.json</a>
  - <a href="./examples/ex4a.json" target="_blank" rel="noreferrer">ex4a.json</a>
