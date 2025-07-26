@@ -130,7 +130,7 @@ class model:
         """
             Note: Final time point is ftime - 1
         """
-        ftime = numpy.int32(ftime)
+        ftime = numpy.array(ftime, ndmin=1, dtype=numpy.int32)
         if self.numenv > 0:
             envir = numpy.hstack([numpy.insert(numpy.array(envir[key],dtype=numpy.float64),0,len(envir[key])) for key in self.envnames])
         else:
@@ -139,7 +139,7 @@ class model:
         pr = numpy.array(pr)
         file0 = bytes(file0,'utf-8') if file0 else bytes(" ",'utf-8')
         file1 = bytes(file1,'utf-8') if file1 else bytes(" ",'utf-8')
-        rep = numpy.int32(rep)
+        rep = numpy.array(rep, ndmin=1, dtype=numpy.int32)
         rdim = rep if rep >= 0 else -rep
         retrow = ftime*self.numpop
         iretrow = (ftime-1)*self.numint
