@@ -100,8 +100,8 @@ class model:
         #
         self.csim = self.dylib.sim
         self.csim.restype = None
-        self.csim.argtypes = [c_int,
-                              c_int,
+        self.csim.argtypes = [array_1d_int,
+                              array_1d_int,
                               array_1d_double,
                               array_1d_double,
                               array_1d_double,

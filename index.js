@@ -20,7 +20,7 @@
 
 'use strict';
 
-const version = '1.2.19';
+const version = '1.3.1';
 const version_pop = '0.1.7';
 
 // const fs = require('fs');
@@ -621,10 +621,10 @@ class PopJSON {
         let i, j;
         let that = this;
         let det = this.deterministic ? 'DETERMINISTIC' : 'STOCHASTIC';
-        this.model += "void sim(int tf, int rep, double *envir, double *pr, double *y0, const char *file0, const char *file1, double *ret, double *iret, int *success) {\n";
+        this.model += "void sim(int *tf, int *rep, double *envir, double *pr, double *y0, const char *file0, const char *file1, double *ret, double *iret, int *success) {\n";
         this.model += "\n";
         this.model += "    TIME = 0;\n";
-        this.model += "    TIMEF = tf;\n";
+        this.model += "    TIMEF = *tf;\n";
         this.model += "\n";
         this.model += "    model_param = pr;\n";
         if ('environ' in this.json) {
@@ -822,7 +822,7 @@ class PopJSON {
         //
         this.write_out(1, false);
         //
-        this.model += "    for (TIME=1; TIME<tf; TIME++) {\n";
+        this.model += "    for (TIME=1; TIME<TIMEF; TIME++) {\n";
         //
         if ('intermediates' in this.json) {
             this.json['intermediates'].forEach( (elm) => {
@@ -831,7 +831,7 @@ class PopJSON {
             this.model += "\n";
         }
         //
-        this.model += "        if (rep >= 0) {\n";
+        this.model += "        if (*rep >= 0) {\n";
         //
         if (this.json['model']['type'] == "Population") {
             this.json['populations'].forEach( (spc, i) => {
