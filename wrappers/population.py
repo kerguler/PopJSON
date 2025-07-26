@@ -130,7 +130,7 @@ class model:
         """
             Note: Final time point is ftime - 1
         """
-        ftime = numpy.array(ftime, dmin=1, dtype=numpy.int32)
+        ftime = numpy.array(ftime, ndmin=1, dtype=numpy.int32)
         if self.numenv > 0:
             envir = numpy.hstack([numpy.insert(numpy.array(envir[key],dtype=numpy.float64),0,len(envir[key])) for key in self.envnames])
         else:
