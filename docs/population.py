@@ -131,6 +131,7 @@ class model:
             Note: Final time point is ftime - 1
         """
         ftime = numpy.array(ftime, ndmin=1, dtype=numpy.int32)
+        tdim = ftime[0]
         if self.numenv > 0:
             envir = numpy.hstack([numpy.insert(numpy.array(envir[key],dtype=numpy.float64),0,len(envir[key])) for key in self.envnames])
         else:
@@ -140,9 +141,9 @@ class model:
         file0 = bytes(file0,'utf-8') if file0 else bytes(" ",'utf-8')
         file1 = bytes(file1,'utf-8') if file1 else bytes(" ",'utf-8')
         rep = numpy.array(rep, ndmin=1, dtype=numpy.int32)
-        rdim = rep if rep >= 0 else -rep
-        retrow = ftime*self.numpop
-        iretrow = (ftime-1)*self.numint
+        rdim = rep[0] if rep[0] >= 0 else -rep[0]
+        retrow = tdim*self.numpop
+        iretrow = (tdim-1)*self.numint
         ret = numpy.ndarray(rdim*retrow, dtype=numpy.float64)
         iret = numpy.ndarray(rdim*iretrow, dtype=numpy.float64)
         success = numpy.array([0 for r in range(rdim)], dtype=numpy.int32, ndmin=1)
@@ -157,8 +158,8 @@ class model:
                       ret[(r*retrow):((r+1)*retrow)],
                       iret[(r*iretrow):((r+1)*iretrow)],
                       success[r:(r+1)])
-        ret = numpy.array(ret).reshape((rdim,ftime,self.numpop))
-        iret = numpy.array(iret).reshape((rdim,ftime-1,self.numint))
+        ret = numpy.array(ret).reshape((rdim,tdim,self.numpop))
+        iret = numpy.array(iret).reshape((rdim,tdim-1,self.numint))
         return { 
             "success": success[0], 
             "ret": ret, 
