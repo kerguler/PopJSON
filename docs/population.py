@@ -105,8 +105,8 @@ class model:
                               array_1d_double,
                               array_1d_double,
                               array_1d_double,
-                              c_char_p,
-                              c_char_p,
+                              POINTER(c_char_p),
+                              POINTER(c_char_p),
                               array_1d_double,
                               array_1d_double,
                               array_1d_int]
@@ -138,8 +138,10 @@ class model:
             envir = numpy.array([])
         y0 = numpy.hstack([numpy.array(y0[key] if key in y0 else 0.0,dtype=numpy.float64) for key in self.popnames])
         pr = numpy.array(pr)
-        file0 = bytes(file0,'utf-8') if file0 else bytes(" ",'utf-8')
-        file1 = bytes(file1,'utf-8') if file1 else bytes(" ",'utf-8')
+        #
+        file0 = pointer(c_char_p(file0.encode('utf-8') if file0 else b" "))
+        file1 = pointer(c_char_p(file1.encode('utf-8') if file1 else b" "))
+        #
         rep = numpy.array(rep, ndmin=1, dtype=numpy.int32)
         rdim = rep[0] if rep[0] >= 0 else -rep[0]
         retrow = tdim*self.numpop

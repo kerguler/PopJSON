@@ -21,7 +21,7 @@ require=(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c=
 
 'use strict';
 
-const version = '1.3.3';
+const version = '1.3.5';
 const version_pop = '0.1.7';
 
 // const fs = require('fs');
@@ -622,7 +622,10 @@ class PopJSON {
         let i, j;
         let that = this;
         let det = this.deterministic ? 'DETERMINISTIC' : 'STOCHASTIC';
-        this.model += "void sim(int *tf, int *rep, double *envir, double *pr, double *y0, const char *file0, const char *file1, double *ret, double *iret, int *success) {\n";
+        this.model += "void sim(int *tf, int *rep, double *envir, double *pr, double *y0, char **file_from, char **file_to, double *ret, double *iret, int *success) {\n";
+        this.model += "\n";
+        this.model += "    char *file0 = *file_from;\n";
+        this.model += "    char *file1 = *file_to;\n";
         this.model += "\n";
         this.model += "    TIME = 0;\n";
         this.model += "    TIMEF = *tf;\n";
