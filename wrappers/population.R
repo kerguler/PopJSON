@@ -91,8 +91,6 @@ PopulationModel <- setRefClass("PopulationModel",
       file0 <- as.character(file0)
       file1 <- as.character(file1)
 
-      if (numpop == 0 || numpar == 0) stop("Model not initialized properly.")
-
       if (length(prs) == 0) prs <- list(pr)
       nsets <- length(prs)
 

@@ -20,7 +20,7 @@
 
 'use strict';
 
-const version = '1.3.5';
+const version = '1.3.6';
 const version_pop = '0.1.7';
 
 // const fs = require('fs');
