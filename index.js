@@ -20,8 +20,8 @@
 
 'use strict';
 
-const version = '1.3.6';
-const version_pop = '0.1.7';
+const version = '1.3.7';
+const version_pop = '0.1.8';
 
 // const fs = require('fs');
 // const util = require('util');
