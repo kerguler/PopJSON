@@ -1,5 +1,6 @@
 import atexit
 import numpy
+import ctypes
 from ctypes import *
 import numpy.ctypeslib as npct
 array_1d_double = npct.ndpointer(dtype=numpy.float64, ndim=1, flags='CONTIGUOUS')
@@ -9,6 +10,16 @@ array_1d_int = npct.ndpointer(dtype=numpy.int32, ndim=1, flags='CONTIGUOUS')
 dlclose_func = CDLL(None).dlclose
 dlclose_func.argtypes = (c_void_p,)
 dlclose_func.restype = c_int
+
+# Define if missing
+if not hasattr(ctypes, "RTLD_LOCAL"):
+    RTLD_LOCAL = 0
+if not hasattr(ctypes, "RTLD_GLOBAL"):
+    RTLD_GLOBAL = 0x100
+if not hasattr(ctypes, "RTLD_NOW"):
+    RTLD_NOW = 2
+if not hasattr(ctypes, "RTLD_LAZY"):
+    RTLD_LAZY = 1
 
 def calcEnsemble(sim):
     if len(sim)==0:
@@ -25,7 +36,8 @@ def calcEnsemble(sim):
 class model:
     def __init__(self, filename):
         self.filename = filename
-        self.dylib = cdll.LoadLibrary(self.filename)
+        # self.dylib = cdll.LoadLibrary(self.filename, mode=RTLD_LOCAL | RTLD_NOW)
+        self.dylib = CDLL(self.filename, mode=RTLD_LOCAL | RTLD_NOW)
         #
         self.init = self.dylib.init
         self.init.restype = None
