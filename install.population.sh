@@ -162,7 +162,7 @@ log "Extracting package..."
 tar -xzf "$TARBALL" -C "$TMPDIR"
 
 # Detect extracted dir
-SRCDIR=$(tar -tzf "$TARBALL" | head -1 | cut -f1 -d"/")
+SRCDIR=$(tar -tzf "$TARBALL" | sed -n '1{s#/.*##;p}')
 SRCDIR="$TMPDIR/$SRCDIR"
 cd "$SRCDIR"
 
