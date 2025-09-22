@@ -21,8 +21,8 @@ require=(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c=
 
 'use strict';
 
-const version = '1.4.0';
-const version_pop = '0.1.10';
+const version = '1.4.1';
+const version_pop = '0.1.11';
 
 // const fs = require('fs');
 // const util = require('util');
@@ -1205,6 +1205,10 @@ class PopJSON {
     }
 }
 
-exports.PopJSON = PopJSON;
+module.exports = {
+  PopJSON,
+  version,
+  version_pop
+};
 
 },{}]},{},["PopJSON"]);

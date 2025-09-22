@@ -3,7 +3,15 @@
 const fs = require('fs');
 const { execSync } = require('child_process');
 const { Command } = require('commander');
-const { PopJSON } = require('../lib/index.js');
+const { PopJSON, version, version_pop } = require('../lib/index.js');
+
+// --- Handle -v/--version BEFORE Commander does anything ---
+const argv = process.argv.slice(2);
+if (argv.includes('--version') || argv.includes('-v')) {
+  console.log(`PopJSON=${version}`);
+  console.log(`Population=${version_pop}`);
+  process.exit(0);
+}
 
 const program = new Command();
 
@@ -17,9 +25,7 @@ program
   .option('-I, --include <path>', 'Path to population headers')
   .option('--no-compile', 'Skip compilation step (only generate C code)')
   .option('--verbose', 'Show extra debug output')
-  .action((model) => {
-    if (model) filename = model;
-  });
+  .option('-v, --version', 'Show PopJSON and population library versions');
 
 program.parse(process.argv);
 const options = program.opts();
@@ -34,12 +40,21 @@ if (options.verbose) {
   console.log(`[popjson] Dynamic library: ${filedylib}`);
 }
 
+if (program.args.length > 0) {
+  filename = program.args[0];
+}
+
 // --- Read JSON ---
 let data;
 try {
   data = fs.readFileSync(filejson, 'utf8');
 } catch (err) {
-  console.error(`Error: Could not read ${filejson}`);
+  if (program.args.length === 0 && filename === './model') {
+    console.error('Error: No model specified and default ./model.json not found.');
+    console.error('Usage: popjson <model>   (expects <model>.json to exist)');
+  } else {
+    console.error(`Error: Could not read ${filejson}`);
+  }
   process.exit(1);
 }
 
