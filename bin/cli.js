@@ -30,6 +30,10 @@ program
 program.parse(process.argv);
 const options = program.opts();
 
+if (program.args.length > 0) {
+  filename = program.args[0];
+}
+
 const filejson = `${filename}.json`;
 const filec = `${filename}.c`;
 const filedylib = `${filename}.dylib`;
@@ -38,10 +42,6 @@ if (options.verbose) {
   console.log(`[popjson] Input JSON: ${filejson}`);
   console.log(`[popjson] C output file: ${filec}`);
   console.log(`[popjson] Dynamic library: ${filedylib}`);
-}
-
-if (program.args.length > 0) {
-  filename = program.args[0];
 }
 
 // --- Read JSON ---
