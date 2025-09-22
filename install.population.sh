@@ -94,10 +94,13 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# Ensure temp directory
+mkdir -p "$TMPDIR"
+
 TESTFILE="$TMPDIR/test"
+LOGFILE="$TMPDIR/install.log"
 
 # Verbose logger
-LOGFILE="$TMPDIR/install.log"
 log() {
     local msg="[INFO] $1"
     # Always write to logfile
@@ -108,6 +111,7 @@ log() {
     fi
 }
 log "Population + PopJSON Installer Script version $INSTALLER_VERSION"
+log "Using temporary directory: $TMPDIR"
 
 # Check privileges unless local install
 if [[ $LOCAL -eq 0 ]]; then
@@ -147,10 +151,6 @@ log "Population package version: $SPOP_VERSION"
 # Construct tarball URL
 TARBALL_URL="https://raw.githubusercontent.com/kerguler/Population/main/dist/population-${SPOP_VERSION}.tar.gz"
 log "Using version $SPOP_VERSION from $TARBALL_URL"
-
-# Ensure temp directory
-mkdir -p "$TMPDIR"
-log "Using temporary directory: $TMPDIR"
 
 # Download tarball
 TARBALL="$TMPDIR/spop-${SPOP_VERSION}.tar.gz"
