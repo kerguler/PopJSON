@@ -188,6 +188,9 @@ make -j"$(nproc)"
 log "Installing..."
 make install
 
+log "Updating linker..."
+ldconfig -v
+
 log "Installation of sPop $SPOP_VERSION completed successfully."
 if [[ $LOCAL -eq 1 ]]; then
     log "Installed into user-local: $HOME/.local"
