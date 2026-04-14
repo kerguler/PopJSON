@@ -91,6 +91,14 @@ If you prefer a local (non-sudo) installation:
 
 ---
 
+## Changes
+
+### v1.5
+- Population and intermediate/transfer/transform matrices now share the same dimensions.
+- The first entry (index 0) corresponds to the initial conditions (time = 0).
+
+---
+
 ## License & Disclaimer
 
 This project is distributed under the terms of the license in `LICENSE`.  

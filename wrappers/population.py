@@ -157,7 +157,7 @@ class model:
         rep = numpy.array(rep, ndmin=1, dtype=numpy.int32)
         rdim = rep[0] if rep[0] >= 0 else -rep[0]
         retrow = tdim*self.numpop
-        iretrow = (tdim-1)*self.numint
+        iretrow = tdim*self.numint
         ret = numpy.ndarray(rdim*retrow, dtype=numpy.float64)
         iret = numpy.ndarray(rdim*iretrow, dtype=numpy.float64)
         success = numpy.array([0 for r in range(rdim)], dtype=numpy.int32, ndmin=1)
@@ -173,7 +173,7 @@ class model:
                       iret[(r*iretrow):((r+1)*iretrow)],
                       success[r:(r+1)])
         ret = numpy.array(ret).reshape((rdim,tdim,self.numpop))
-        iret = numpy.array(iret).reshape((rdim,tdim-1,self.numint))
+        iret = numpy.array(iret).reshape((rdim,tdim,self.numint))
         return { 
             "success": success[0], 
             "ret": ret, 

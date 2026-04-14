@@ -21,7 +21,7 @@ require=(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c=
 
 'use strict';
 
-const version = '1.4.5';
+const version = '1.5.0';
 const version_pop = '0.1.11';
 
 // const fs = require('fs');
@@ -825,7 +825,7 @@ class PopJSON {
             }
         } );
         //
-        this.write_out(1, false);
+        this.write_out(1, true);
         //
         this.model += "    for (TIME=1; TIME<TIMEF; TIME++) {\n";
         //

@@ -122,7 +122,7 @@ PopulationModel <- setRefClass("PopulationModel",
                     file_from = file0,
                     file_to = file1,
                     ret = double(rdim * ftime * numpop),
-                    iret = double(rdim * (ftime - 1) * numint),
+                    iret = double(rdim * ftime * numint),
                     success = as.integer(1))
 
           success <- success + 1L
@@ -149,14 +149,14 @@ PopulationModel <- setRefClass("PopulationModel",
 
       iret_mat <- if (numint > 0) {
         if (success == 1) {
-          iret_mat <- array(iret_list[[1]], dim = c(numint, ftime - 1, rdim))
-          iret_mat <- aperm(iret_mat, c(3, 2, 1))  # [rdim, tdim-1, numint]
+          iret_mat <- array(iret_list[[1]], dim = c(numint, ftime, rdim))
+          iret_mat <- aperm(iret_mat, c(3, 2, 1))  # [rdim, tdim, numint]
         } else {
           tmp <- lapply(iret_list, function(x) {
-            a <- array(x, dim = c(numint, ftime - 1, rdim))
-            aperm(a, c(3, 2, 1))  # [rdim, tdim-1, numint]
+            a <- array(x, dim = c(numint, ftime, rdim))
+            aperm(a, c(3, 2, 1))  # [rdim, tdim, numint]
           })
-          iret_mat <- array(unlist(tmp), dim = c(success, rdim, ftime - 1, numint))
+          iret_mat <- array(unlist(tmp), dim = c(success, rdim, ftime, numint))
         }
       } else NULL
 

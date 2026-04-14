@@ -1,7 +1,7 @@
 var fs = require('fs');
 let data = fs.readFileSync("./model.json");
 
-var kp = require('../../index.js');
+var kp = require('../../lib/index.js');
 var parser = new kp.PopJSON();
 var out = parser.parse_json(data);
 if (out["error"]) {
