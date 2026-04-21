@@ -1,97 +1,53 @@
 {
     "model": {
-        "title": "Density-dependent population dynamics of Aedes albopictus",
-        "type": "Population",
-        "url": "https://github.com/kerguler/Population",
+        "title": "Model of breeding site volume for container breeders",
+        "type": "ODE",
         "deterministic": true,
         "parameters": {
-            "algorithm": "Population",
-            "istep": 0.01
+            "algorithm": "rk8pd",
+            "hstart": 1e-3,
+            "eps_abs": 1e-8,
+            "eps_rel": 1e-8
         }
     },
-    "external": [
-        {
-            "id": "breeding_site",
-            "file": "ex8b.dylib",
-            "environ": ["prec","evap"],
-            "parameters": ["par_alpha","par_beta"],
-            "populations": ["bsvol"]
-        }
-    ],
     "environ": [
-        {
-            "id": "temp",
-            "name": "Temperature of the breeding pool (in °C)"
-        },
         {
             "id": "prec",
             "name": "Daily total precipitation (in mm)"
-        },
-        {
-            "id": "evap",
-            "name": "Daily total evaporation (in mm)"
         }
     ],
-    "functions": {
-        "briere1": ["define", ["T","a","L","R"], ["?",["<=","T","L"],"365.0", ["?",[">=","T","R"],"365.0", ["min","365.0",["max","1.0", ["/","1.0",["exp", ["+","a",["log","T"],["log",["-","T","L"]],["*","0.5",["log",["-","R","T"]]]]]]]]]]]
-    },
     "parameters": [
         {
-            "id": "d2m_a",
+            "id": "alpha",
             "constant": false,
-            "name": "Larva development mean (a)",
-            "value": -12
+            "name": "Accumulation coefficient",
+            "value": 1.0
         }, {
-            "id": "d2m_b",
+            "id": "beta",
             "constant": false,
-            "name": "Larva development mean (b)",
-            "value": 283.15
-        }, {
-            "id": "d2m_c",
-            "constant": false,
-            "name": "Larva development mean (c)",
-            "value": 308.15
-        }, {
-            "id": "d2s_c",
-            "constant": false,
-            "name": "Larva development stdev (c)",
-            "value": 0.2
-        }
-    ],
-    "intermediates": [
-        {
-            "id": "bsitevol",
-            "value": ["breeding_site", {
-                "populations": "bsvol"
-            }]
-        },{
-            "id": "bsvol",
-            "value": ["bsitevol", "bsvol"]
-        },{
-            "id": "d2m",
-            "value": ["briere1", ["temp", "TIME_1"], "d2m_a", "d2m_b", "d2m_c"]
-        }, {
-            "id": "d2s",
-            "value": ["*", "d2s_c", "d2m"]
+            "name": "Evaporation coefficient",
+            "value": 0.5
         }
     ],
     "populations": [
         {
-            "id": "larva",
-            "name": "The larva stage",
-            "processes": [
-                {
-                    "id": "larva_death",
-                    "name": "Larva mortality",
-                    "arbiter": "NOAGE_CONST",
-                    "value": 0.0
-                },{
-                    "id": "larva_dev",
-                    "name": "Larva development time",
-                    "arbiter": "ACC_ERLANG",
-                    "value": ["d2m", "d2s"]
-                }
-            ]
+            "id": "bsvol",
+            "name": "Breeding site volume"
+        }
+    ],
+    "reactions": [
+        {
+            "id": "accumulation",
+            "to": {
+                "bsvol": 1
+            },
+            "value": ["*", "alpha", ["prec", "TIME"]]
+        },{
+            "id": "evaporation",
+            "from": {
+                "bsvol": 1
+            },
+            "value": ["*", "beta", "bsvol"]
         }
     ]
 }
