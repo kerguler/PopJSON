@@ -44,18 +44,18 @@ double ODE_EPS_ABS = 1e-8;
 double ODE_EPS_REL = 1e-8;
 
 int ode_func(double t, const double y[], double f[], void *params) {
-    int k = (int)floor(t);
-    if (k < 0) k = 0;
-    if (k >= TIMEF) k = TIMEF - 1;
+    int time = (int)floor(t);
+    if (time < 0) time = 0;
+    if (time >= TIMEF) time = TIMEF - 1;
 
     double size_bsvol = y[0];
 
     f[0] = 0.0;
 
-    double rate_accumulation = (model_param[alpha] * envir_prec[k]);
+    double rate_accumulation = (model_param[alpha] * envir_prec[time]);
     f[0] += ((double)1) * rate_accumulation;
 
-    double rate_evaporation = (model_param[beta] * envir_evap[k] * size_bsvol);
+    double rate_evaporation = (model_param[beta] * envir_evap[time] * size_bsvol);
     f[0] -= ((double)1) * rate_evaporation;
 
     return GSL_SUCCESS;

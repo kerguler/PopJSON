@@ -45,13 +45,13 @@
             "to": {
                 "bsvol": 1
             },
-            "value": ["*", "alpha", ["prec", "TIME_1"]]
+            "value": ["*", "alpha", ["prec", "TIME"]]
         },{
             "id": "evaporation",
             "from": {
                 "bsvol": 1
             },
-            "value": ["*", "beta", ["evap", "TIME_1"], "bsvol"]
+            "value": ["*", "beta", ["evap", "TIME"], "bsvol"]
         }
     ]
 }
