@@ -5,32 +5,51 @@ import population as pop
 print("Processing ex9...")
 ex = pop.model("examples/ex9.dylib")
 
-N = 100000
+N = 100
 
-out = ex.sim(N, y0={
-    "xx": 1.0,
-    "yy": 1.0,
-    "zz": 1.0
-})
+k = min(numpy.random.poisson(20), N)
+indices = numpy.random.choice(N, size=k, replace=True)
+values = numpy.abs(numpy.random.normal(0, 1, size=k))
 
-# Extract trajectory
-traj = out['ret'][0, 1:, :]
-x = traj[:, 0]
-y = traj[:, 1]
-z = traj[:, 2]
+prec = numpy.repeat(0.0, N)
+prec[indices] = values
 
-# Plot
-fig = plt.figure(figsize=(8, 6))
-ax = fig.add_subplot(111, projection='3d')
+out = ex.sim(N,
+             y0={
+                "bsvol": 0.0
+             },
+             envir={
+                "prec": prec
+             },
+             pr=[1.0, 0.5])
 
-ax.plot(x, y, z)
+x = numpy.arange(len(prec))
 
-ax.set_xlabel('x')
-ax.set_ylabel('y')
-ax.set_zlabel('z')
-ax.set_title('Lorenz Trajectory')
+fig, ax1 = plt.subplots(figsize=(10, 5))
+
+# --- Bars for precipitation and evaporation ---
+width = 1.0
+ax1.bar(x + width/2, prec, width=width, label="Precipitation (mm)", color="#4C72B0")
+
+ax1.set_ylabel("Water flux (mm)")
+ax1.set_xlabel("Time step")
+ax1.set_title("Precipitation, Evaporation, and Model Output")
+ax1.grid(axis="y", linestyle="--", alpha=0.4)
+
+ax1.set_ylim(bottom=0)
+
+# --- Secondary axis for model output ---
+ax2 = ax1.twinx()
+ax2.plot(x, out['ret'][0,:,0], '-', color="black", label="Model output")
+ax2.set_ylabel("Model output")
+
+ax2.set_ylim(bottom=0)
+
+# --- Combine legends ---
+handles1, labels1 = ax1.get_legend_handles_labels()
+handles2, labels2 = ax2.get_legend_handles_labels()
+ax1.legend(handles1 + handles2, labels1 + labels2, frameon=False, loc="upper right")
 
 plt.tight_layout()
-plt.show()
-
-
+plt.savefig("figures/ex9.png",bbox_inches="tight",dpi=300)
+plt.close()

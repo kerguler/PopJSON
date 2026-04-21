@@ -1,6 +1,6 @@
 {
     "model": {
-        "title": "Lorenz equations",
+        "title": "Model of breeding site volume for container breeders",
         "type": "ODE",
         "deterministic": true,
         "parameters": {
@@ -10,69 +10,44 @@
             "eps_rel": 1e-8
         }
     },
-    "environ": [ ],
+    "environ": [
+        {
+            "id": "prec",
+            "name": "Daily total precipitation (in mm)"
+        }
+    ],
     "parameters": [
         {
-            "id": "sigma",
+            "id": "alpha",
             "constant": false,
-            "value": 10.0
-        }, {
-            "id": "rho",
-            "constant": false,
-            "value": 28.0
+            "name": "Accumulation coefficient",
+            "value": 1.0
         }, {
             "id": "beta",
             "constant": false,
-            "value": 2.6666666666666665
+            "name": "Evaporation coefficient",
+            "value": 0.5
         }
     ],
     "populations": [
         {
-            "id": "xx"
-        },{
-            "id": "yy"
-        },{
-            "id": "zz"
+            "id": "bsvol",
+            "name": "Breeding site volume"
         }
     ],
     "reactions": [
         {
-            "id": "yx_to_xx",
-            "label": "sigma*y : y -> x",
-            "from": { "yy": 1 },
-            "to": { "xx": 1 },
-            "value": ["*", "sigma", "yy"]
+            "id": "accumulation",
+            "to": {
+                "bsvol": 1
+            },
+            "value": ["*", "alpha", ["prec", "TIME"]]
         },{
-            "id": "x_decay_sigma",
-            "label": "sigma*x : x -> 0",
-            "from": { "xx": 1 },
-            "value": ["*", "sigma", "xx"]
-        },{
-            "id": "x_to_xy",
-            "label": "rho*x : x -> y",
-            "from": { "xx": 1 },
-            "to": { "yy": 1 },
-            "value": ["*", "rho", "xx"]
-        },{
-            "id": "yz_loss_by_xz",
-            "label": "x*z : z removed from y equation",
-            "from": { "yy": 1 },
-            "value": ["*", "xx", "zz"]
-        },{
-            "id": "y_decay",
-            "label": "y : y -> 0",
-            "from": { "yy": 1 },
-            "value": "yy"
-        },{
-            "id": "z_production",
-            "label": "x*y : 0 -> z",
-            "to": { "zz": 1 },
-            "value": ["*", "xx", "yy"]
-        },{
-            "id": "z_decay",
-            "label": "beta*z : z -> 0",
-            "from": { "zz": 1 },
-            "value": ["*", "beta", "zz"]
+            "id": "evaporation",
+            "from": {
+                "bsvol": 1
+            },
+            "value": ["*", "beta", "bsvol"]
         }
     ]
 }

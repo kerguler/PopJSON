@@ -1,6 +1,6 @@
 {
     "model": {
-        "title": "Model of breeding site volume for container breeders",
+        "title": "Lorenz equations",
         "type": "ODE",
         "deterministic": true,
         "parameters": {
@@ -10,44 +10,64 @@
             "eps_rel": 1e-8
         }
     },
-    "environ": [
-        {
-            "id": "prec",
-            "name": "Daily total precipitation (in mm)"
-        }
-    ],
+    "environ": [ ],
     "parameters": [
         {
-            "id": "alpha",
+            "id": "sigma",
             "constant": false,
-            "name": "Accumulation coefficient",
-            "value": 1.0
+            "value": 10.0
+        }, {
+            "id": "rho",
+            "constant": false,
+            "value": 28.0
         }, {
             "id": "beta",
             "constant": false,
-            "name": "Evaporation coefficient",
-            "value": 0.5
+            "value": 2.6666666666666665
+        },{
+            "id": "time_scale",
+            "constant": false,
+            "value": 1.0
         }
     ],
     "populations": [
         {
-            "id": "bsvol",
-            "name": "Breeding site volume"
+            "id": "xx"
+        },{
+            "id": "yy"
+        },{
+            "id": "zz"
         }
     ],
     "reactions": [
         {
-            "id": "accumulation",
-            "to": {
-                "bsvol": 1
-            },
-            "value": ["*", "alpha", ["prec", "TIME"]]
+            "id": "r0",
+            "to": { "xx": 1 },
+            "value": ["*", "time_scale", "sigma", "yy"]
         },{
-            "id": "evaporation",
-            "from": {
-                "bsvol": 1
-            },
-            "value": ["*", "beta", "bsvol"]
+            "id": "r1",
+            "from": { "xx": 1 },
+            "value": ["*", "time_scale", "sigma", "xx"]
+        },{
+            "id": "r2",
+            "to": { "yy": 1 },
+            "value": ["*", "time_scale", "rho", "xx"]
+        },{
+            "id": "r3",
+            "from": { "yy": 1 },
+            "value": ["*", "time_scale", "xx", "zz"]
+        },{
+            "id": "r4",
+            "from": { "yy": 1 },
+            "value": ["*", "time_scale", "yy"]
+        },{
+            "id": "r5",
+            "to": { "zz": 1 },
+            "value": ["*", "time_scale", "xx", "yy"]
+        },{
+            "id": "r6",
+            "from": { "zz": 1 },
+            "value": ["*", "time_scale", "beta", "zz"]
         }
     ]
 }

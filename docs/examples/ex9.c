@@ -23,20 +23,20 @@
 
 #define CHECK(x) (isnan(x) || isinf(x))
 
-#define NumPop 3
-#define NumEnv 0
-#define NumPar 3
+#define NumPop 1
+#define NumEnv 1
+#define NumPar 2
 #define NumInt 0
 
-#define sigma 0
-#define rho 1
-#define beta 2
+#define alpha 0
+#define beta 1
 
 
 int TIME;
 int TIMEF;
 
 double *model_param;
+double *envir_prec;
 
 
 gsl_odeiv2_system ODE_SYSTEM;
@@ -50,36 +50,15 @@ int ode_func(double t, const double y[], double f[], void *params) {
     if (time < 0) time = 0;
     if (time >= TIMEF) time = TIMEF - 1;
 
-    double size_xx = y[0];
-    double size_yy = y[1];
-    double size_zz = y[2];
+    double size_bsvol = y[0];
 
     f[0] = 0.0;
-    f[1] = 0.0;
-    f[2] = 0.0;
 
-    double rate_yx_to_xx = (model_param[sigma] * size_yy);
-    f[1] -= ((double)1) * rate_yx_to_xx;
-    f[0] += ((double)1) * rate_yx_to_xx;
+    double rate_accumulation = (model_param[alpha] * envir_prec[time]);
+    f[0] += ((double)1) * rate_accumulation;
 
-    double rate_x_decay_sigma = (model_param[sigma] * size_xx);
-    f[0] -= ((double)1) * rate_x_decay_sigma;
-
-    double rate_x_to_xy = (model_param[rho] * size_xx);
-    f[0] -= ((double)1) * rate_x_to_xy;
-    f[1] += ((double)1) * rate_x_to_xy;
-
-    double rate_yz_loss_by_xz = (size_xx * size_zz);
-    f[1] -= ((double)1) * rate_yz_loss_by_xz;
-
-    double rate_y_decay = size_yy;
-    f[1] -= ((double)1) * rate_y_decay;
-
-    double rate_z_production = (size_xx * size_yy);
-    f[2] += ((double)1) * rate_z_production;
-
-    double rate_z_decay = (model_param[beta] * size_zz);
-    f[2] -= ((double)1) * rate_z_decay;
+    double rate_evaporation = (model_param[beta] * size_bsvol);
+    f[0] -= ((double)1) * rate_evaporation;
 
     return GSL_SUCCESS;
 }
@@ -107,23 +86,21 @@ void init(int *no, int *np, int *ni, int *ne, int *st) {
 
 void parnames(char **names, double *param, double *parmin, double *parmax) {
     char temp[NumPop+NumPar+NumInt+NumEnv][256] = {
-        "xx", "yy", "zz",
-        "sigma", "rho", "beta",
+        "bsvol",
+        "alpha", "beta",
+        "prec",
     };
 
     int i;
     for (i=0; i<(NumPop+NumPar+NumInt+NumEnv); i++)
         names[i] = strdup(temp[i]);
 
-    param[sigma] = 10;
-    parmin[sigma] = 10;
-    parmax[sigma] = 10;
-    param[rho] = 28;
-    parmin[rho] = 28;
-    parmax[rho] = 28;
-    param[beta] = 2.6666666666666665;
-    parmin[beta] = 2.6666666666666665;
-    parmax[beta] = 2.6666666666666665;
+    param[alpha] = 1;
+    parmin[alpha] = 1;
+    parmax[alpha] = 1;
+    param[beta] = 0.5;
+    parmin[beta] = 0.5;
+    parmax[beta] = 0.5;
 }
 
 void destroy(void) {
@@ -139,23 +116,18 @@ void sim(int *tf, int *rep, double *envir, double *pr, double *y0, char **file_f
 
     model_param = pr;
 
+    envir_prec = envir + 1; envir += (int)round(*envir) + 1;
 
     int status;
     if (ODE_DRIVER) { gsl_odeiv2_driver_reset(ODE_DRIVER); }
 
     double state[NumPop];
     if (y0[0]) { state[0] = y0[0]; } else { state[0] = 0.0; }
-    if (y0[1]) { state[1] = y0[1]; } else { state[1] = 0.0; }
-    if (y0[2]) { state[2] = y0[2]; } else { state[2] = 0.0; }
 
     ret[0] = state[0];
     if (CHECK(ret[0])) {goto endall;};
-    ret[1] = state[1];
-    if (CHECK(ret[1])) {goto endall;};
-    ret[2] = state[2];
-    if (CHECK(ret[2])) {goto endall;};
 
-    ret += 3;
+    ret += 1;
 
     for (TIME=1; TIME<TIMEF; TIME++) {
         t = (double)(TIME-1);
@@ -164,12 +136,8 @@ void sim(int *tf, int *rep, double *envir, double *pr, double *y0, char **file_f
 
         ret[0] = state[0];
         if (CHECK(ret[0])) {goto endall;};
-        ret[1] = state[1];
-        if (CHECK(ret[1])) {goto endall;};
-        ret[2] = state[2];
-        if (CHECK(ret[2])) {goto endall;};
 
-        ret += 3;
+        ret += 1;
 
     }
 
