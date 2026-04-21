@@ -21,15 +21,15 @@
     "environ": [
         {
             "id": "temp",
-            "name": "Temperature of the breeding pool (in °C)",
+            "name": "Temperature of the breeding pool (in °C)"
         },
         {
             "id": "prec",
-            "name": "Daily total precipitation (in mm)",
+            "name": "Daily total precipitation (in mm)"
         },
         {
             "id": "evap",
-            "name": "Daily total evaporation (in mm)",
+            "name": "Daily total evaporation (in mm)"
         }
     ],
     "functions": {

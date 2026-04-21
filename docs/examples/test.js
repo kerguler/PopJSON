@@ -1,7 +1,7 @@
 const fs = require('fs');
-const { PetriJSON } = require('../../lib/PetriJSON.js');
+const { PopJSON } = require('../../lib/index.js');
 
-const parser = new PetriJSON();
+const parser = new PopJSON();
 const json = JSON.parse(fs.readFileSync('ex8b.json', 'utf8'));
 const out = parser.process_json(json);
 
