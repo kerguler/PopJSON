@@ -39,7 +39,7 @@
             "name": "Breeding site volume"
         }
     ],
-    "processes": [
+    "reactions": [
         {
             "id": "accumulation",
             "to": {

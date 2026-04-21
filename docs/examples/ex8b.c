@@ -29,13 +29,13 @@
 #define beta 1
 
 
-double *envir_prec;
-double *envir_evap;
-
 int TIME;
 int TIMEF;
 
 double *model_param;
+double *envir_prec;
+double *envir_evap;
+
 
 gsl_odeiv2_system ODE_SYSTEM;
 gsl_odeiv2_driver *ODE_DRIVER;
@@ -48,12 +48,14 @@ int ode_func(double t, const double y[], double f[], void *params) {
     if (k < 0) k = 0;
     if (k >= TIMEF) k = TIMEF - 1;
 
+    double size_bsvol = y[0];
+
     f[0] = 0.0;
 
     double rate_accumulation = (model_param[alpha] * envir_prec[k]);
     f[0] += ((double)1) * rate_accumulation;
 
-    double rate_evaporation = (model_param[beta] * envir_evap[k] * size_bsvol.d);
+    double rate_evaporation = (model_param[beta] * envir_evap[k] * size_bsvol);
     f[0] -= ((double)1) * rate_evaporation;
 
     return GSL_SUCCESS;
@@ -78,6 +80,25 @@ void init(int *no, int *np, int *ni, int *ne, int *st) {
     *ni = NumInt;
     *ne = NumEnv;
     *st = 0;
+}
+
+void parnames(char **names, double *param, double *parmin, double *parmax) {
+    char temp[NumPop+NumPar+NumInt+NumEnv][256] = {
+        "bsvol",
+        "alpha", "beta",
+        "prec", "evap",
+    };
+
+    int i;
+    for (i=0; i<(NumPop+NumPar+NumInt+NumEnv); i++)
+        names[i] = strdup(temp[i]);
+
+    param[alpha] = 1;
+    parmin[alpha] = 1;
+    parmax[alpha] = 1;
+    param[beta] = 0.5;
+    parmin[beta] = 0.5;
+    parmax[beta] = 0.5;
 }
 
 void sim(int *tf, int *rep, double *envir, double *pr, double *y0, char **file_from, char **file_to, double *ret, double *iret, int *success) {
