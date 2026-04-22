@@ -24,7 +24,7 @@ void (*breeding_site_destroy)(void);
 void (*breeding_site_sim)(int *, int *, double *, double *, double *, char **, char **, double *, double *, int *);
 
 void breeding_site_setup() {
-    breeding_site = dlopen("models/model_internal_stress.dylib", RTLD_NOW);
+    breeding_site = dlopen("ex9.dylib", RTLD_NOW);
     if (!breeding_site) { fprintf(stderr, "dlopen failed: %s\n", dlerror()); return; };
 
     *(void **)(&breeding_site_init) = dlsym(breeding_site, "init");
@@ -100,6 +100,8 @@ void init(int *no, int *np, int *ni, int *ne, int *st) {
     *ni = NumInt;
     *ne = NumEnv;
     *st = 0;
+
+    breeding_site_setup();
 }
 
 void parnames(char **names, double *param, double *parmin, double *parmax) {
@@ -129,6 +131,10 @@ void parnames(char **names, double *param, double *parmin, double *parmax) {
 }
 
 void destroy(void) {
+
+    if (breeding_site_destroy) { breeding_site_destroy(); }
+    if (breeding_site) { dlclose(breeding_site); breeding_site = NULL; }
+
 }
 
 void sim(int *tf, int *rep, double *envir, double *pr, double *y0, char **file_from, char **file_to, double *ret, double *iret, int *success) {
