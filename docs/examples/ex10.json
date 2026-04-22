@@ -9,11 +9,11 @@
             "istep": 0.01
         }
     },
-    "external": [
+    "externals": [
         {
             "id": "breeding_site",
-            "file": "ex8b.dylib",
-            "environ": ["prec","evap"],
+            "file": "ex9.dylib",
+            "environ": ["prec"],
             "parameters": ["par_alpha","par_beta"],
             "populations": ["bsvol"]
         }
@@ -22,14 +22,9 @@
         {
             "id": "temp",
             "name": "Temperature of the breeding pool (in °C)"
-        },
-        {
+        },{
             "id": "prec",
             "name": "Daily total precipitation (in mm)"
-        },
-        {
-            "id": "evap",
-            "name": "Daily total evaporation (in mm)"
         }
     ],
     "functions": {
@@ -41,17 +36,17 @@
             "constant": false,
             "name": "Larva development mean (a)",
             "value": -12
-        }, {
+        },{
             "id": "d2m_b",
             "constant": false,
             "name": "Larva development mean (b)",
             "value": 283.15
-        }, {
+        },{
             "id": "d2m_c",
             "constant": false,
             "name": "Larva development mean (c)",
             "value": 308.15
-        }, {
+        },{
             "id": "d2s_c",
             "constant": false,
             "name": "Larva development stdev (c)",
@@ -61,12 +56,15 @@
     "intermediates": [
         {
             "id": "bsitevol",
-            "value": ["breeding_site", {
-                "populations": "bsvol"
+            "value": 0.0,
+            "value_old": ["breeding_site", {
+                "y0": "bsvol",
+                "envir": ["temp", "TIME_1"]
             }]
         },{
             "id": "bsvol",
-            "value": ["bsitevol", "bsvol"]
+            "value": 0.0,
+            "value_old": ["bsitevol", "bsvol"]
         },{
             "id": "d2m",
             "value": ["briere1", ["temp", "TIME_1"], "d2m_a", "d2m_b", "d2m_c"]
@@ -84,7 +82,7 @@
                     "id": "larva_death",
                     "name": "Larva mortality",
                     "arbiter": "NOAGE_CONST",
-                    "value": 0.0
+                    "value": ["/", "larva", ["+", "larva", "bsvol"]]
                 },{
                     "id": "larva_dev",
                     "name": "Larva development time",

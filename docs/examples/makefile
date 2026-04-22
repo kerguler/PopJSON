@@ -1,4 +1,5 @@
-export MODELS=ex1a ex1E ex1b ex1c ex2a ex2b ex3a ex3b ex4a ex5a ex6a ex7a ex8 ex9
+#export MODELS=ex1a ex1E ex1b ex1c ex2a ex2b ex3a ex3b ex4a ex5a ex6a ex7a ex8 ex9
+export MODELS=ex10
 
 examples:
 	for MNAME in $$MODELS; do \
