@@ -91,7 +91,8 @@ void breeding_site_sim_wrap(double value[1],
 #define bs_beta 2
 #define bs_str 3
 
-#define larva_dev 0
+#define larva_coef 0
+#define larva_mort 1
 
 
 double dmin(double a, double b) { return a < b ? a : b; }
@@ -109,6 +110,21 @@ double bsvol;
 double bsmort;
 
 
+
+void fun_hazpar_larva_coef_larva(const number *key, const number num, double *par) {
+    double bsitevol_larva[1];
+    breeding_site_sim_wrap(bsitevol_larva,key[larva_coef].d,model_param[bs_alpha],model_param[bs_beta],envir_prec[(int)(TIME-1)]);
+
+
+    par[0] = bsitevol_larva[0];
+}
+
+void fun_hazpar_larva_mort_larva(const number *key, const number num, double *par) {
+
+    double d2m_coef = ((1.0 + key[larva_coef].d) * model_param[d2m]);
+
+    par[0] = d2m_coef;
+}
 
 void prepare_tprobs(int numcol, double *ttprobs, double *tprobs) {
     int rA, rB, i = 0;
@@ -183,10 +199,10 @@ void sim(int *tf, int *rep, double *envir, double *pr, double *y0, char **file_f
     population larva;
 
     number num = numZERO;
-    char arbiters[2];
-    number key[2];
+    char arbiters[3];
+    number key[3];
     size_larva = numZERO;
-    number completed_larva[2];
+    number completed_larva[3];
     double par[2];
 
     FILE *file;
@@ -211,11 +227,15 @@ void sim(int *tf, int *rep, double *envir, double *pr, double *y0, char **file_f
         free(buff);
 
     } else {
-        arbiters[0] = ACC_ERLANG;
+        arbiters[0] = ACC_MEMORY;
         key[0] = numZERO;
-        arbiters[1] = STOP;
+        arbiters[1] = NOAGE_CONST;
         key[1] = numZERO;
+        arbiters[2] = STOP;
+        key[2] = numZERO;
         larva = spop2_init(arbiters, DETERMINISTIC);
+        larva->arbiters[0]->fun_q_par = fun_hazpar_larva_coef_larva;
+        larva->arbiters[1]->fun_q_par = fun_hazpar_larva_mort_larva;
         if (y0[0]) { num.d = y0[0]; spop2_add(larva, key, num); }
 
 
@@ -252,11 +272,8 @@ void sim(int *tf, int *rep, double *envir, double *pr, double *y0, char **file_f
         bsmort = (size_larva.d / (size_larva.d + (model_param[bs_str] * bsvol)));
 
         if (*rep >= 0) {
-
-                double d2m_coef = ((1.0 + bsmort) * model_param[d2m]);
-
-                par[0] = d2m_coef;
-                par[1] = sqrt(d2m_coef);
+                par[0] = 0.0;
+                par[1] = 0.0;
                 spop2_step(larva, par, &size_larva, completed_larva, 0);
 
 

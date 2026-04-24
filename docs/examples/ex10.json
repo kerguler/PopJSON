@@ -72,16 +72,28 @@
             "name": "The larva stage",
             "processes": [
                 {
-                    "id": "larva_dev",
-                    "name": "Larva development time",
-                    "arbiter": "ACC_ERLANG",
-                    "intermediates": [
-                        {
-                            "id": "d2m_coef",
-                            "value": ["*", ["+", "1.0", "bsmort"], "d2m"]
-                        }
-                    ],
-                    "value": ["d2m_coef", ["sqrt", "d2m_coef"]]
+                    "id": "larva_coef",
+                    "arbiter": "ACC_MEMORY",
+                    "evaluate": [{
+                        "id": "bsitevol_larva",
+                        "value": ["breeding_site", {
+                            "y0": ["larva_coef"],
+                            "pr": ["bs_alpha","bs_beta"],
+                            "envir": [["prec", "TIME_1"]]
+                        }]
+                    }],
+                    "value": [["bsitevol_larva", 0]],
+                    "hazpar": true
+                },{
+                    "id": "larva_mort",
+                    "name": "Larva mortality",
+                    "arbiter": "NOAGE_CONST",
+                    "intermediates": [{
+                        "id": "d2m_coef",
+                        "value": ["*", ["+", "1.0", "larva_coef"], "d2m"]
+                    }],
+                    "value": ["d2m_coef"],
+                    "hazpar": true
                 }
             ]
         }
