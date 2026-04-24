@@ -74,7 +74,7 @@
             "value": ["bsitevol", 0]
         },{
             "id": "bscoef",
-            "value": ["-", "1.0", ["/", "larva", ["+", "larva", "bsvol"]]]
+            "value": ["-", "1.0", ["/", "1.0", "larva", ["+", "larva", "bsvol"]]]
         },{
             "id": "d2m",
             "value": ["briere1", ["temp", "TIME_1"], "d2m_a", "d2m_b", "d2m_c"]
@@ -102,7 +102,7 @@
                     "intermediates": [
                         {
                             "id": "coefmort",
-                            "value": ["-", "1.0", ["/", "larva", ["+", "larva", ["bsitevolmort", 0]]]]
+                            "value": ["-", "1.0", ["/", "larva", ["+", "1.0", "larva", ["bsitevolmort", 0]]]]
                         }
                     ],
                     "value": ["coefmort"]
@@ -123,10 +123,13 @@
                     "intermediates": [
                         {
                             "id": "coefdev",
-                            "value": ["-", "1.0", ["/", "larva", ["+", "larva", ["bsitevoldev", 0]]]]
+                            "value": ["-", "1.0", ["/", "larva", ["+", "1.0", "larva", ["bsitevoldev", 0]]]]
+                        },{
+                            "id": "d2m_coef",
+                            "value": ["*", "coefdev", "d2m"]
                         }
                     ],
-                    "value": [["*", "coefdev", "d2m"], ["sqrt", ["*", "coefdev", "d2m"]]],
+                    "value": ["d2m_coef", ["sqrt", "d2m_coef"]],
                     "hazpar": true
                 }
             ]
