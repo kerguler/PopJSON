@@ -86,7 +86,7 @@
                     "arbiter": "NOAGE_CONST",
                     "evaluate": [
                         {
-                            "id": "bsitevolproc",
+                            "id": "bsitevolmort",
                             "value": ["breeding_site", {
                                 "y0": ["bsvol"],
                                 "pr": [1,2],
@@ -94,12 +94,23 @@
                             }]
                         }
                     ],
-                    "value": [["/", "larva", ["+", "larva", "bsvol", ["bsitevolproc", 0]]]]
+                    "value": [["/", "larva", ["+", "larva", "bsvol", ["bsitevolmort", 0]]]],
+                    "hazpar": true
                 },{
                     "id": "larva_dev",
                     "name": "Larva development time",
                     "arbiter": "ACC_ERLANG",
-                    "value": ["d2m", "d2s"]
+                    "evaluate": [
+                        {
+                            "id": "bsitevoldev",
+                            "value": ["breeding_site", {
+                                "y0": ["bsvol"],
+                                "pr": [1,2],
+                                "envir": [["temp", "TIME_1"]]
+                            }]
+                        }
+                    ],
+                    "value": [["*", ["bsitevoldev", 0], "d2m"], "d2s"]
                 }
             ]
         }
