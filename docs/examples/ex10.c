@@ -236,11 +236,17 @@ void sim(int *tf, int *rep, double *envir, double *pr, double *y0, char **file_f
     iret += 3;
 
     for (TIME=1; TIME<TIMEF; TIME++) {
+        double bsitevol[1];
+        breeding_site_sim_wrap(bsitevol,bsvol,1,1,envir_temp[(int)(TIME-1)]);
+
         bsvol = bsitevol[0];
         d2m = briere1(envir_temp[(int)(TIME-1)], model_param[d2m_a], model_param[d2m_b], model_param[d2m_c]);
         d2s = (model_param[d2s_c] * d2m);
 
         if (*rep >= 0) {
+                double bsitevolproc[1];
+                breeding_site_sim_wrap(bsitevolproc,bsvol,1,2,envir_temp[(int)(TIME-1)]);
+
                 par[0] = (size_larva.d / (size_larva.d + bsvol + bsitevolproc[0]));
                 par[1] = d2m;
                 par[2] = d2s;

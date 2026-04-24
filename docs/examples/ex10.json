@@ -57,8 +57,9 @@
         {
             "id": "bsitevol",
             "value": ["breeding_site", {
-                "y0": "bsvol",
-                "envir": ["temp", "TIME_1"]
+                "y0": ["bsvol"],
+                "pr": [1,1],
+                "envir": [["temp", "TIME_1"]]
             }]
         }
     ],
@@ -87,8 +88,9 @@
                         {
                             "id": "bsitevolproc",
                             "value": ["breeding_site", {
-                                "y0": "bsvol",
-                                "envir": ["temp", "TIME_1"]
+                                "y0": ["bsvol"],
+                                "pr": [1,2],
+                                "envir": [["temp", "TIME_1"]]
                             }]
                         }
                     ],
