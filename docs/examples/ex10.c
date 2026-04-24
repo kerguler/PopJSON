@@ -115,13 +115,13 @@ void fun_hazpar_larva_coef_larva(const number *key, const number num, double *pa
     double bsitevol_larva[1];
     breeding_site_sim_wrap(bsitevol_larva,key[larva_coef].d,model_param[bs_alpha],model_param[bs_beta],envir_prec[(int)(TIME-1)]);
 
-
+printf("%d,%g,%g\n",TIME,bsitevol_larva[0],key[larva_coef].d);
     par[0] = bsitevol_larva[0];
 }
 
 void fun_hazpar_larva_mort_larva(const number *key, const number num, double *par) {
 
-    double d2m_coef = ((1.0 + key[larva_coef].d) * model_param[d2m]);
+    double d2m_coef = (((key[larva_coef].d > 0.75)) ? (0.5) : (0.0));
 
     par[0] = d2m_coef;
 }
@@ -269,7 +269,7 @@ void sim(int *tf, int *rep, double *envir, double *pr, double *y0, char **file_f
         breeding_site_sim_wrap(bsitevol,bsvol,model_param[bs_alpha],model_param[bs_beta],envir_prec[(int)(TIME-1)]);
 
         bsvol = bsitevol[0];
-        bsmort = (size_larva.d / (size_larva.d + (model_param[bs_str] * bsvol)));
+        bsmort = (((bsvol > 0.75)) ? (0.5) : (0.0));
 
         if (*rep >= 0) {
                 par[0] = 0.0;
