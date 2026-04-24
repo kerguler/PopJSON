@@ -82,8 +82,8 @@ void breeding_site_sim_wrap(double value[1],
 #define CHECK(x) (isnan(x) || isinf(x))
 
 #define NumPar 5
-#define NumPop 1
-#define NumInt 3
+#define NumPop 2
+#define NumInt 4
 #define NumEnv 2
 
 #define d2m_a 0
@@ -92,6 +92,8 @@ void breeding_site_sim_wrap(double value[1],
 #define bs_alpha 3
 #define bs_beta 4
 
+#define larva_compare_death 0
+#define larva_compare_dev 1
 #define larva_death 0
 #define larva_dev 1
 
@@ -102,6 +104,7 @@ double dmax(double a, double b) { return a > b ? a : b; }
 int TIME;
 int TIMEF;
 
+number size_larva_compare;
 number size_larva;
 
 double *model_param;
@@ -109,6 +112,7 @@ double *envir_temp;
 double *envir_prec;
 
 double bsvol;
+double bscoef_compare;
 double bscoef;
 double d2m;
 
@@ -153,9 +157,9 @@ void init(int *no, int *np, int *ni, int *ne, int *st) {
 
 void parnames(char **names, double *param, double *parmin, double *parmax) {
     char temp[NumPop+NumPar+NumInt+NumEnv][256] = {
-        "larva",
+        "larva_compare", "larva",
         "d2m_a", "d2m_b", "d2m_c", "bs_alpha", "bs_beta",
-        "bsvol", "bscoef", "d2m",
+        "bsvol", "bscoef_compare", "bscoef", "d2m",
         "temp", "prec",
     };
 
@@ -201,12 +205,15 @@ void sim(int *tf, int *rep, double *envir, double *pr, double *y0, char **file_f
     envir_prec = envir + 1; envir += (int)round(*envir) + 1;
 
 
+    population larva_compare;
     population larva;
 
     number num = numZERO;
     char arbiters[3];
     number key[3];
+    size_larva_compare = numZERO;
     size_larva = numZERO;
+    number completed_larva_compare[3];
     number completed_larva[3];
     double par[3];
 
@@ -226,6 +233,14 @@ void sim(int *tf, int *rep, double *envir, double *pr, double *y0, char **file_f
         fread(&buffsz, sizeof(unsigned int), 1, file);
         buff = (number *)malloc(buffsz);
         fread(buff, buffsz, 1, file);
+        larva_compare = spop2_loadstate(buff);
+
+
+        free(buff);
+
+        fread(&buffsz, sizeof(unsigned int), 1, file);
+        buff = (number *)malloc(buffsz);
+        fread(buff, buffsz, 1, file);
         larva = spop2_loadstate(buff);
 
 
@@ -238,9 +253,19 @@ void sim(int *tf, int *rep, double *envir, double *pr, double *y0, char **file_f
         key[1] = numZERO;
         arbiters[2] = STOP;
         key[2] = numZERO;
+        larva_compare = spop2_init(arbiters, DETERMINISTIC);
+        if (y0[0]) { num.d = y0[0]; spop2_add(larva_compare, key, num); }
+
+
+        arbiters[0] = NOAGE_CONST;
+        key[0] = numZERO;
+        arbiters[1] = ACC_ERLANG;
+        key[1] = numZERO;
+        arbiters[2] = STOP;
+        key[2] = numZERO;
         larva = spop2_init(arbiters, DETERMINISTIC);
         larva->arbiters[1]->fun_q_par = fun_hazpar_larva_dev_larva;
-        if (y0[0]) { num.d = y0[0]; spop2_add(larva, key, num); }
+        if (y0[1]) { num.d = y0[1]; spop2_add(larva, key, num); }
 
 
     }
@@ -250,36 +275,52 @@ void sim(int *tf, int *rep, double *envir, double *pr, double *y0, char **file_f
     }
 
     bsvol = 0.0;
+    bscoef_compare = 0.0;
     bscoef = 0.0;
     d2m = 0.0;
 
+    size_larva_compare = spop2_size(larva_compare);
     size_larva = spop2_size(larva);
 
-    ret[0] = size_larva.d;
+    ret[0] = size_larva_compare.d;
     if (CHECK(ret[0])) {goto endall;};
+    ret[1] = size_larva.d;
+    if (CHECK(ret[1])) {goto endall;};
 
-    ret += 1;
+    ret += 2;
 
     iret[0] = bsvol;
     if (CHECK(iret[0])) {goto endall;};
-    iret[1] = bscoef;
+    iret[1] = bscoef_compare;
     if (CHECK(iret[1])) {goto endall;};
-    iret[2] = d2m;
+    iret[2] = bscoef;
     if (CHECK(iret[2])) {goto endall;};
+    iret[3] = d2m;
+    if (CHECK(iret[3])) {goto endall;};
 
 
 
-    iret += 3;
+    iret += 4;
 
     for (TIME=1; TIME<TIMEF; TIME++) {
         double bsitevol[1];
         breeding_site_sim_wrap(bsitevol,bsvol,model_param[bs_alpha],model_param[bs_beta],envir_prec[(int)(TIME-1)]);
 
         bsvol = bsitevol[0];
+        bscoef_compare = (1.0 - (size_larva_compare.d / (1.0 + size_larva_compare.d + bsvol)));
         bscoef = (1.0 - (size_larva.d / (1.0 + size_larva.d + bsvol)));
         d2m = briere1(envir_temp[(int)(TIME-1)], model_param[d2m_a], model_param[d2m_b], model_param[d2m_c]);
 
         if (*rep >= 0) {
+
+
+
+
+                par[0] = bscoef_compare;
+                par[1] = (bscoef_compare * d2m);
+                par[2] = sqrt((bscoef_compare * d2m));
+                spop2_step(larva_compare, par, &size_larva_compare, completed_larva_compare, 0);
+
                 double bsitevolmort[1];
                 breeding_site_sim_wrap(bsitevolmort,bsvol,model_param[bs_alpha],model_param[bs_beta],envir_prec[(int)(TIME-1)]);
 
@@ -300,21 +341,25 @@ void sim(int *tf, int *rep, double *envir, double *pr, double *y0, char **file_f
 
         }
 
-        ret[0] = size_larva.d;
+        ret[0] = size_larva_compare.d;
         if (CHECK(ret[0])) {goto endall;};
+        ret[1] = size_larva.d;
+        if (CHECK(ret[1])) {goto endall;};
 
-        ret += 1;
+        ret += 2;
 
         iret[0] = bsvol;
         if (CHECK(iret[0])) {goto endall;};
-        iret[1] = bscoef;
+        iret[1] = bscoef_compare;
         if (CHECK(iret[1])) {goto endall;};
-        iret[2] = d2m;
+        iret[2] = bscoef;
         if (CHECK(iret[2])) {goto endall;};
+        iret[3] = d2m;
+        if (CHECK(iret[3])) {goto endall;};
 
 
 
-        iret += 3;
+        iret += 4;
 
     }
 
@@ -329,6 +374,12 @@ void sim(int *tf, int *rep, double *envir, double *pr, double *y0, char **file_f
         } else {
             rewind(file);
 
+            buffsz = spop2_buffsize(larva_compare);
+            buff = spop2_savestate(larva_compare);
+            fwrite(&buffsz, sizeof(unsigned int), 1, file);
+            fwrite(buff, buffsz, 1, file);
+            free(buff);
+
             buffsz = spop2_buffsize(larva);
             buff = spop2_savestate(larva);
             fwrite(&buffsz, sizeof(unsigned int), 1, file);
@@ -339,6 +390,7 @@ void sim(int *tf, int *rep, double *envir, double *pr, double *y0, char **file_f
         }
     }
 
+    spop2_free(&larva_compare);
     spop2_free(&larva);
 
 }

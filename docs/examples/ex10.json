@@ -73,6 +73,9 @@
             "id": "bsvol",
             "value": ["bsitevol", 0]
         },{
+            "id": "bscoef_compare",
+            "value": ["-", "1.0", ["/", "larva_compare", ["+", "1.0", "larva_compare", "bsvol"]]]
+        },{
             "id": "bscoef",
             "value": ["-", "1.0", ["/", "larva", ["+", "1.0", "larva", "bsvol"]]]
         },{
@@ -82,6 +85,22 @@
     ],
     "populations": [
         {
+            "id": "larva_compare",
+            "name": "The larva stage (to compare with internal BS calculations",
+            "processes": [
+                {
+                    "id": "larva_compare_death",
+                    "name": "Larva mortality",
+                    "arbiter": "NOAGE_CONST",
+                    "value": ["bscoef_compare"]
+                },{
+                    "id": "larva_compare_dev",
+                    "name": "Larva development time",
+                    "arbiter": "ACC_ERLANG",
+                    "value": [["*", "bscoef_compare", "d2m"], ["sqrt", ["*", "bscoef_compare", "d2m"]]]
+                }
+            ]
+        },{
             "id": "larva",
             "name": "The larva stage",
             "processes": [
