@@ -47,10 +47,15 @@
             "name": "Larva development mean (c)",
             "value": 308.15
         },{
-            "id": "d2s_c",
+            "id": "bs_alpha",
             "constant": false,
-            "name": "Larva development stdev (c)",
-            "value": 0.2
+            "name": "Breeding site volume accumulation coefficient",
+            "value": 1.0
+        },{
+            "id": "bs_beta",
+            "constant": false,
+            "name": "Breeding site volume evaporation coefficient",
+            "value": 0.5
         }
     ],
     "evaluate": [
@@ -58,8 +63,8 @@
             "id": "bsitevol",
             "value": ["breeding_site", {
                 "y0": ["bsvol"],
-                "pr": [1,1],
-                "envir": [["temp", "TIME_1"]]
+                "pr": ["bs_alpha","bs_beta"],
+                "envir": [["prec", "TIME_1"]]
             }]
         }
     ],
@@ -68,11 +73,11 @@
             "id": "bsvol",
             "value": ["bsitevol", 0]
         },{
+            "id": "bscoef",
+            "value": ["-", "1.0", ["/", "larva", ["+", "larva", "bsvol"]]]
+        },{
             "id": "d2m",
             "value": ["briere1", ["temp", "TIME_1"], "d2m_a", "d2m_b", "d2m_c"]
-        }, {
-            "id": "d2s",
-            "value": ["*", "d2s_c", "d2m"]
         }
     ],
     "populations": [
@@ -89,13 +94,18 @@
                             "id": "bsitevolmort",
                             "value": ["breeding_site", {
                                 "y0": ["bsvol"],
-                                "pr": [1,2],
-                                "envir": [["temp", "TIME_1"]]
+                                "pr": ["bs_alpha","bs_beta"],
+                                "envir": [["prec", "TIME_1"]]
                             }]
                         }
                     ],
-                    "value": [["/", "larva", ["+", "larva", "bsvol", ["bsitevolmort", 0]]]],
-                    "hazpar": true
+                    "intermediates": [
+                        {
+                            "id": "coefmort",
+                            "value": ["-", "1.0", ["/", "larva", ["+", "larva", ["bsitevolmort", 0]]]]
+                        }
+                    ],
+                    "value": ["coefmort"]
                 },{
                     "id": "larva_dev",
                     "name": "Larva development time",
@@ -105,12 +115,19 @@
                             "id": "bsitevoldev",
                             "value": ["breeding_site", {
                                 "y0": ["bsvol"],
-                                "pr": [1,2],
-                                "envir": [["temp", "TIME_1"]]
+                                "pr": ["bs_alpha","bs_beta"],
+                                "envir": [["prec", "TIME_1"]]
                             }]
                         }
                     ],
-                    "value": [["*", ["bsitevoldev", 0], "d2m"], "d2s"]
+                    "intermediates": [
+                        {
+                            "id": "coefdev",
+                            "value": ["-", "1.0", ["/", "larva", ["+", "larva", ["bsitevoldev", 0]]]]
+                        }
+                    ],
+                    "value": [["*", "coefdev", "d2m"], ["sqrt", ["*", "coefdev", "d2m"]]],
+                    "hazpar": true
                 }
             ]
         }
