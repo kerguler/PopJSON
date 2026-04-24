@@ -45,11 +45,27 @@ void breeding_site_finish() {
     dlclose(breeding_site);
 }
 
+void breeding_site_sim_wrap(double value[1],
+        double y00,
+        double pr0,
+        double pr1,
+        double env0) {
+    int tf = 2;
+    int rep = 1;
+    int success;
+    double init[1] = {y00};
+    double param[2] = {pr0, pr1};
+    double envir[3] = {tf, env0, env0};
+    double result[2];
+    breeding_site_sim(&tf, &rep, envir, param, init, 0, 0, result, 0, &success);
+    value[0] = result[1];
+}
+
 #define CHECK(x) (isnan(x) || isinf(x))
 
 #define NumPar 4
 #define NumPop 1
-#define NumInt 4
+#define NumInt 3
 #define NumEnv 2
 
 #define d2m_a 0
@@ -71,7 +87,6 @@ double *model_param;
 double *envir_temp;
 double *envir_prec;
 
-double bsitevol;
 double bsvol;
 double d2m;
 double d2s;
@@ -108,7 +123,7 @@ void parnames(char **names, double *param, double *parmin, double *parmax) {
     char temp[NumPop+NumPar+NumInt+NumEnv][256] = {
         "larva",
         "d2m_a", "d2m_b", "d2m_c", "d2s_c",
-        "bsitevol", "bsvol", "d2m", "d2s",
+        "bsvol", "d2m", "d2s",
         "temp", "prec",
     };
 
@@ -158,7 +173,7 @@ void sim(int *tf, int *rep, double *envir, double *pr, double *y0, char **file_f
     number key[3];
     number size_larva;
     number completed_larva[3];
-    double par[5];
+    double par[3];
 
     FILE *file;
     number *buff = 0;
@@ -198,7 +213,6 @@ void sim(int *tf, int *rep, double *envir, double *pr, double *y0, char **file_f
         fclose(file);
     }
 
-    bsitevol = 0.0;
     bsvol = 0.0;
     d2m = 0.0;
     d2s = 0.0;
@@ -210,31 +224,26 @@ void sim(int *tf, int *rep, double *envir, double *pr, double *y0, char **file_f
 
     ret += 1;
 
-    iret[0] = bsitevol;
+    iret[0] = bsvol;
     if (CHECK(iret[0])) {goto endall;};
-    iret[1] = bsvol;
+    iret[1] = d2m;
     if (CHECK(iret[1])) {goto endall;};
-    iret[2] = d2m;
+    iret[2] = d2s;
     if (CHECK(iret[2])) {goto endall;};
-    iret[3] = d2s;
-    if (CHECK(iret[3])) {goto endall;};
 
 
 
-    iret += 4;
+    iret += 3;
 
     for (TIME=1; TIME<TIMEF; TIME++) {
-        bsitevol = 0;
-        bsvol = 0;
+        bsvol = bsitevol[0];
         d2m = briere1(envir_temp[(int)(TIME-1)], model_param[d2m_a], model_param[d2m_b], model_param[d2m_c]);
         d2s = (model_param[d2s_c] * d2m);
 
         if (*rep >= 0) {
-                par[0] = /;
-                par[1] = size_larva.d;
-                par[2] = (size_larva.d + bsvol);
-                par[3] = d2m;
-                par[4] = d2s;
+                par[0] = (size_larva.d / (size_larva.d + bsvol + bsitevolproc[0]));
+                par[1] = d2m;
+                par[2] = d2s;
                 spop2_step(larva, par, &size_larva, completed_larva, 0);
 
 
@@ -252,18 +261,16 @@ void sim(int *tf, int *rep, double *envir, double *pr, double *y0, char **file_f
 
         ret += 1;
 
-        iret[0] = bsitevol;
+        iret[0] = bsvol;
         if (CHECK(iret[0])) {goto endall;};
-        iret[1] = bsvol;
+        iret[1] = d2m;
         if (CHECK(iret[1])) {goto endall;};
-        iret[2] = d2m;
+        iret[2] = d2s;
         if (CHECK(iret[2])) {goto endall;};
-        iret[3] = d2s;
-        if (CHECK(iret[3])) {goto endall;};
 
 
 
-        iret += 4;
+        iret += 3;
 
     }
 

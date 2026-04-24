@@ -13,9 +13,9 @@
         {
             "id": "breeding_site",
             "file": "ex9.dylib",
-            "environ": ["prec"],
-            "parameters": ["par_alpha","par_beta"],
-            "populations": ["bsvol"]
+            "numenv": 1,
+            "numpar": 2,
+            "numpop": 1
         }
     ],
     "environ": [
@@ -53,18 +53,19 @@
             "value": 0.2
         }
     ],
-    "intermediates": [
+    "evaluate": [
         {
             "id": "bsitevol",
-            "value": 0.0,
-            "value_old": ["breeding_site", {
+            "value": ["breeding_site", {
                 "y0": "bsvol",
                 "envir": ["temp", "TIME_1"]
             }]
-        },{
+        }
+    ],
+    "intermediates": [
+        {
             "id": "bsvol",
-            "value": 0.0,
-            "value_old": ["bsitevol", "bsvol"]
+            "value": ["bsitevol", 0]
         },{
             "id": "d2m",
             "value": ["briere1", ["temp", "TIME_1"], "d2m_a", "d2m_b", "d2m_c"]
@@ -82,7 +83,16 @@
                     "id": "larva_death",
                     "name": "Larva mortality",
                     "arbiter": "NOAGE_CONST",
-                    "value": ["/", "larva", ["+", "larva", "bsvol"]]
+                    "evaluate": [
+                        {
+                            "id": "bsitevolproc",
+                            "value": ["breeding_site", {
+                                "y0": "bsvol",
+                                "envir": ["temp", "TIME_1"]
+                            }]
+                        }
+                    ],
+                    "value": [["/", "larva", ["+", "larva", "bsvol", ["bsitevolproc", 0]]]]
                 },{
                     "id": "larva_dev",
                     "name": "Larva development time",
