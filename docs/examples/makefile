@@ -10,6 +10,12 @@ examples:
 		rm model.json ; \
 	done
 
+test:
+	for MNAME in $$MODELS; do \
+		echo Compiling $$MNAME ; \
+		gcc -L/usr/local/lib -I/usr/local/include -Wall -Wno-parentheses-equality -lm -lpopulation -lgsl -lgslcblas -shared -fPIC -o $$MNAME.dylib $$MNAME.c ; \
+	done
+
 clean:
 	rm *.dylib
 

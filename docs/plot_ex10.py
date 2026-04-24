@@ -18,13 +18,24 @@ prec[indices] = values
 
 out = ex.sim(N,
              y0={
-                "larva": 0.0
+                "larva": 100.0
              },
              envir={
                 "temp": temp,
                 "prec": prec
              },
              pr=ex.param)
+
+x = numpy.arange(len(prec))
+fig, ax1 = plt.subplots(figsize=(10, 5))
+width = 1.0
+ax1.bar(x + width/2, prec, alpha=0.5, width=width, label="Precipitation (mm)", color="#4C72B0")
+ax1.plot(out['iret'][0,:,ex.intids['bsvol']])
+ax2 = ax1.twinx()
+ax2.plot(temp)
+ax2.plot(out['ret'][0,:,ex.popids['larva']])
+plt.show()
+
 
 x = numpy.arange(len(prec))
 

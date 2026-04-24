@@ -74,7 +74,7 @@
             "value": ["bsitevol", 0]
         },{
             "id": "bscoef",
-            "value": ["-", "1.0", ["/", "1.0", "larva", ["+", "larva", "bsvol"]]]
+            "value": ["-", "1.0", ["/", "larva", ["+", "1.0", "larva", "bsvol"]]]
         },{
             "id": "d2m",
             "value": ["briere1", ["temp", "TIME_1"], "d2m_a", "d2m_b", "d2m_c"]
