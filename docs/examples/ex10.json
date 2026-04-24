@@ -20,32 +20,16 @@
     ],
     "environ": [
         {
-            "id": "temp",
-            "name": "Temperature of the breeding pool (in °C)"
-        },{
             "id": "prec",
             "name": "Daily total precipitation (in mm)"
         }
     ],
-    "functions": {
-        "briere1": ["define", ["T","a","L","R"], ["?",["<=","T","L"],"365.0", ["?",[">=","T","R"],"365.0", ["min","365.0",["max","1.0", ["/","1.0",["exp", ["+","a",["log","T"],["log",["-","T","L"]],["*","0.5",["log",["-","R","T"]]]]]]]]]]]
-    },
     "parameters": [
         {
-            "id": "d2m_a",
+            "id": "d2m",
             "constant": false,
-            "name": "Larva development mean (a)",
-            "value": -12
-        },{
-            "id": "d2m_b",
-            "constant": false,
-            "name": "Larva development mean (b)",
-            "value": 283.15
-        },{
-            "id": "d2m_c",
-            "constant": false,
-            "name": "Larva development mean (c)",
-            "value": 308.15
+            "name": "Larva development mean",
+            "value": 20.0
         },{
             "id": "bs_alpha",
             "constant": false,
@@ -55,7 +39,12 @@
             "id": "bs_beta",
             "constant": false,
             "name": "Breeding site volume evaporation coefficient",
-            "value": 0.5
+            "value": 0.25
+        },{
+            "id": "bs_str",
+            "constant": false,
+            "name": "Density coefficient for mortality",
+            "value": 200.0
         }
     ],
     "evaluate": [
@@ -73,83 +62,26 @@
             "id": "bsvol",
             "value": ["bsitevol", 0]
         },{
-            "id": "bscoef_compare",
-            "value": ["-", "1.0", ["/", "larva_compare", ["+", "1.0", "larva_compare", "bsvol"]]]
-        },{
-            "id": "bscoef",
-            "value": ["-", "1.0", ["/", "larva", ["+", "1.0", "larva", "bsvol"]]]
-        },{
-            "id": "d2m",
-            "value": ["briere1", ["temp", "TIME_1"], "d2m_a", "d2m_b", "d2m_c"]
+            "id": "bsmort",
+            "value": ["/", "larva", ["+", "larva", ["*", "bs_str", "bsvol"]]]
         }
     ],
     "populations": [
         {
-            "id": "larva_compare",
-            "name": "The larva stage (to compare with internal BS calculations",
-            "processes": [
-                {
-                    "id": "larva_compare_death",
-                    "name": "Larva mortality",
-                    "arbiter": "NOAGE_CONST",
-                    "value": ["bscoef_compare"]
-                },{
-                    "id": "larva_compare_dev",
-                    "name": "Larva development time",
-                    "arbiter": "ACC_ERLANG",
-                    "value": [["*", "bscoef_compare", "d2m"], ["sqrt", ["*", "bscoef_compare", "d2m"]]]
-                }
-            ]
-        },{
             "id": "larva",
             "name": "The larva stage",
             "processes": [
                 {
-                    "id": "larva_death",
-                    "name": "Larva mortality",
-                    "arbiter": "NOAGE_CONST",
-                    "evaluate": [
-                        {
-                            "id": "bsitevolmort",
-                            "value": ["breeding_site", {
-                                "y0": ["bsvol"],
-                                "pr": ["bs_alpha","bs_beta"],
-                                "envir": [["prec", "TIME_1"]]
-                            }]
-                        }
-                    ],
-                    "intermediates": [
-                        {
-                            "id": "coefmort",
-                            "value": ["-", "1.0", ["/", "larva", ["+", "1.0", "larva", ["bsitevolmort", 0]]]]
-                        }
-                    ],
-                    "value": ["coefmort"]
-                },{
                     "id": "larva_dev",
                     "name": "Larva development time",
                     "arbiter": "ACC_ERLANG",
-                    "evaluate": [
-                        {
-                            "id": "bsitevoldev",
-                            "value": ["breeding_site", {
-                                "y0": ["bsvol"],
-                                "pr": ["bs_alpha","bs_beta"],
-                                "envir": [["prec", "TIME_1"]]
-                            }]
-                        }
-                    ],
                     "intermediates": [
                         {
-                            "id": "coefdev",
-                            "value": ["-", "1.0", ["/", "larva", ["+", "1.0", "larva", ["bsitevoldev", 0]]]]
-                        },{
                             "id": "d2m_coef",
-                            "value": ["*", "coefdev", "d2m"]
+                            "value": ["*", ["+", "1.0", "bsmort"], "d2m"]
                         }
                     ],
-                    "value": ["d2m_coef", ["sqrt", "d2m_coef"]],
-                    "hazpar": true
+                    "value": ["d2m_coef", ["sqrt", "d2m_coef"]]
                 }
             ]
         }

@@ -81,21 +81,17 @@ void breeding_site_sim_wrap(double value[1],
 
 #define CHECK(x) (isnan(x) || isinf(x))
 
-#define NumPar 5
-#define NumPop 2
-#define NumInt 4
-#define NumEnv 2
+#define NumPar 4
+#define NumPop 1
+#define NumInt 2
+#define NumEnv 1
 
-#define d2m_a 0
-#define d2m_b 1
-#define d2m_c 2
-#define bs_alpha 3
-#define bs_beta 4
+#define d2m 0
+#define bs_alpha 1
+#define bs_beta 2
+#define bs_str 3
 
-#define larva_compare_death 0
-#define larva_compare_dev 1
-#define larva_death 0
-#define larva_dev 1
+#define larva_dev 0
 
 
 double dmin(double a, double b) { return a < b ? a : b; }
@@ -104,32 +100,15 @@ double dmax(double a, double b) { return a > b ? a : b; }
 int TIME;
 int TIMEF;
 
-number size_larva_compare;
 number size_larva;
 
 double *model_param;
-double *envir_temp;
 double *envir_prec;
 
 double bsvol;
-double bscoef_compare;
-double bscoef;
-double d2m;
+double bsmort;
 
 
-#define briere1(T,a,L,R) (((((T) <= (L))) ? (365.0) : (((((T) >= (R))) ? (365.0) : (dmin(365.0, dmax(1.0, (1.0 / exp(((a) + log((T)) + log(((T) - (L))) + (0.5 * log(((R) - (T))))))))))))))
-double define_briere1(double T, double a, double L, double R) {return ((((T) <= (L))) ? (365.0) : (((((T) >= (R))) ? (365.0) : (dmin(365.0, dmax(1.0, (1.0 / exp(((a) + log((T)) + log(((T) - (L))) + (0.5 * log(((R) - (T)))))))))))));}
-
-void fun_hazpar_larva_dev_larva(const number *key, const number num, double *par) {
-    double bsitevoldev[1];
-    breeding_site_sim_wrap(bsitevoldev,bsvol,model_param[bs_alpha],model_param[bs_beta],envir_prec[(int)(TIME-1)]);
-
-    double coefdev = (1.0 - (size_larva.d / (1.0 + size_larva.d + bsitevoldev[0])));
-    double d2m_coef = (coefdev * d2m);
-
-    par[0] = d2m_coef;
-    par[1] = sqrt(d2m_coef);
-}
 
 void prepare_tprobs(int numcol, double *ttprobs, double *tprobs) {
     int rA, rB, i = 0;
@@ -157,31 +136,28 @@ void init(int *no, int *np, int *ni, int *ne, int *st) {
 
 void parnames(char **names, double *param, double *parmin, double *parmax) {
     char temp[NumPop+NumPar+NumInt+NumEnv][256] = {
-        "larva_compare", "larva",
-        "d2m_a", "d2m_b", "d2m_c", "bs_alpha", "bs_beta",
-        "bsvol", "bscoef_compare", "bscoef", "d2m",
-        "temp", "prec",
+        "larva",
+        "d2m", "bs_alpha", "bs_beta", "bs_str",
+        "bsvol", "bsmort",
+        "prec",
     };
 
     int i;
     for (i=0; i<(NumPop+NumPar+NumInt+NumEnv); i++)
         names[i] = strdup(temp[i]);
 
-    param[d2m_a] = -12;
-    parmin[d2m_a] = -12;
-    parmax[d2m_a] = -12;
-    param[d2m_b] = 283.15;
-    parmin[d2m_b] = 283.15;
-    parmax[d2m_b] = 283.15;
-    param[d2m_c] = 308.15;
-    parmin[d2m_c] = 308.15;
-    parmax[d2m_c] = 308.15;
+    param[d2m] = 20;
+    parmin[d2m] = 20;
+    parmax[d2m] = 20;
     param[bs_alpha] = 1;
     parmin[bs_alpha] = 1;
     parmax[bs_alpha] = 1;
-    param[bs_beta] = 0.5;
-    parmin[bs_beta] = 0.5;
-    parmax[bs_beta] = 0.5;
+    param[bs_beta] = 0.25;
+    parmin[bs_beta] = 0.25;
+    parmax[bs_beta] = 0.25;
+    param[bs_str] = 200;
+    parmin[bs_str] = 200;
+    parmax[bs_str] = 200;
 }
 
 void destroy(void) {
@@ -201,21 +177,17 @@ void sim(int *tf, int *rep, double *envir, double *pr, double *y0, char **file_f
 
     model_param = pr;
 
-    envir_temp = envir + 1; envir += (int)round(*envir) + 1;
     envir_prec = envir + 1; envir += (int)round(*envir) + 1;
 
 
-    population larva_compare;
     population larva;
 
     number num = numZERO;
-    char arbiters[3];
-    number key[3];
-    size_larva_compare = numZERO;
+    char arbiters[2];
+    number key[2];
     size_larva = numZERO;
-    number completed_larva_compare[3];
-    number completed_larva[3];
-    double par[3];
+    number completed_larva[2];
+    double par[2];
 
     FILE *file;
     number *buff = 0;
@@ -233,39 +205,18 @@ void sim(int *tf, int *rep, double *envir, double *pr, double *y0, char **file_f
         fread(&buffsz, sizeof(unsigned int), 1, file);
         buff = (number *)malloc(buffsz);
         fread(buff, buffsz, 1, file);
-        larva_compare = spop2_loadstate(buff);
-
-
-        free(buff);
-
-        fread(&buffsz, sizeof(unsigned int), 1, file);
-        buff = (number *)malloc(buffsz);
-        fread(buff, buffsz, 1, file);
         larva = spop2_loadstate(buff);
 
 
         free(buff);
 
     } else {
-        arbiters[0] = NOAGE_CONST;
+        arbiters[0] = ACC_ERLANG;
         key[0] = numZERO;
-        arbiters[1] = ACC_ERLANG;
+        arbiters[1] = STOP;
         key[1] = numZERO;
-        arbiters[2] = STOP;
-        key[2] = numZERO;
-        larva_compare = spop2_init(arbiters, DETERMINISTIC);
-        if (y0[0]) { num.d = y0[0]; spop2_add(larva_compare, key, num); }
-
-
-        arbiters[0] = NOAGE_CONST;
-        key[0] = numZERO;
-        arbiters[1] = ACC_ERLANG;
-        key[1] = numZERO;
-        arbiters[2] = STOP;
-        key[2] = numZERO;
         larva = spop2_init(arbiters, DETERMINISTIC);
-        larva->arbiters[1]->fun_q_par = fun_hazpar_larva_dev_larva;
-        if (y0[1]) { num.d = y0[1]; spop2_add(larva, key, num); }
+        if (y0[0]) { num.d = y0[0]; spop2_add(larva, key, num); }
 
 
     }
@@ -275,60 +226,37 @@ void sim(int *tf, int *rep, double *envir, double *pr, double *y0, char **file_f
     }
 
     bsvol = 0.0;
-    bscoef_compare = 0.0;
-    bscoef = 0.0;
-    d2m = 0.0;
+    bsmort = 0.0;
 
-    size_larva_compare = spop2_size(larva_compare);
     size_larva = spop2_size(larva);
 
-    ret[0] = size_larva_compare.d;
+    ret[0] = size_larva.d;
     if (CHECK(ret[0])) {goto endall;};
-    ret[1] = size_larva.d;
-    if (CHECK(ret[1])) {goto endall;};
 
-    ret += 2;
+    ret += 1;
 
     iret[0] = bsvol;
     if (CHECK(iret[0])) {goto endall;};
-    iret[1] = bscoef_compare;
+    iret[1] = bsmort;
     if (CHECK(iret[1])) {goto endall;};
-    iret[2] = bscoef;
-    if (CHECK(iret[2])) {goto endall;};
-    iret[3] = d2m;
-    if (CHECK(iret[3])) {goto endall;};
 
 
 
-    iret += 4;
+    iret += 2;
 
     for (TIME=1; TIME<TIMEF; TIME++) {
         double bsitevol[1];
         breeding_site_sim_wrap(bsitevol,bsvol,model_param[bs_alpha],model_param[bs_beta],envir_prec[(int)(TIME-1)]);
 
         bsvol = bsitevol[0];
-        bscoef_compare = (1.0 - (size_larva_compare.d / (1.0 + size_larva_compare.d + bsvol)));
-        bscoef = (1.0 - (size_larva.d / (1.0 + size_larva.d + bsvol)));
-        d2m = briere1(envir_temp[(int)(TIME-1)], model_param[d2m_a], model_param[d2m_b], model_param[d2m_c]);
+        bsmort = (size_larva.d / (size_larva.d + (model_param[bs_str] * bsvol)));
 
         if (*rep >= 0) {
 
+                double d2m_coef = ((1.0 + bsmort) * model_param[d2m]);
 
-
-
-                par[0] = bscoef_compare;
-                par[1] = (bscoef_compare * d2m);
-                par[2] = sqrt((bscoef_compare * d2m));
-                spop2_step(larva_compare, par, &size_larva_compare, completed_larva_compare, 0);
-
-                double bsitevolmort[1];
-                breeding_site_sim_wrap(bsitevolmort,bsvol,model_param[bs_alpha],model_param[bs_beta],envir_prec[(int)(TIME-1)]);
-
-                double coefmort = (1.0 - (size_larva.d / (1.0 + size_larva.d + bsitevolmort[0])));
-
-                par[0] = coefmort;
-                par[1] = 0.0;
-                par[2] = 0.0;
+                par[0] = d2m_coef;
+                par[1] = sqrt(d2m_coef);
                 spop2_step(larva, par, &size_larva, completed_larva, 0);
 
 
@@ -341,25 +269,19 @@ void sim(int *tf, int *rep, double *envir, double *pr, double *y0, char **file_f
 
         }
 
-        ret[0] = size_larva_compare.d;
+        ret[0] = size_larva.d;
         if (CHECK(ret[0])) {goto endall;};
-        ret[1] = size_larva.d;
-        if (CHECK(ret[1])) {goto endall;};
 
-        ret += 2;
+        ret += 1;
 
         iret[0] = bsvol;
         if (CHECK(iret[0])) {goto endall;};
-        iret[1] = bscoef_compare;
+        iret[1] = bsmort;
         if (CHECK(iret[1])) {goto endall;};
-        iret[2] = bscoef;
-        if (CHECK(iret[2])) {goto endall;};
-        iret[3] = d2m;
-        if (CHECK(iret[3])) {goto endall;};
 
 
 
-        iret += 4;
+        iret += 2;
 
     }
 
@@ -374,12 +296,6 @@ void sim(int *tf, int *rep, double *envir, double *pr, double *y0, char **file_f
         } else {
             rewind(file);
 
-            buffsz = spop2_buffsize(larva_compare);
-            buff = spop2_savestate(larva_compare);
-            fwrite(&buffsz, sizeof(unsigned int), 1, file);
-            fwrite(buff, buffsz, 1, file);
-            free(buff);
-
             buffsz = spop2_buffsize(larva);
             buff = spop2_savestate(larva);
             fwrite(&buffsz, sizeof(unsigned int), 1, file);
@@ -390,7 +306,6 @@ void sim(int *tf, int *rep, double *envir, double *pr, double *y0, char **file_f
         }
     }
 
-    spop2_free(&larva_compare);
     spop2_free(&larva);
 
 }
