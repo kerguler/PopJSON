@@ -1460,6 +1460,122 @@ class="sourceCode json"><code class="sourceCode json"><span id="cb32-1"><a href=
 <span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
 <span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
 <span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>We then evaluate this model over a single time step using the
+<strong>evaluate</strong> tag, providing the required initial conditions
+(<strong>y0</strong>), parameters (<strong>pr</strong>), and
+environmental inputs (<strong>envir</strong>). The results are returned
+as an array and can be accessed via the specified
+<strong>id</strong>.</p>
+<div class="sourceCode" id="cb33"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;evaluate&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;bsitevol&quot;</span><span class="fu">,</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;breeding_site&quot;</span><span class="ot">,</span> <span class="fu">{</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>                <span class="dt">&quot;y0&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;bsvol&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>                <span class="dt">&quot;pr&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;bs_alpha&quot;</span><span class="ot">,</span><span class="st">&quot;bs_beta&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>                <span class="dt">&quot;envir&quot;</span><span class="fu">:</span> <span class="ot">[[</span><span class="st">&quot;prec&quot;</span><span class="ot">,</span> <span class="st">&quot;TIME_1&quot;</span><span class="ot">]]</span></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>            <span class="fu">}</span><span class="ot">]</span></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>The <strong>evaluate</strong> tag takes precedence and is executed
+before <strong>intermediates</strong>, <strong>transformations</strong>,
+and <strong>transfers</strong>. An example of how to reference the
+output is shown below:</p>
+<div class="sourceCode" id="cb34"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;intermediates&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;bsvol&quot;</span><span class="fu">,</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;bsitevol&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">]</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>It is possible to have <strong>evaluate</strong> in a process and
+evaluate the sub-model for each sub-class, maybe using some specific
+properties of each sub-class.</p>
+<div class="sourceCode" id="cb35"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;processes&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;larva_coef&quot;</span><span class="fu">,</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;arbiter&quot;</span><span class="fu">:</span> <span class="st">&quot;MEMORY&quot;</span><span class="fu">,</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;evaluate&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="fu">{</span></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>                <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;bsitevol_larva&quot;</span><span class="fu">,</span></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>                <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;breeding_site&quot;</span><span class="ot">,</span> <span class="fu">{</span></span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;y0&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;larva_coef&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;pr&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;bs_alpha&quot;</span><span class="ot">,</span><span class="st">&quot;bs_beta&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;envir&quot;</span><span class="fu">:</span> <span class="ot">[[</span><span class="st">&quot;prec&quot;</span><span class="ot">,</span> <span class="st">&quot;TIME_1&quot;</span><span class="ot">]]</span></span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>                <span class="fu">}</span><span class="ot">]</span></span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>            <span class="fu">}</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[[</span><span class="st">&quot;bsitevol_larva&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">]]</span><span class="fu">,</span></span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;hazpar&quot;</span><span class="fu">:</span> <span class="kw">true</span></span>
+<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>Several new features are introduced here, so it is worth examining
+this section carefully. The flag <code>"hazpar": true</code> indicates
+that the process is evaluated for each sub-class. The process is of type
+<code>MEMORY</code> — a new feature — which stores a floating-point
+value defined by the <strong>value</strong> tag. This should be a list
+of one element.</p>
+<p>In this case, the process evaluates the sub-model
+<code>breeding_site</code> using the parameters <code>bs_alpha</code>
+and <code>bs_beta</code>, along with the precipitation input for the
+current simulation step. The initial condition is taken from the result
+of the previous evaluation, which has been stored via the memory
+mechanism.</p>
+<p>In the second process, shown below, the updated value from this
+memory process — already computed at the current step — is used to drive
+a larval flushing mechanism. Specifically, larvae are removed when the
+breeding site volume exceeds a predefined threshold. This is, of course,
+a simplified and hypothetical example intended to illustrate how the
+embedded model output can be used within the <code>Population</code>
+framework.</p>
+<div class="sourceCode" id="cb36"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;processes&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;larva_coef&quot;</span><span class="fu">,</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;arbiter&quot;</span><span class="fu">:</span> <span class="st">&quot;MEMORY&quot;</span><span class="fu">,</span></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;evaluate&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="fu">{</span></span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>                <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;bsitevol_larva&quot;</span><span class="fu">,</span></span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>                <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;breeding_site&quot;</span><span class="ot">,</span> <span class="fu">{</span></span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;y0&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;larva_coef&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;pr&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;bs_alpha&quot;</span><span class="ot">,</span><span class="st">&quot;bs_beta&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;envir&quot;</span><span class="fu">:</span> <span class="ot">[[</span><span class="st">&quot;prec&quot;</span><span class="ot">,</span> <span class="st">&quot;TIME_1&quot;</span><span class="ot">]]</span></span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a>                <span class="fu">}</span><span class="ot">]</span></span>
+<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a>            <span class="fu">}</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[[</span><span class="st">&quot;bsitevol_larva&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">]]</span><span class="fu">,</span></span>
+<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;hazpar&quot;</span><span class="fu">:</span> <span class="kw">true</span></span>
+<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span><span class="fu">{</span></span>
+<span id="cb36-17"><a href="#cb36-17" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;larva_mort&quot;</span><span class="fu">,</span></span>
+<span id="cb36-18"><a href="#cb36-18" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Larva mortality&quot;</span><span class="fu">,</span></span>
+<span id="cb36-19"><a href="#cb36-19" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;arbiter&quot;</span><span class="fu">:</span> <span class="st">&quot;NOAGE_CONST&quot;</span><span class="fu">,</span></span>
+<span id="cb36-20"><a href="#cb36-20" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;intermediates&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="fu">{</span></span>
+<span id="cb36-21"><a href="#cb36-21" aria-hidden="true" tabindex="-1"></a>                <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;d2m_coef&quot;</span><span class="fu">,</span></span>
+<span id="cb36-22"><a href="#cb36-22" aria-hidden="true" tabindex="-1"></a>                <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;?&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;&gt;&quot;</span><span class="ot">,</span> <span class="st">&quot;larva_coef&quot;</span><span class="ot">,</span> <span class="st">&quot;0.75&quot;</span><span class="ot">],</span> <span class="st">&quot;0.5&quot;</span><span class="ot">,</span> <span class="st">&quot;0.0&quot;</span><span class="ot">]</span></span>
+<span id="cb36-23"><a href="#cb36-23" aria-hidden="true" tabindex="-1"></a>            <span class="fu">}</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb36-24"><a href="#cb36-24" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;d2m_coef&quot;</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb36-25"><a href="#cb36-25" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;hazpar&quot;</span><span class="fu">:</span> <span class="kw">true</span></span>
+<span id="cb36-26"><a href="#cb36-26" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb36-27"><a href="#cb36-27" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb36-28"><a href="#cb36-28" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>See <a href="./examples/ex10.json">ex10.json</a> and <a
+href="./examples/ex10.c">ex10.c</a> for full PopJSON representation and
+C translation. Use <a href="./plot_ex10.py">plot_ex10.py</a> to run the
+model.</p>
+<p>Note the use of <strong>intermediates</strong> within a process —
+this is a new feature in version 1.6.0. These
+<strong>intermediates</strong> are intended for temporary calculations:
+they can be useful for structuring expressions but are not retained or
+reported as outputs. As such, they must be assigned a value before being
+referenced. Please be reminded that the global
+<strong>intermediates</strong> are initialised to 0 by default.</p>
+<p>And voilà! <img src="figures/ex10.png"
+title="Larva mortality with excess rainfall"
+alt="Larva mortality with excess rainfall" /></p>
 <h1 id="operators-for-equations">Operators for equations</h1>
 <table>
 <colgroup>

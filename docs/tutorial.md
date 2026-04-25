@@ -945,7 +945,101 @@ First, we define the outer model - here, a **Population** model. Using the **ext
 }
 ```
 
+We then evaluate this model over a single time step using the **evaluate** tag, providing the required initial conditions (**y0**), parameters (**pr**), and environmental inputs (**envir**). The results are returned as an array and can be accessed via the specified **id**.
 
+```json
+{
+    "evaluate": [
+        {
+            "id": "bsitevol",
+            "value": ["breeding_site", {
+                "y0": ["bsvol"],
+                "pr": ["bs_alpha","bs_beta"],
+                "envir": [["prec", "TIME_1"]]
+            }]
+        }
+    ]
+}
+```
+
+The **evaluate** tag takes precedence and is executed before **intermediates**, **transformations**, and **transfers**. An example of how to reference the output is shown below:
+
+```json
+{
+    "intermediates": [
+        {
+            "id": "bsvol",
+            "value": ["bsitevol", 0]
+        }
+    ]
+}
+```
+
+It is possible to have **evaluate** in a process and evaluate the sub-model for each sub-class, maybe using some specific properties of each sub-class.
+
+```json
+{
+    "processes": [
+        {
+            "id": "larva_coef",
+            "arbiter": "MEMORY",
+            "evaluate": [{
+                "id": "bsitevol_larva",
+                "value": ["breeding_site", {
+                    "y0": ["larva_coef"],
+                    "pr": ["bs_alpha","bs_beta"],
+                    "envir": [["prec", "TIME_1"]]
+                }]
+            }],
+            "value": [["bsitevol_larva", 0]],
+            "hazpar": true
+        }
+    ]
+}
+```
+
+Several new features are introduced here, so it is worth examining this section carefully. The flag `"hazpar": true` indicates that the process is evaluated for each sub-class. The process is of type `MEMORY` — a new feature — which stores a floating-point value defined by the **value** tag. This should be a list of one element.
+
+In this case, the process evaluates the sub-model `breeding_site` using the parameters `bs_alpha` and `bs_beta`, along with the precipitation input for the current simulation step. The initial condition is taken from the result of the previous evaluation, which has been stored via the memory mechanism.
+
+In the second process, shown below, the updated value from this memory process — already computed at the current step — is used to drive a larval flushing mechanism. Specifically, larvae are removed when the breeding site volume exceeds a predefined threshold. This is, of course, a simplified and hypothetical example intended to illustrate how the embedded model output can be used within the `Population` framework.
+
+```json
+{
+    "processes": [
+        {
+            "id": "larva_coef",
+            "arbiter": "MEMORY",
+            "evaluate": [{
+                "id": "bsitevol_larva",
+                "value": ["breeding_site", {
+                    "y0": ["larva_coef"],
+                    "pr": ["bs_alpha","bs_beta"],
+                    "envir": [["prec", "TIME_1"]]
+                }]
+            }],
+            "value": [["bsitevol_larva", 0]],
+            "hazpar": true
+        },{
+            "id": "larva_mort",
+            "name": "Larva mortality",
+            "arbiter": "NOAGE_CONST",
+            "intermediates": [{
+                "id": "d2m_coef",
+                "value": ["?", [">", "larva_coef", "0.75"], "0.5", "0.0"]
+            }],
+            "value": ["d2m_coef"],
+            "hazpar": true
+        }
+    ]
+}
+```
+See [ex10.json](./examples/ex10.json) and [ex10.c](./examples/ex10.c) for full PopJSON representation and C translation. Use [plot_ex10.py](./plot_ex10.py) to run the model.
+
+Note the use of **intermediates** within a process — this is a new feature in version 1.6.0. These **intermediates** are intended for temporary calculations: they can be useful for structuring expressions but are not retained or reported as outputs. As such, they must be assigned a value before being referenced. Please be reminded that the global **intermediates** are initialised to 0 by default.
+
+And voilà!
+![Larva mortality with excess rainfall](figures/ex10.png "Larva mortality with excess rainfall")
 
 # Operators for equations
 
