@@ -891,6 +891,60 @@ See [ex7a.json](./examples/ex7a.json) and [ex7a.c](./examples/ex7a.c) for full P
 
 ## Embedding models within models
 
+As of version 1.6.0, this is now possible. As this feature is still under development, it should be used with care and within reasonable limits.
+
+We begin with a simple ODE model describing precipitation-driven breeding site volume.
+
+```json
+{    
+    "reactions": [
+        {
+            "id": "accumulation",
+            "to": {
+                "bsvol": 1
+            },
+            "value": ["*", "alpha", ["prec", "TIME"]]
+        },{
+            "id": "evaporation",
+            "from": {
+                "bsvol": 1
+            },
+            "value": ["*", "beta", "bsvol"]
+        }
+    ]
+}
+```
+See [ex9.json](./examples/ex9.json) and [ex9.c](./examples/ex9.c) for full PopJSON representation and C translation. Use [plot_ex9.py](./plot_ex9.py) to run the model.
+
+This should produce something like the following:
+![Breeding site volume dynamics](figures/ex9.png "Breeding site volume dynamics")
+
+First, we define the outer model - here, a **Population** model. Using the **externals** tag, we specify the embedded ODE model by providing the location of the dynamic library (**file**), along with a brief technical description: the number of state variables (**numpop**), parameters (**numpar**), and environmental inputs (**numenv**).
+
+```json
+{
+    "model": {
+        "title": "Density-dependent population dynamics of Aedes albopictus",
+        "type": "Population",
+        "url": "https://github.com/kerguler/Population",
+        "deterministic": true,
+        "parameters": {
+            "algorithm": "Population",
+            "istep": 0.01
+        }
+    },
+    "externals": [
+        {
+            "id": "breeding_site",
+            "file": "ex9.dylib",
+            "numenv": 1,
+            "numpar": 2,
+            "numpop": 1
+        }
+    ]
+}
+```
+
 
 
 # Operators for equations
