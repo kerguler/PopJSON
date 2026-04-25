@@ -147,6 +147,8 @@ structured population models</span>
         <li><a href="#declaring-initial-conditions"
         id="toc-declaring-initial-conditions">Declaring initial
         conditions</a></li>
+        <li><a href="#simulating-odes"
+        id="toc-simulating-odes">Simulating ODEs</a></li>
         </ul></li>
         <li><a href="#advanced-usage" id="toc-advanced-usage">Advanced
         usage</a>
@@ -231,12 +233,13 @@ pre.sourceCode {
 PopJSON, for communicating and storing population dynamics models.
 Ornamented with custom tags and operations, PopJSON describes the
 essentials of a dynamically-structured multi-process matrix population
-model. In its current implementation, PopJSON deals with the
-<code>sPop</code> models of Erguler et
+model. PopJSON is primarily designed to handle the <code>sPop</code>
+models of Erguler et
 al. [<a href="https://f1000research.com/articles/7-1220/v3" target="_blank" rel="noreferrer">sPop</a>,
 <a href="https://www.nature.com/articles/s41598-022-15806-2" target="_blank" rel="noreferrer">sPop2</a>,
 <a href="https://github.com/kerguler/Population" target="_blank" rel="noreferrer">Population</a>],
-but soon will cover the canonical ODE and DDE models and more.</p>
+but recent versions can also parse simple ODE models and even embed one
+within another!</p>
 <p>PopJSON requires a parser to translate it into code that can either
 be directly interpreted or compiled into an executable. For the
 <a href="https://github.com/kerguler/Population" target="_blank" rel="noreferrer">Population</a>
@@ -251,17 +254,15 @@ Soon, we will write another one for <code>R</code>.</p>
 tags and square brackets [] to define processess with a strict order. We
 hope all will be clearer as you read along.</p>
 <h2 id="model-definition">Model definition</h2>
-<p>We define a model starting with the <strong>model</strong> tag. Here,
-the key tags are <strong>type</strong> and <strong>parameters</strong>.
-In this version of PopJSON, we covered the <strong>Population</strong>
-model, but we are working on including more canonical ODE, DDE, etc.
-models.</p>
-<p>The dynamics can either be deterministic or stochastic, which is
-determined using the boolean tag <strong>deterministic</strong>. If
-needed, we can set the precision of the accumulative process indicator
-(this is specific to the Population package) with the
-<strong>istep</strong> tag. This effectively limits the maximum number
-of pseudo-stage classes.</p>
+<p>We define a <strong>Population</strong> model using the
+<strong>model</strong> tag, where the key fields are
+<strong>type</strong> and <strong>parameters</strong>. The system’s
+dynamics can be specified as either deterministic or stochastic via the
+boolean <strong>deterministic</strong> tag. If finer control is
+required, the <strong>istep</strong> tag can be used to set the
+precision of the accumulative process indicator (specific to the
+<strong>Population</strong> package), effectively limiting the maximum
+number of pseudo-stage classes.</p>
 <p>Before following the steps below, we recommend having a look at the
 <a href="https://kerguler.github.io/Population/" target="_blank" rel="noreferrer">Population</a>
 package description.</p>
@@ -604,6 +605,118 @@ alt="Setting the initial population" />
 <figcaption aria-hidden="true">Setting the initial
 population</figcaption>
 </figure>
+<h2 id="simulating-odes">Simulating ODEs</h2>
+<p>As of version 1.6.0, PopJSON also supports the representation of ODE
+models. To illustrate this, we use the classic Lorenz chaotic system as
+an example.</p>
+<p>To begin, set <code>type: "ODE"</code>. This is an early
+implementation, so for now models should remain deterministic (SDE
+support will be added later) and time-independent (DDE support is
+planned), and should use the <code>rk8pd</code> integration algorithm.
+Basic solver options, such as the initial step size, and the absolute
+and relative tolerances, can be specified.</p>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;model&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;title&quot;</span><span class="fu">:</span> <span class="st">&quot;Lorenz equations&quot;</span><span class="fu">,</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;type&quot;</span><span class="fu">:</span> <span class="st">&quot;ODE&quot;</span><span class="fu">,</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;deterministic&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;parameters&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;algorithm&quot;</span><span class="fu">:</span> <span class="st">&quot;rk8pd&quot;</span><span class="fu">,</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;hstart&quot;</span><span class="fu">:</span> <span class="dv">1e-3</span><span class="fu">,</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;eps_abs&quot;</span><span class="fu">:</span> <span class="dv">1e-8</span><span class="fu">,</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;eps_rel&quot;</span><span class="fu">:</span> <span class="dv">1e-8</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>We set three populations and four parameters:</p>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;parameters&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;sigma&quot;</span><span class="fu">,</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;constant&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="fl">10.0</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span> <span class="fu">{</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;rho&quot;</span><span class="fu">,</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;constant&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="fl">28.0</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span> <span class="fu">{</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;beta&quot;</span><span class="fu">,</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;constant&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="fl">2.6666666666666665</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span><span class="fu">{</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;time_scale&quot;</span><span class="fu">,</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;constant&quot;</span><span class="fu">:</span> <span class="kw">false</span><span class="fu">,</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="fl">1.0</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;populations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;xx&quot;</span></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span><span class="fu">{</span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;yy&quot;</span></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span><span class="fu">{</span></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;zz&quot;</span></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>The <code>time_scale</code> parameter is critical. Although the ODE
+system evolves in continuous time, outputs are recorded at discrete
+integer steps. As a result, substantial dynamics may occur within a
+single step - captured by the integrator but not directly visible in the
+output. If this becomes an issue, you can effectively slow down the
+system by adjusting <code>time_scale</code>.</p>
+<p>Also, using <code>x</code>, <code>y</code>, and <code>z</code> as
+population names may lead to namespace conflicts. If you specifically
+need to use <code>x</code> as a population name, let me know and I can
+look into resolving this.</p>
+<p>The ODE system is represented as a Petri net, defined by a list of
+<strong>reactions</strong>. The <strong>from</strong> and
+<strong>to</strong> fields encode the stoichiometry of each reaction.
+For example, <code>"from": {"xx": 1}</code> indicates that one unit of
+<code>xx</code> is consumed by that reaction.</p>
+<p>Here is the full Petri net:</p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;reactions&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;r0&quot;</span><span class="fu">,</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;to&quot;</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">&quot;xx&quot;</span><span class="fu">:</span> <span class="dv">1</span> <span class="fu">},</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;*&quot;</span><span class="ot">,</span> <span class="st">&quot;time_scale&quot;</span><span class="ot">,</span> <span class="st">&quot;sigma&quot;</span><span class="ot">,</span> <span class="st">&quot;yy&quot;</span><span class="ot">]</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span><span class="fu">{</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;r1&quot;</span><span class="fu">,</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;from&quot;</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">&quot;xx&quot;</span><span class="fu">:</span> <span class="dv">1</span> <span class="fu">},</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;*&quot;</span><span class="ot">,</span> <span class="st">&quot;time_scale&quot;</span><span class="ot">,</span> <span class="st">&quot;sigma&quot;</span><span class="ot">,</span> <span class="st">&quot;xx&quot;</span><span class="ot">]</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span><span class="fu">{</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;r2&quot;</span><span class="fu">,</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;to&quot;</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">&quot;yy&quot;</span><span class="fu">:</span> <span class="dv">1</span> <span class="fu">},</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;*&quot;</span><span class="ot">,</span> <span class="st">&quot;time_scale&quot;</span><span class="ot">,</span> <span class="st">&quot;rho&quot;</span><span class="ot">,</span> <span class="st">&quot;xx&quot;</span><span class="ot">]</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span><span class="fu">{</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;r3&quot;</span><span class="fu">,</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;from&quot;</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">&quot;yy&quot;</span><span class="fu">:</span> <span class="dv">1</span> <span class="fu">},</span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;*&quot;</span><span class="ot">,</span> <span class="st">&quot;time_scale&quot;</span><span class="ot">,</span> <span class="st">&quot;xx&quot;</span><span class="ot">,</span> <span class="st">&quot;zz&quot;</span><span class="ot">]</span></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span><span class="fu">{</span></span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;r4&quot;</span><span class="fu">,</span></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;from&quot;</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">&quot;yy&quot;</span><span class="fu">:</span> <span class="dv">1</span> <span class="fu">},</span></span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;*&quot;</span><span class="ot">,</span> <span class="st">&quot;time_scale&quot;</span><span class="ot">,</span> <span class="st">&quot;yy&quot;</span><span class="ot">]</span></span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span><span class="fu">{</span></span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;r5&quot;</span><span class="fu">,</span></span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;to&quot;</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">&quot;zz&quot;</span><span class="fu">:</span> <span class="dv">1</span> <span class="fu">},</span></span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;*&quot;</span><span class="ot">,</span> <span class="st">&quot;time_scale&quot;</span><span class="ot">,</span> <span class="st">&quot;xx&quot;</span><span class="ot">,</span> <span class="st">&quot;yy&quot;</span><span class="ot">]</span></span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span><span class="fu">{</span></span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;r6&quot;</span><span class="fu">,</span></span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;from&quot;</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">&quot;zz&quot;</span><span class="fu">:</span> <span class="dv">1</span> <span class="fu">},</span></span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;*&quot;</span><span class="ot">,</span> <span class="st">&quot;time_scale&quot;</span><span class="ot">,</span> <span class="st">&quot;beta&quot;</span><span class="ot">,</span> <span class="st">&quot;zz&quot;</span><span class="ot">]</span></span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>See <a href="./examples/ex8.json">ex8.json</a> and <a
+href="./examples/ex8.c">ex8.c</a> for full PopJSON representation and C
+translation. Use <a href="./plot_ex8.py">plot_ex8.py</a> to run the
+model.</p>
+<p>And, here is the result: <img src="figures/ex8.png"
+title="The Lorenz attractor" alt="The butterfly effect!" /></p>
 <h1 id="advanced-usage">Advanced usage</h1>
 <p>We can do more with the <code>Populations</code> package, and here we
 describe a few interesting examples we could think of. Please
@@ -623,18 +736,18 @@ introducing the population in the
 example. Also, instead of introducing a naive cohort, let’s use the
 <strong>key</strong> statement to start with a population that has
 already experienced 5 iterations of development.</p>
-<div class="sourceCode" id="cb12"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;transformations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;initial_structure&quot;</span><span class="fu">,</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;to&quot;</span><span class="fu">:</span> <span class="st">&quot;larva&quot;</span><span class="fu">,</span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="dv">100</span><span class="fu">,</span></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;key&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="dv">5</span><span class="ot">]</span><span class="fu">,</span></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;if&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;==&quot;</span><span class="ot">,</span> <span class="st">&quot;TIME&quot;</span><span class="ot">,</span> <span class="dv">15</span><span class="ot">]</span></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;transformations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;initial_structure&quot;</span><span class="fu">,</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;to&quot;</span><span class="fu">:</span> <span class="st">&quot;larva&quot;</span><span class="fu">,</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="dv">100</span><span class="fu">,</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;key&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="dv">5</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;if&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;==&quot;</span><span class="ot">,</span> <span class="st">&quot;TIME&quot;</span><span class="ot">,</span> <span class="dv">15</span><span class="ot">]</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <p>See <a href="./examples/ex1c.json">ex1c.json</a> and <a
 href="./examples/ex1c.c">ex1c.c</a> for full PopJSON representation and
 C translation. Use <a href="./plot_ex1.py">plot_ex1.py</a> to run the
@@ -658,44 +771,44 @@ develop eggs in their bodies and lay them before searching for blood
 again. To model the process, we define adult lifetime
 (<strong>adult_mort</strong>) and egg development (inside females)
 (<strong>adult_dev</strong>) for adult females.</p>
-<div class="sourceCode" id="cb13"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;populations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult&quot;</span><span class="fu">,</span></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Adult females&quot;</span><span class="fu">,</span></span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;processes&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>                <span class="fu">{</span></span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_mort&quot;</span><span class="fu">,</span></span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Adult lifetime&quot;</span><span class="fu">,</span></span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;arbiter&quot;</span><span class="fu">:</span> <span class="st">&quot;ACC_ERLANG&quot;</span><span class="fu">,</span></span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="dv">20</span><span class="ot">,</span> <span class="dv">5</span><span class="ot">]</span></span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>                <span class="fu">}</span><span class="ot">,</span></span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>                <span class="fu">{</span></span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_dev&quot;</span><span class="fu">,</span></span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Egg development in adult females&quot;</span><span class="fu">,</span></span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;arbiter&quot;</span><span class="fu">:</span> <span class="st">&quot;ACC_ERLANG&quot;</span><span class="fu">,</span></span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="dv">5</span><span class="ot">,</span> <span class="dv">1</span><span class="ot">]</span></span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>                <span class="fu">}</span></span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>            <span class="ot">]</span></span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
-<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span><span class="fu">,</span></span>
-<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;transformations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
-<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_death&quot;</span><span class="fu">,</span></span>
-<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Adult females dying today&quot;</span><span class="fu">,</span></span>
-<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_mort&quot;</span></span>
-<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span> <span class="fu">{</span></span>
-<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;num_gravid&quot;</span><span class="fu">,</span></span>
-<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Number of gravid females&quot;</span><span class="fu">,</span></span>
-<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_dev&quot;</span></span>
-<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span><span class="fu">{</span></span>
-<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;egg_laying&quot;</span><span class="fu">,</span></span>
-<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Egg laying at the end of gonotrophic cycle&quot;</span><span class="fu">,</span></span>
-<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;*&quot;</span><span class="ot">,</span> <span class="st">&quot;num_gravid&quot;</span><span class="ot">,</span> <span class="dv">10</span><span class="ot">]</span></span>
-<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
-<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
-<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;populations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult&quot;</span><span class="fu">,</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Adult females&quot;</span><span class="fu">,</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;processes&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>                <span class="fu">{</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_mort&quot;</span><span class="fu">,</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Adult lifetime&quot;</span><span class="fu">,</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;arbiter&quot;</span><span class="fu">:</span> <span class="st">&quot;ACC_ERLANG&quot;</span><span class="fu">,</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="dv">20</span><span class="ot">,</span> <span class="dv">5</span><span class="ot">]</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>                <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>                <span class="fu">{</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_dev&quot;</span><span class="fu">,</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Egg development in adult females&quot;</span><span class="fu">,</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;arbiter&quot;</span><span class="fu">:</span> <span class="st">&quot;ACC_ERLANG&quot;</span><span class="fu">,</span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="dv">5</span><span class="ot">,</span> <span class="dv">1</span><span class="ot">]</span></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>                <span class="fu">}</span></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>            <span class="ot">]</span></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;transformations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_death&quot;</span><span class="fu">,</span></span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Adult females dying today&quot;</span><span class="fu">,</span></span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_mort&quot;</span></span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span> <span class="fu">{</span></span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;num_gravid&quot;</span><span class="fu">,</span></span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Number of gravid females&quot;</span><span class="fu">,</span></span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_dev&quot;</span></span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span><span class="fu">{</span></span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;egg_laying&quot;</span><span class="fu">,</span></span>
+<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Egg laying at the end of gonotrophic cycle&quot;</span><span class="fu">,</span></span>
+<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;*&quot;</span><span class="ot">,</span> <span class="st">&quot;num_gravid&quot;</span><span class="ot">,</span> <span class="dv">10</span><span class="ot">]</span></span>
+<span id="cb16-35"><a href="#cb16-35" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb16-36"><a href="#cb16-36" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb16-37"><a href="#cb16-37" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <p>When <strong>adult_dev</strong> is completed (in 5 days plus or minus
 1), we will have the females ready for egg laying. Then, the number of
 eggs laid can be estimated by employing an average, for instance, 10
@@ -704,18 +817,18 @@ eggs per gravid female (as in <strong>egg_laying</strong>).</p>
 population. For this, we define a <strong>transfer</strong> tag, which
 transfers each sub-class from one population to another (here, from
 <strong>adult_dev</strong> back to <strong>adult</strong>).</p>
-<div class="sourceCode" id="cb14"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;transfers&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;gonotrophic_cycle&quot;</span><span class="fu">,</span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Gonotrophic cycle&quot;</span><span class="fu">,</span></span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;from&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_dev&quot;</span><span class="fu">,</span></span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;to&quot;</span><span class="fu">:</span> <span class="st">&quot;adult&quot;</span><span class="fu">,</span></span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="dv">1</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;adult_mort&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">]]</span></span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span><span class="fu">,</span></span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;transfers&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;gonotrophic_cycle&quot;</span><span class="fu">,</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Gonotrophic cycle&quot;</span><span class="fu">,</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;from&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_dev&quot;</span><span class="fu">,</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;to&quot;</span><span class="fu">:</span> <span class="st">&quot;adult&quot;</span><span class="fu">,</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="dv">1</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;adult_mort&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">]]</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <p>Before making the transfer, the algorithm allows us to declare the
 fraction of each sub-class to be transferred and to apply a
 transformation on the sub-class structure. This is defined in the
@@ -748,19 +861,19 @@ pseudo-states</h2>
 hazard functions to apply to every sub-class of a population. For
 instance, we can induce mortality based on a condition, let’s say, if
 the total number of eggs laid exceeds 150.</p>
-<div class="sourceCode" id="cb15"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;processes&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_num_dev&quot;</span><span class="fu">,</span></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Number of gonotrophic cycles in adult females&quot;</span><span class="fu">,</span></span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;arbiter&quot;</span><span class="fu">:</span> <span class="st">&quot;AGE_CUSTOM&quot;</span><span class="fu">,</span></span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;stepper&quot;</span><span class="fu">:</span> <span class="st">&quot;NO_STEPPER&quot;</span><span class="fu">,</span></span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;hazard&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;NOAGE_CONST&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;?&quot;</span><span class="ot">,[</span><span class="st">&quot;&gt;&quot;</span><span class="ot">,</span><span class="st">&quot;total_eggs&quot;</span><span class="ot">,</span><span class="dv">150</span><span class="ot">],</span><span class="dv">1</span><span class="ot">,</span><span class="dv">0</span><span class="ot">],</span> <span class="dv">0</span><span class="ot">]</span><span class="fu">,</span></span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[]</span></span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;processes&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_num_dev&quot;</span><span class="fu">,</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Number of gonotrophic cycles in adult females&quot;</span><span class="fu">,</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;arbiter&quot;</span><span class="fu">:</span> <span class="st">&quot;AGE_CUSTOM&quot;</span><span class="fu">,</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;stepper&quot;</span><span class="fu">:</span> <span class="st">&quot;NO_STEPPER&quot;</span><span class="fu">,</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;hazard&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;NOAGE_CONST&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;?&quot;</span><span class="ot">,[</span><span class="st">&quot;&gt;&quot;</span><span class="ot">,</span><span class="st">&quot;total_eggs&quot;</span><span class="ot">,</span><span class="dv">150</span><span class="ot">],</span><span class="dv">1</span><span class="ot">,</span><span class="dv">0</span><span class="ot">],</span> <span class="dv">0</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[]</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <p>Once again, please refer to the
 <a href="https://kerguler.github.io/Population/" target="_blank" rel="noreferrer">Population</a>
 package description for <strong>AGE_CUSTOM</strong> and more. To recap,
@@ -780,37 +893,37 @@ standard deviation is not used). In the above example, mortality is 1 if
 0).</p>
 <p>Please note that <strong>value: []</strong> is required in order not
 to interfere with the parameters of other processes.</p>
-<div class="sourceCode" id="cb16"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;transfers&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;gonotrophic_cycle&quot;</span><span class="fu">,</span></span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Gonotrophic cycle&quot;</span><span class="fu">,</span></span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;from&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_dev&quot;</span><span class="fu">,</span></span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;to&quot;</span><span class="fu">:</span> <span class="st">&quot;adult&quot;</span><span class="fu">,</span></span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="dv">1</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;adult_mort&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;+&quot;</span><span class="ot">,</span> <span class="st">&quot;adult_num_dev&quot;</span><span class="ot">,</span> <span class="dv">1</span><span class="ot">]]]</span></span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
-<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
-<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;transfers&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;gonotrophic_cycle&quot;</span><span class="fu">,</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Gonotrophic cycle&quot;</span><span class="fu">,</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;from&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_dev&quot;</span><span class="fu">,</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;to&quot;</span><span class="fu">:</span> <span class="st">&quot;adult&quot;</span><span class="fu">,</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="dv">1</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;adult_mort&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;+&quot;</span><span class="ot">,</span> <span class="st">&quot;adult_num_dev&quot;</span><span class="ot">,</span> <span class="dv">1</span><span class="ot">]]]</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <p>Above, we increment the <strong>adult_num_dev</strong> counter by one
 while transferring the females that have just laid eggs back to the
 host-seeking population.</p>
 <p>Finally, we define <strong>total_eggs</strong> as the cumulative
 number of eggs laid.</p>
-<div class="sourceCode" id="cb17"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;transformations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;egg_laying&quot;</span><span class="fu">,</span></span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Egg laying at the end of gonotrophic cycle&quot;</span><span class="fu">,</span></span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;*&quot;</span><span class="ot">,</span> <span class="st">&quot;num_gravid&quot;</span><span class="ot">,</span> <span class="dv">1</span><span class="ot">]</span></span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span><span class="fu">{</span></span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;total_eggs&quot;</span><span class="fu">,</span></span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Total number of eggs laid&quot;</span><span class="fu">,</span></span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;+&quot;</span><span class="ot">,</span> <span class="st">&quot;total_eggs&quot;</span><span class="ot">,</span> <span class="st">&quot;egg_laying&quot;</span><span class="ot">]</span></span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;transformations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;egg_laying&quot;</span><span class="fu">,</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Egg laying at the end of gonotrophic cycle&quot;</span><span class="fu">,</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;*&quot;</span><span class="ot">,</span> <span class="st">&quot;num_gravid&quot;</span><span class="ot">,</span> <span class="dv">1</span><span class="ot">]</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span><span class="fu">{</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;total_eggs&quot;</span><span class="fu">,</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Total number of eggs laid&quot;</span><span class="fu">,</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;+&quot;</span><span class="ot">,</span> <span class="st">&quot;total_eggs&quot;</span><span class="ot">,</span> <span class="st">&quot;egg_laying&quot;</span><span class="ot">]</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <p>See <a href="./examples/ex4a.json">ex4a.json</a> and <a
 href="./examples/ex4a.c">ex4a.c</a> for full PopJSON representation and
 C translation. Use <a href="./plot_ex4.py">plot_ex4.py</a> to run the
@@ -834,48 +947,48 @@ adults produced. Let’s consider a scenario where larvae taking longer to
 develop emerge as adults with longer life expectancies.</p>
 <p>To represent this stage inheritance (as we call this in this
 context), we declare two populations, immatures and adults.</p>
-<div class="sourceCode" id="cb18"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;populations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;immat&quot;</span><span class="fu">,</span></span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;The immature stages&quot;</span><span class="fu">,</span></span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;processes&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>                <span class="fu">{</span></span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;immat_mort&quot;</span><span class="fu">,</span></span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Lifetime&quot;</span><span class="fu">,</span></span>
-<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;arbiter&quot;</span><span class="fu">:</span> <span class="st">&quot;ACC_ERLANG&quot;</span><span class="fu">,</span></span>
-<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="dv">40</span><span class="ot">,</span> <span class="dv">5</span><span class="ot">]</span></span>
-<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>                <span class="fu">}</span><span class="ot">,</span></span>
-<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>                <span class="fu">{</span></span>
-<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;immat_dev&quot;</span><span class="fu">,</span></span>
-<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Immature development time&quot;</span><span class="fu">,</span></span>
-<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;arbiter&quot;</span><span class="fu">:</span> <span class="st">&quot;ACC_ERLANG&quot;</span><span class="fu">,</span></span>
-<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;d2m&quot;</span><span class="ot">,</span> <span class="st">&quot;d2s&quot;</span><span class="ot">]</span></span>
-<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>                <span class="fu">}</span></span>
-<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>            <span class="ot">]</span></span>
-<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span></span>
-<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
-<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult&quot;</span><span class="fu">,</span></span>
-<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;The adult stage&quot;</span><span class="fu">,</span></span>
-<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;processes&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>                <span class="fu">{</span></span>
-<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_mort&quot;</span><span class="fu">,</span></span>
-<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Lifetime&quot;</span><span class="fu">,</span></span>
-<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;arbiter&quot;</span><span class="fu">:</span> <span class="st">&quot;ACC_ERLANG&quot;</span><span class="fu">,</span></span>
-<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[[</span><span class="st">&quot;?&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;&gt;&quot;</span><span class="ot">,</span> <span class="st">&quot;history&quot;</span><span class="ot">,</span> <span class="dv">50</span><span class="ot">],</span> <span class="dv">80</span><span class="ot">,</span> <span class="dv">40</span><span class="ot">],</span> <span class="dv">5</span><span class="ot">]</span><span class="fu">,</span></span>
-<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;hazpar&quot;</span><span class="fu">:</span> <span class="kw">true</span></span>
-<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a>                <span class="fu">}</span><span class="ot">,</span></span>
-<span id="cb18-32"><a href="#cb18-32" aria-hidden="true" tabindex="-1"></a>                <span class="fu">{</span></span>
-<span id="cb18-33"><a href="#cb18-33" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;history&quot;</span><span class="fu">,</span></span>
-<span id="cb18-34"><a href="#cb18-34" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Life as an immature&quot;</span><span class="fu">,</span></span>
-<span id="cb18-35"><a href="#cb18-35" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;arbiter&quot;</span><span class="fu">:</span> <span class="st">&quot;NOAGE_CONST&quot;</span><span class="fu">,</span></span>
-<span id="cb18-36"><a href="#cb18-36" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="dv">0</span></span>
-<span id="cb18-37"><a href="#cb18-37" aria-hidden="true" tabindex="-1"></a>                <span class="fu">}</span></span>
-<span id="cb18-38"><a href="#cb18-38" aria-hidden="true" tabindex="-1"></a>            <span class="ot">]</span></span>
-<span id="cb18-39"><a href="#cb18-39" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
-<span id="cb18-40"><a href="#cb18-40" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
-<span id="cb18-41"><a href="#cb18-41" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;populations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;immat&quot;</span><span class="fu">,</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;The immature stages&quot;</span><span class="fu">,</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;processes&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>                <span class="fu">{</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;immat_mort&quot;</span><span class="fu">,</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Lifetime&quot;</span><span class="fu">,</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;arbiter&quot;</span><span class="fu">:</span> <span class="st">&quot;ACC_ERLANG&quot;</span><span class="fu">,</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="dv">40</span><span class="ot">,</span> <span class="dv">5</span><span class="ot">]</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>                <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>                <span class="fu">{</span></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;immat_dev&quot;</span><span class="fu">,</span></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Immature development time&quot;</span><span class="fu">,</span></span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;arbiter&quot;</span><span class="fu">:</span> <span class="st">&quot;ACC_ERLANG&quot;</span><span class="fu">,</span></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;d2m&quot;</span><span class="ot">,</span> <span class="st">&quot;d2s&quot;</span><span class="ot">]</span></span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>                <span class="fu">}</span></span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>            <span class="ot">]</span></span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult&quot;</span><span class="fu">,</span></span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;The adult stage&quot;</span><span class="fu">,</span></span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;processes&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>                <span class="fu">{</span></span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_mort&quot;</span><span class="fu">,</span></span>
+<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Lifetime&quot;</span><span class="fu">,</span></span>
+<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;arbiter&quot;</span><span class="fu">:</span> <span class="st">&quot;ACC_ERLANG&quot;</span><span class="fu">,</span></span>
+<span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[[</span><span class="st">&quot;?&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;&gt;&quot;</span><span class="ot">,</span> <span class="st">&quot;history&quot;</span><span class="ot">,</span> <span class="dv">50</span><span class="ot">],</span> <span class="dv">80</span><span class="ot">,</span> <span class="dv">40</span><span class="ot">],</span> <span class="dv">5</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;hazpar&quot;</span><span class="fu">:</span> <span class="kw">true</span></span>
+<span id="cb21-31"><a href="#cb21-31" aria-hidden="true" tabindex="-1"></a>                <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb21-32"><a href="#cb21-32" aria-hidden="true" tabindex="-1"></a>                <span class="fu">{</span></span>
+<span id="cb21-33"><a href="#cb21-33" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;history&quot;</span><span class="fu">,</span></span>
+<span id="cb21-34"><a href="#cb21-34" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Life as an immature&quot;</span><span class="fu">,</span></span>
+<span id="cb21-35"><a href="#cb21-35" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;arbiter&quot;</span><span class="fu">:</span> <span class="st">&quot;NOAGE_CONST&quot;</span><span class="fu">,</span></span>
+<span id="cb21-36"><a href="#cb21-36" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="dv">0</span></span>
+<span id="cb21-37"><a href="#cb21-37" aria-hidden="true" tabindex="-1"></a>                <span class="fu">}</span></span>
+<span id="cb21-38"><a href="#cb21-38" aria-hidden="true" tabindex="-1"></a>            <span class="ot">]</span></span>
+<span id="cb21-39"><a href="#cb21-39" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb21-40"><a href="#cb21-40" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb21-41"><a href="#cb21-41" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <p>Please note that we used the <strong>d2m</strong> and
 <strong>d2s</strong> parameters from the previous example to define
 immature development time as a function of temperature. To contain
@@ -887,11 +1000,11 @@ develop for 40 days max, then, they will start dying.</p>
 arbiter for this, which has no internal stepper (it won’t interfere),
 and an integer counter, which we will describe shortly.</p>
 <p>Please note the following two lines.</p>
-<div class="sourceCode" id="cb19"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[[</span><span class="st">&quot;?&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;&gt;&quot;</span><span class="ot">,</span> <span class="st">&quot;history&quot;</span><span class="ot">,</span> <span class="dv">50</span><span class="ot">],</span> <span class="dv">80</span><span class="ot">,</span> <span class="dv">40</span><span class="ot">],</span> <span class="dv">5</span><span class="ot">]</span><span class="fu">,</span></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;hazpar&quot;</span><span class="fu">:</span> <span class="kw">true</span></span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[[</span><span class="st">&quot;?&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;&gt;&quot;</span><span class="ot">,</span> <span class="st">&quot;history&quot;</span><span class="ot">,</span> <span class="dv">50</span><span class="ot">],</span> <span class="dv">80</span><span class="ot">,</span> <span class="dv">40</span><span class="ot">],</span> <span class="dv">5</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;hazpar&quot;</span><span class="fu">:</span> <span class="kw">true</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <p>We set <strong>hazpar:true</strong> to indicate that
 <strong>value</strong> applies to the sub-classes but not to the entire
 adult population. For each sub-class, distinguished with the counters of
@@ -901,18 +1014,18 @@ mean lifetime as 80 (if <strong>history</strong> is larger than 50) or
 Erlang-distributed lifetime is 5 days.</p>
 <p>Where does <strong>history</strong> come from? Please have a look at
 the <strong>transfers</strong> declaration below.</p>
-<div class="sourceCode" id="cb20"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;transfers&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;maturation&quot;</span><span class="fu">,</span></span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Adult emergence&quot;</span><span class="fu">,</span></span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;from&quot;</span><span class="fu">:</span> <span class="st">&quot;immat_dev&quot;</span><span class="fu">,</span></span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;to&quot;</span><span class="fu">:</span> <span class="st">&quot;adult&quot;</span><span class="fu">,</span></span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="dv">1</span><span class="ot">,</span> <span class="ot">[</span><span class="dv">0</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;round&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;*&quot;</span><span class="ot">,</span> <span class="st">&quot;100.0&quot;</span><span class="ot">,</span> <span class="st">&quot;immat_mort&quot;</span><span class="ot">]]]]</span></span>
-<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
-<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
-<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;transfers&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;maturation&quot;</span><span class="fu">,</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Adult emergence&quot;</span><span class="fu">,</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;from&quot;</span><span class="fu">:</span> <span class="st">&quot;immat_dev&quot;</span><span class="fu">,</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;to&quot;</span><span class="fu">:</span> <span class="st">&quot;adult&quot;</span><span class="fu">,</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="dv">1</span><span class="ot">,</span> <span class="ot">[</span><span class="dv">0</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;round&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;*&quot;</span><span class="ot">,</span> <span class="st">&quot;100.0&quot;</span><span class="ot">,</span> <span class="st">&quot;immat_mort&quot;</span><span class="ot">]]]]</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <p>When immature stage development is complete, we take all those
 completing development (<strong>immat_dev</strong>) and add them to the
 <strong>adult</strong> stage by setting the <strong>adult_mort</strong>
@@ -958,17 +1071,17 @@ matrix of transition rates/probabilities from each population (at each
 location) to all the others (at other locations).</p>
 <p>The following is an example definition, which concerns 9 adult
 mosquito populations located at 3x3 neighbouring grid boxes.</p>
-<div class="sourceCode" id="cb21"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;migrations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_dispersion&quot;</span><span class="fu">,</span></span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Adult female dispersion&quot;</span><span class="fu">,</span></span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;prob&quot;</span><span class="fu">:</span> <span class="st">&quot;tprob&quot;</span><span class="fu">,</span></span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;target&quot;</span><span class="fu">:</span> <span class="ot">[[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;XY&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">8</span><span class="ot">,</span> <span class="st">&quot;adult_[XY]&quot;</span><span class="ot">]]</span></span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span>    </span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;migrations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_dispersion&quot;</span><span class="fu">,</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Adult female dispersion&quot;</span><span class="fu">,</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;prob&quot;</span><span class="fu">:</span> <span class="st">&quot;tprob&quot;</span><span class="fu">,</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;target&quot;</span><span class="fu">:</span> <span class="ot">[[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;XY&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">8</span><span class="ot">,</span> <span class="st">&quot;adult_[XY]&quot;</span><span class="ot">]]</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span>    </span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <p>Please note that instead of supplying
 <code>["adult_0","adult_1","adult_2",...]</code> to
 <strong>target</strong>, we used a <strong>for</strong> loop. This loop
@@ -978,25 +1091,25 @@ object to be repeated. The substring containing the label, [XY], is
 replaced at each iteration of the counter, XY.</p>
 <p>For loop can also be used to replicate objects, such as populations
 as shown in the following example.</p>
-<div class="sourceCode" id="cb22"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;populations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>        <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;XY&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">8</span><span class="ot">,</span> </span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>            <span class="fu">{</span></span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_[XY]&quot;</span><span class="fu">,</span></span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Adult females&quot;</span><span class="fu">,</span></span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;processes&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">{</span></span>
-<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_mort_[XY]&quot;</span><span class="fu">,</span></span>
-<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Adult lifetime&quot;</span><span class="fu">,</span></span>
-<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;arbiter&quot;</span><span class="fu">:</span> <span class="st">&quot;NOAGE_CONST&quot;</span><span class="fu">,</span></span>
-<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;0.0&quot;</span><span class="ot">]</span></span>
-<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">}</span></span>
-<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>                <span class="ot">]</span></span>
-<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>            <span class="fu">}</span></span>
-<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>        <span class="ot">]</span></span>
-<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
-<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;populations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>        <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;XY&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">8</span><span class="ot">,</span> </span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>            <span class="fu">{</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_[XY]&quot;</span><span class="fu">,</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Adult females&quot;</span><span class="fu">,</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;processes&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">{</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_mort_[XY]&quot;</span><span class="fu">,</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Adult lifetime&quot;</span><span class="fu">,</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;arbiter&quot;</span><span class="fu">:</span> <span class="st">&quot;NOAGE_CONST&quot;</span><span class="fu">,</span></span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;0.0&quot;</span><span class="ot">]</span></span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">}</span></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>                <span class="ot">]</span></span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>            <span class="fu">}</span></span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>        <span class="ot">]</span></span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <p>This defines 9 populations, labelled from 0 to 8, with no exit rate
 (for testing purposes).</p>
 <p>Next, we define a transition kernel. For simplicity, we assume that a
@@ -1162,54 +1275,54 @@ population above by adding just a few more lines of PopJSON. First, we
 divide the population into immatures and adults. Then, configure the
 necessary stage transformations (adult emergence and ovipositioning),
 and finally, set up adult mobility across the spatial scale.</p>
-<div class="sourceCode" id="cb23"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;populations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>        <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;G&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">2</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;XY&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">63</span><span class="ot">,</span> <span class="fu">{</span></span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;immature_[G]_[XY]&quot;</span><span class="fu">,</span></span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Immature stages (combined)&quot;</span><span class="fu">,</span></span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;processes&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>                <span class="fu">{</span></span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;immature_dev_[G]_[XY]&quot;</span><span class="fu">,</span></span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Development time&quot;</span><span class="fu">,</span></span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;arbiter&quot;</span><span class="fu">:</span> <span class="st">&quot;ACC_ERLANG&quot;</span><span class="fu">,</span></span>
-<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;pr_stage_duration_mn&quot;</span><span class="ot">,</span> <span class="st">&quot;pr_stage_duration_sd&quot;</span><span class="ot">]</span></span>
-<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>                <span class="fu">}</span></span>
-<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>            <span class="ot">]</span></span>
-<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span> <span class="ot">]],</span></span>
-<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>        <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;G&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">2</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;XY&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">63</span><span class="ot">,</span> <span class="fu">{</span></span>
-<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_[G]_[XY]&quot;</span><span class="fu">,</span></span>
-<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Adult females&quot;</span><span class="fu">,</span></span>
-<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;processes&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>                <span class="fu">{</span></span>
-<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_mort_[G]_[XY]&quot;</span><span class="fu">,</span></span>
-<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Adult lifetime&quot;</span><span class="fu">,</span></span>
-<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;arbiter&quot;</span><span class="fu">:</span> <span class="st">&quot;ACC_ERLANG&quot;</span><span class="fu">,</span></span>
-<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;pr_stage_duration_mn&quot;</span><span class="ot">,</span> <span class="st">&quot;pr_stage_duration_sd&quot;</span><span class="ot">]</span></span>
-<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a>                <span class="fu">}</span></span>
-<span id="cb23-25"><a href="#cb23-25" aria-hidden="true" tabindex="-1"></a>            <span class="ot">]</span></span>
-<span id="cb23-26"><a href="#cb23-26" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span> <span class="ot">]]</span></span>
-<span id="cb23-27"><a href="#cb23-27" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
-<span id="cb23-28"><a href="#cb23-28" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;populations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>        <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;G&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">2</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;XY&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">63</span><span class="ot">,</span> <span class="fu">{</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;immature_[G]_[XY]&quot;</span><span class="fu">,</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Immature stages (combined)&quot;</span><span class="fu">,</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;processes&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>                <span class="fu">{</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;immature_dev_[G]_[XY]&quot;</span><span class="fu">,</span></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Development time&quot;</span><span class="fu">,</span></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;arbiter&quot;</span><span class="fu">:</span> <span class="st">&quot;ACC_ERLANG&quot;</span><span class="fu">,</span></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;pr_stage_duration_mn&quot;</span><span class="ot">,</span> <span class="st">&quot;pr_stage_duration_sd&quot;</span><span class="ot">]</span></span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>                <span class="fu">}</span></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>            <span class="ot">]</span></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span> <span class="ot">]],</span></span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>        <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;G&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">2</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;XY&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">63</span><span class="ot">,</span> <span class="fu">{</span></span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_[G]_[XY]&quot;</span><span class="fu">,</span></span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Adult females&quot;</span><span class="fu">,</span></span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;processes&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a>                <span class="fu">{</span></span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_mort_[G]_[XY]&quot;</span><span class="fu">,</span></span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Adult lifetime&quot;</span><span class="fu">,</span></span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;arbiter&quot;</span><span class="fu">:</span> <span class="st">&quot;ACC_ERLANG&quot;</span><span class="fu">,</span></span>
+<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;pr_stage_duration_mn&quot;</span><span class="ot">,</span> <span class="st">&quot;pr_stage_duration_sd&quot;</span><span class="ot">]</span></span>
+<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a>                <span class="fu">}</span></span>
+<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a>            <span class="ot">]</span></span>
+<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span> <span class="ot">]]</span></span>
+<span id="cb26-27"><a href="#cb26-27" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb26-28"><a href="#cb26-28" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <p>In this definition of the populations, we use nested for loops to
 structure both immatures and adults into 3 genotypes
 (<strong>AA</strong>, <strong>Aa</strong>, and <strong>aa</strong>) and
 64 locations.</p>
-<div class="sourceCode" id="cb24"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;transformations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>        <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;G&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">2</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;XY&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">63</span><span class="ot">,</span> <span class="fu">{</span></span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;emergence_[G]_[XY]&quot;</span><span class="fu">,</span></span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;to&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_[G]_[XY]&quot;</span><span class="fu">,</span></span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="st">&quot;immature_dev_[G]_[XY]&quot;</span></span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span> <span class="ot">]],</span></span>
-<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>        <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;Ga&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">2</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;Gb&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">2</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;Gab&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">2</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;XY&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">63</span><span class="ot">,</span> <span class="fu">{</span></span>
-<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;ovipos_[Ga]_[Gb]_[Gab]_[XY]&quot;</span><span class="fu">,</span></span>
-<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;to&quot;</span><span class="fu">:</span> <span class="st">&quot;immature_[Gab]_[XY]&quot;</span><span class="fu">,</span></span>
-<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;*&quot;</span><span class="ot">,</span><span class="st">&quot;pr_F4&quot;</span><span class="ot">,[</span><span class="st">&quot;cube&quot;</span><span class="ot">,</span><span class="st">&quot;[Ga]&quot;</span><span class="ot">,</span><span class="st">&quot;[Gb]&quot;</span><span class="ot">,</span><span class="st">&quot;[Gab]&quot;</span><span class="ot">],</span><span class="st">&quot;adult_[Ga]_[XY]&quot;</span><span class="ot">,</span><span class="st">&quot;adult_[Gb]_[XY]&quot;</span><span class="ot">]</span></span>
-<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span> <span class="ot">]]]]</span></span>
-<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
-<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;transformations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>        <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;G&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">2</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;XY&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">63</span><span class="ot">,</span> <span class="fu">{</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;emergence_[G]_[XY]&quot;</span><span class="fu">,</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;to&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_[G]_[XY]&quot;</span><span class="fu">,</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="st">&quot;immature_dev_[G]_[XY]&quot;</span></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span> <span class="ot">]],</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>        <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;Ga&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">2</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;Gb&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">2</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;Gab&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">2</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;XY&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">63</span><span class="ot">,</span> <span class="fu">{</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;ovipos_[Ga]_[Gb]_[Gab]_[XY]&quot;</span><span class="fu">,</span></span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;to&quot;</span><span class="fu">:</span> <span class="st">&quot;immature_[Gab]_[XY]&quot;</span><span class="fu">,</span></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;*&quot;</span><span class="ot">,</span><span class="st">&quot;pr_F4&quot;</span><span class="ot">,[</span><span class="st">&quot;cube&quot;</span><span class="ot">,</span><span class="st">&quot;[Ga]&quot;</span><span class="ot">,</span><span class="st">&quot;[Gb]&quot;</span><span class="ot">,</span><span class="st">&quot;[Gab]&quot;</span><span class="ot">],</span><span class="st">&quot;adult_[Ga]_[XY]&quot;</span><span class="ot">,</span><span class="st">&quot;adult_[Gb]_[XY]&quot;</span><span class="ot">]</span></span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span> <span class="ot">]]]]</span></span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <p>For each of these sub-groups, we define a transformation from the
 immature stages to the adult stage. To represent egg laying, we use the
 nested for loops in the following order: For each location
@@ -1232,41 +1345,41 @@ Essentially, we assume that when a mother with genotype
 <strong>aa</strong> individuals.</p>
 <p>The cube needs to be supplied as a linear environmental variable
 (<strong>inheritance</strong>):</p>
-<div class="sourceCode" id="cb25"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;environ&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>        <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;G&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">2</span><span class="ot">,</span> <span class="fu">{</span></span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;tprob_[G]&quot;</span><span class="fu">,</span></span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Connectivity matrix (fraction of transfer per day)&quot;</span><span class="fu">,</span></span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;url&quot;</span><span class="fu">:</span> <span class="st">&quot;&quot;</span></span>
-<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">],</span></span>
-<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
-<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;inheritance&quot;</span><span class="fu">,</span></span>
-<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;The inheritance cube&quot;</span><span class="fu">,</span></span>
-<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;url&quot;</span><span class="fu">:</span> <span class="st">&quot;&quot;</span></span>
-<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
-<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
-<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb28"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;environ&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>        <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;G&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">2</span><span class="ot">,</span> <span class="fu">{</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;tprob_[G]&quot;</span><span class="fu">,</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Connectivity matrix (fraction of transfer per day)&quot;</span><span class="fu">,</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;url&quot;</span><span class="fu">:</span> <span class="st">&quot;&quot;</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">],</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;inheritance&quot;</span><span class="fu">,</span></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;The inheritance cube&quot;</span><span class="fu">,</span></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;url&quot;</span><span class="fu">:</span> <span class="st">&quot;&quot;</span></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <p>Therefore, the extraction is performed using a simple mapping
 equation:</p>
-<div class="sourceCode" id="cb26"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;functions&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;cube&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;define&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;a&quot;</span><span class="ot">,</span><span class="st">&quot;b&quot;</span><span class="ot">,</span><span class="st">&quot;c&quot;</span><span class="ot">],</span> <span class="ot">[</span><span class="st">&quot;inheritance&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;+&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;*&quot;</span><span class="ot">,</span> <span class="st">&quot;a&quot;</span><span class="ot">,</span> <span class="dv">9</span><span class="ot">],</span> <span class="ot">[</span><span class="st">&quot;*&quot;</span><span class="ot">,</span> <span class="st">&quot;b&quot;</span><span class="ot">,</span> <span class="dv">3</span><span class="ot">],</span> <span class="st">&quot;c&quot;</span><span class="ot">]]]</span></span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb29"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;functions&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;cube&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="st">&quot;define&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;a&quot;</span><span class="ot">,</span><span class="st">&quot;b&quot;</span><span class="ot">,</span><span class="st">&quot;c&quot;</span><span class="ot">],</span> <span class="ot">[</span><span class="st">&quot;inheritance&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;+&quot;</span><span class="ot">,</span> <span class="ot">[</span><span class="st">&quot;*&quot;</span><span class="ot">,</span> <span class="st">&quot;a&quot;</span><span class="ot">,</span> <span class="dv">9</span><span class="ot">],</span> <span class="ot">[</span><span class="st">&quot;*&quot;</span><span class="ot">,</span> <span class="st">&quot;b&quot;</span><span class="ot">,</span> <span class="dv">3</span><span class="ot">],</span> <span class="st">&quot;c&quot;</span><span class="ot">]]]</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <p>Finally, we define mobility for the three adult genotypes:</p>
-<div class="sourceCode" id="cb27"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;migrations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>        <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;G&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">2</span><span class="ot">,</span> <span class="fu">{</span></span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_dispersion_[G]&quot;</span><span class="fu">,</span></span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Adult dispersion&quot;</span><span class="fu">,</span></span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;prob&quot;</span><span class="fu">:</span> <span class="st">&quot;tprob_[G]&quot;</span><span class="fu">,</span></span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;target&quot;</span><span class="fu">:</span> <span class="ot">[[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;XY&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">63</span><span class="ot">,</span> <span class="st">&quot;adult_[G]_[XY]&quot;</span><span class="ot">]]</span></span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">]</span></span>
-<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
-<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb30"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;migrations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>        <span class="ot">[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;G&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">2</span><span class="ot">,</span> <span class="fu">{</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;id&quot;</span><span class="fu">:</span> <span class="st">&quot;adult_dispersion_[G]&quot;</span><span class="fu">,</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Adult dispersion&quot;</span><span class="fu">,</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;prob&quot;</span><span class="fu">:</span> <span class="st">&quot;tprob_[G]&quot;</span><span class="fu">,</span></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;target&quot;</span><span class="fu">:</span> <span class="ot">[[</span><span class="st">&quot;for&quot;</span><span class="ot">,</span> <span class="st">&quot;XY&quot;</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">63</span><span class="ot">,</span> <span class="st">&quot;adult_[G]_[XY]&quot;</span><span class="ot">]]</span></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span><span class="ot">]</span></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 <figure>
 <img src="figures/ex7a000.png" alt="Initial state" />
 <figcaption aria-hidden="true">Initial state</figcaption>
@@ -1468,6 +1581,7 @@ b, else, return c)</td>
 <ul>
 <li><a href="./examples/ex1a.json" target="_blank" rel="noreferrer">ex1a.json</a></li>
 <li><a href="./examples/ex1b.json" target="_blank" rel="noreferrer">ex1b.json</a></li>
+<li><a href="./examples/ex1c.json" target="_blank" rel="noreferrer">ex1c.json</a></li>
 <li><a href="./examples/ex1E.json" target="_blank" rel="noreferrer">ex1E.json</a></li>
 <li><a href="./examples/ex2a.json" target="_blank" rel="noreferrer">ex2a.json</a></li>
 <li><a href="./examples/ex2b.json" target="_blank" rel="noreferrer">ex2b.json</a></li>
@@ -1476,6 +1590,10 @@ b, else, return c)</td>
 <li><a href="./examples/ex4a.json" target="_blank" rel="noreferrer">ex4a.json</a></li>
 <li><a href="./examples/ex5a.json" target="_blank" rel="noreferrer">ex5a.json</a></li>
 <li><a href="./examples/ex6a.json" target="_blank" rel="noreferrer">ex6a.json</a></li>
+<li><a href="./examples/ex7a.json" target="_blank" rel="noreferrer">ex7a.json</a></li>
+<li><a href="./examples/ex8.json" target="_blank" rel="noreferrer">ex8.json</a></li>
+<li><a href="./examples/ex9.json" target="_blank" rel="noreferrer">ex9.json</a></li>
+<li><a href="./examples/ex10.json" target="_blank" rel="noreferrer">ex10.json</a></li>
 </ul>
 <h1 id="sandbox">SandBox</h1>
 <div class="myGroup">

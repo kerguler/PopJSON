@@ -269,7 +269,7 @@ void sim(int *tf, int *rep, double *envir, double *pr, double *y0, char **file_f
         breeding_site_sim_wrap(bsitevol,bsvol,model_param[bs_alpha],model_param[bs_beta],envir_prec[(int)(TIME-1)]);
 
         bsvol = bsitevol[0];
-        bsmort = (((bsvol > 0.75)) ? (0.5) : (0.0));
+        bsmort = (((bsvol > 0.5)) ? (0.25) : (0.0));
 
         if (*rep >= 0) {
                 par[0] = 0.0;

@@ -48,8 +48,8 @@ pre.sourceCode {
 
 # PopJSON
 
-We propose a JavaScript Object Notation (JSON) representation, named PopJSON, for communicating and storing population dynamics models. Ornamented with custom tags and operations, PopJSON describes the essentials of a dynamically-structured multi-process matrix population model. In its current implementation, PopJSON deals with the `sPop` models of Erguler et al. \[<a href="https://f1000research.com/articles/7-1220/v3" target="_blank" rel="noreferrer">sPop</a>, <a href="https://www.nature.com/articles/s41598-022-15806-2" target="_blank" rel="noreferrer">sPop2</a>, <a href="https://github.com/kerguler/Population" target="_blank" rel="noreferrer">Population</a>\], but soon will cover the canonical ODE and DDE models and more.
- 
+We propose a JavaScript Object Notation (JSON) representation, named PopJSON, for communicating and storing population dynamics models. Ornamented with custom tags and operations, PopJSON describes the essentials of a dynamically-structured multi-process matrix population model. PopJSON is primarily designed to handle the `sPop` models of Erguler et al. \[<a href="https://f1000research.com/articles/7-1220/v3" target="_blank" rel="noreferrer">sPop</a>, <a href="https://www.nature.com/articles/s41598-022-15806-2" target="_blank" rel="noreferrer">sPop2</a>, <a href="https://github.com/kerguler/Population" target="_blank" rel="noreferrer">Population</a>\], but recent versions can also parse simple ODE models and even embed one within another!
+
 PopJSON requires a parser to translate it into code that can either be directly interpreted or compiled into an executable. For the <a href="https://github.com/kerguler/Population" target="_blank" rel="noreferrer">Population</a> package, the output should be raw ANSI C, however, many other canonical models can be parsed into R, Python, or any other scientific programming language.
 
 In this repository, we included a <a href="https://github.com/kerguler/PopJSON/blob/main/wrappers/population.py" target="_blank" rel="noreferrer">wrapper</a> to read and simulate the translated models into `Python`. Soon, we will write another one for `R`.
@@ -58,9 +58,7 @@ We use the curly brackets \{\} throughout the text to group related tags and squ
 
 ## Model definition
 
-We define a model starting with the **model** tag. Here, the key tags are **type** and **parameters**. In this version of PopJSON, we covered the **Population** model, but we are working on including more canonical ODE, DDE, etc. models.
-
-The dynamics can either be deterministic or stochastic, which is determined using the boolean tag **deterministic**. If needed, we can set the precision of the accumulative process indicator (this is specific to the Population package) with the **istep** tag.  This effectively limits the maximum number of pseudo-stage classes.
+We define a **Population** model using the **model** tag, where the key fields are **type** and **parameters**. The system’s dynamics can be specified as either deterministic or stochastic via the boolean **deterministic** tag. If finer control is required, the **istep** tag can be used to set the precision of the accumulative process indicator (specific to the **Population** package), effectively limiting the maximum number of pseudo-stage classes.
 
 Before following the steps below, we recommend having a look at the <a href="https://kerguler.github.io/Population/" target="_blank" rel="noreferrer">Population</a> package description.
 
@@ -339,6 +337,111 @@ See [ex2b.json](./examples/ex2b.json) and [ex2b.c](./examples/ex2b.c) for full P
 The two triplets, [0,0,100] and [0,0.5,100], add two population sub-groups, one with 100 individuals with 0 age counter and 0 development counter and the other one with 100 individuals with 0 age counter and 0.5 development counter. The latter corresponds to about 5 days of pre-development, half of the mean, which will result in an early production of pupae as shown in the figure below.
 
 ![Setting the initial population](figures/ex2b.png "Deterministic - Erlang-distributed")
+
+## Simulating ODEs
+
+As of version 1.6.0, PopJSON also supports the representation of ODE models. To illustrate this, we use the classic Lorenz chaotic system as an example.
+
+To begin, set `type: "ODE"`. This is an early implementation, so for now models should remain deterministic (SDE support will be added later) and time-independent (DDE support is planned), and should use the `rk8pd` integration algorithm. Basic solver options, such as the initial step size, and the absolute and relative tolerances, can be specified.
+
+```json
+{
+    "model": {
+        "title": "Lorenz equations",
+        "type": "ODE",
+        "deterministic": true,
+        "parameters": {
+            "algorithm": "rk8pd",
+            "hstart": 1e-3,
+            "eps_abs": 1e-8,
+            "eps_rel": 1e-8
+        }
+    }
+}
+```
+
+We set three populations and four parameters:
+
+```json
+{
+    "parameters": [
+        {
+            "id": "sigma",
+            "constant": false,
+            "value": 10.0
+        }, {
+            "id": "rho",
+            "constant": false,
+            "value": 28.0
+        }, {
+            "id": "beta",
+            "constant": false,
+            "value": 2.6666666666666665
+        },{
+            "id": "time_scale",
+            "constant": false,
+            "value": 1.0
+        }
+    ],
+    "populations": [
+        {
+            "id": "xx"
+        },{
+            "id": "yy"
+        },{
+            "id": "zz"
+        }
+    ]
+}
+```
+
+The `time_scale` parameter is critical. Although the ODE system evolves in continuous time, outputs are recorded at discrete integer steps. As a result, substantial dynamics may occur within a single step - captured by the integrator but not directly visible in the output. If this becomes an issue, you can effectively slow down the system by adjusting `time_scale`.
+
+Also, using `x`, `y`, and `z` as population names may lead to namespace conflicts. If you specifically need to use `x` as a population name, let me know and I can look into resolving this.
+
+The ODE system is represented as a Petri net, defined by a list of **reactions**. The **from** and **to** fields encode the stoichiometry of each reaction. For example, `"from": {"xx": 1}` indicates that one unit of `xx` is consumed by that reaction.
+
+Here is the full Petri net:
+
+```json
+{
+        "reactions": [
+        {
+            "id": "r0",
+            "to": { "xx": 1 },
+            "value": ["*", "time_scale", "sigma", "yy"]
+        },{
+            "id": "r1",
+            "from": { "xx": 1 },
+            "value": ["*", "time_scale", "sigma", "xx"]
+        },{
+            "id": "r2",
+            "to": { "yy": 1 },
+            "value": ["*", "time_scale", "rho", "xx"]
+        },{
+            "id": "r3",
+            "from": { "yy": 1 },
+            "value": ["*", "time_scale", "xx", "zz"]
+        },{
+            "id": "r4",
+            "from": { "yy": 1 },
+            "value": ["*", "time_scale", "yy"]
+        },{
+            "id": "r5",
+            "to": { "zz": 1 },
+            "value": ["*", "time_scale", "xx", "yy"]
+        },{
+            "id": "r6",
+            "from": { "zz": 1 },
+            "value": ["*", "time_scale", "beta", "zz"]
+        }
+    ]
+}
+```
+See [ex8.json](./examples/ex8.json) and [ex8.c](./examples/ex8.c) for full PopJSON representation and C translation. Use [plot_ex8.py](./plot_ex8.py) to run the model.
+
+And, here is the result:
+![The butterfly effect!](figures/ex8.png "The Lorenz attractor")
 
 # Advanced usage
 
@@ -786,6 +889,10 @@ Finally, we define mobility for the three adult genotypes:
 
 See [ex7a.json](./examples/ex7a.json) and [ex7a.c](./examples/ex7a.c) for full PopJSON representation and C translation. Use [plot_ex7.py](./plot_ex7.py) to run the model.
 
+## Embedding models within models
+
+
+
 # Operators for equations
 
 | Operator    | Parameters    | Definition   |
@@ -826,6 +933,7 @@ See [ex7a.json](./examples/ex7a.json) and [ex7a.c](./examples/ex7a.c) for full P
 
  - <a href="./examples/ex1a.json" target="_blank" rel="noreferrer">ex1a.json</a>
  - <a href="./examples/ex1b.json" target="_blank" rel="noreferrer">ex1b.json</a>
+ - <a href="./examples/ex1c.json" target="_blank" rel="noreferrer">ex1c.json</a>
  - <a href="./examples/ex1E.json" target="_blank" rel="noreferrer">ex1E.json</a>
  - <a href="./examples/ex2a.json" target="_blank" rel="noreferrer">ex2a.json</a>
  - <a href="./examples/ex2b.json" target="_blank" rel="noreferrer">ex2b.json</a>
@@ -834,6 +942,10 @@ See [ex7a.json](./examples/ex7a.json) and [ex7a.c](./examples/ex7a.c) for full P
  - <a href="./examples/ex4a.json" target="_blank" rel="noreferrer">ex4a.json</a>
  - <a href="./examples/ex5a.json" target="_blank" rel="noreferrer">ex5a.json</a>
  - <a href="./examples/ex6a.json" target="_blank" rel="noreferrer">ex6a.json</a>
+ - <a href="./examples/ex7a.json" target="_blank" rel="noreferrer">ex7a.json</a>
+ - <a href="./examples/ex8.json" target="_blank" rel="noreferrer">ex8.json</a>
+ - <a href="./examples/ex9.json" target="_blank" rel="noreferrer">ex9.json</a>
+ - <a href="./examples/ex10.json" target="_blank" rel="noreferrer">ex10.json</a>
 
 # SandBox
 
