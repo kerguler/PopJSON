@@ -73,7 +73,7 @@
             "processes": [
                 {
                     "id": "larva_coef",
-                    "arbiter": "ACC_MEMORY",
+                    "arbiter": "MEMORY",
                     "evaluate": [{
                         "id": "bsitevol_larva",
                         "value": ["breeding_site", {
