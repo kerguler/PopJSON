@@ -196,7 +196,7 @@ module.exports = function getByteLength(string) {
 // Kamil: remove this later!
 const sanitize = require('sanitize-filename');
 
-const version = '1.6.1';
+const version = '1.6.2';
 const version_pop = '0.2.0';
 
 // const fs = require('fs');
@@ -806,6 +806,10 @@ class PopJSON {
             .forEach(p => {
                 that.header += `double ${p.id} = ${p.value};\n`;
             });
+        this.header += "\n";
+
+        this.header += "double dmin(double a, double b) { return a < b ? a : b; }\n";
+        this.header += "double dmax(double a, double b) { return a > b ? a : b; }\n";
         this.header += "\n";
 
         this.header += "int TIME;\n";
