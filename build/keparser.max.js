@@ -196,7 +196,7 @@ module.exports = function getByteLength(string) {
 // Kamil: remove this later!
 const sanitize = require('sanitize-filename');
 
-const version = '1.6.2';
+const version = '1.6.3';
 const version_pop = '0.2.0';
 
 // const fs = require('fs');
@@ -524,6 +524,7 @@ class PopJSON {
         //
         this.write_warranty();
         this.write_ode_header();
+        this.write_functions();
         this.write_ode_functions();
         this.write_ode_init();
         this.write_parnames();
