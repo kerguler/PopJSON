@@ -1,3 +1,4 @@
+from os import RTLD_LOCAL, RTLD_NOW
 import atexit
 import numpy
 import ctypes
@@ -10,16 +11,6 @@ array_1d_int = npct.ndpointer(dtype=numpy.int32, ndim=1, flags='CONTIGUOUS')
 dlclose_func = CDLL(None).dlclose
 dlclose_func.argtypes = (c_void_p,)
 dlclose_func.restype = c_int
-
-# Define if missing
-if not hasattr(ctypes, "RTLD_LOCAL"):
-    RTLD_LOCAL = 0
-if not hasattr(ctypes, "RTLD_GLOBAL"):
-    RTLD_GLOBAL = 0x100
-if not hasattr(ctypes, "RTLD_NOW"):
-    RTLD_NOW = 2
-if not hasattr(ctypes, "RTLD_LAZY"):
-    RTLD_LAZY = 1
 
 def calcEnsemble(sim):
     if len(sim)==0:

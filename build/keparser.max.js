@@ -196,7 +196,7 @@ module.exports = function getByteLength(string) {
 // Kamil: remove this later!
 const sanitize = require('sanitize-filename');
 
-const version = '1.6.4';
+const version = '1.6.5';
 const version_pop = '0.2.0';
 
 // const fs = require('fs');
