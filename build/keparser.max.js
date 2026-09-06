@@ -196,7 +196,7 @@ module.exports = function getByteLength(string) {
 // Kamil: remove this later!
 const sanitize = require('sanitize-filename');
 
-const version = '1.6.5';
+const version = '1.6.6';
 const version_pop = '0.2.0';
 
 // const fs = require('fs');
@@ -386,21 +386,21 @@ class PopJSON {
                 }
                 that.evaluations[id] = model;
             } );
-            this.processes.forEach( (proc) => {
-                if ('evaluate' in that.processobj[proc]) {
-                    that.processobj[proc]['evaluate'].forEach( (calc) => {
-                        let id = that.check_ids(calc['id']);
-                        let model = calc['value'][0];
-                        if (!(model in that.externals)) {
-                            that.error += "Wrong model evaluation request!\n";
-                            that.model = "";
-                            return(that.results());
-                        }
-                        that.evaluations[id] = model;
-                    });
-                } 
-            } );
         }
+        this.processes.forEach( (proc) => {
+            if ('evaluate' in that.processobj[proc]) {
+                that.processobj[proc]['evaluate'].forEach( (calc) => {
+                    let id = that.check_ids(calc['id']);
+                    let model = calc['value'][0];
+                    if (!(model in that.externals)) {
+                        that.error += "Wrong model evaluation request!\n";
+                        that.model = "";
+                        return(that.results());
+                    }
+                    that.evaluations[id] = model;
+                });
+            } 
+        } );
         //
         this.dummyids = [];
         this.processes.forEach( (proc) => {
